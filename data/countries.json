@@ -1,0 +1,407 @@
+[
+  {
+    "id": "008",
+    "name": "Albania",
+    "capital": "Tirana",
+    "population": "2.9 milioni",
+    "area": "28.748 km²",
+    "flag": "assets/flags/al.png",
+    "fact": "L'Albania ha oltre 750.000 bunker costruiti durante la Guerra Fredda, circa uno ogni quattro abitanti dell'epoca."
+  },
+  {
+    "id": "020",
+    "name": "Andorra",
+    "capital": "Andorra la Vella",
+    "population": "77.000",
+    "area": "468 km²",
+    "flag": "assets/flags/ad.png",
+    "fact": "Andorra è l'unico paese al mondo con il catalano come lingua ufficiale."
+  },
+  {
+    "id": "040",
+    "name": "Austria",
+    "capital": "Vienna",
+    "population": "9 milioni",
+    "area": "83.879 km²",
+    "flag": "assets/flags/at.png",
+    "fact": "Vienna ospita il parco di divertimenti più antico del mondo ancora in funzione: il Prater, aperto nel 1766."
+  },
+  {
+    "id": "056",
+    "name": "Belgio",
+    "capital": "Bruxelles",
+    "population": "11.5 milioni",
+    "area": "30.528 km²",
+    "flag": "assets/flags/be.png",
+    "fact": "Il Belgio produce 220.000 tonnellate di cioccolato all'anno e ha oltre 2.000 negozi di cioccolato."
+  },
+  {
+    "id": "070",
+    "name": "Bosnia ed Erzegovina",
+    "capital": "Sarajevo",
+    "population": "3.3 milioni",
+    "area": "51.197 km²",
+    "flag": "assets/flags/ba.png",
+    "fact": "Sarajevo fu la prima città in Europa ad avere una rete tranviaria a tempo pieno, dal 1885."
+  },
+  {
+    "id": "100",
+    "name": "Bulgaria",
+    "capital": "Sofia",
+    "population": "6.9 milioni",
+    "area": "110.879 km²",
+    "flag": "assets/flags/bg.png",
+    "fact": "In Bulgaria scuotere la testa significa 'sì' e annuire significa 'no'."
+  },
+  {
+    "id": "112",
+    "name": "Bielorussia",
+    "capital": "Minsk",
+    "population": "9.4 milioni",
+    "area": "207.600 km²",
+    "flag": "assets/flags/by.png",
+    "fact": "La Bielorussia ha una delle percentuali più alte di foreste in Europa, coprendo il 40% del territorio."
+  },
+  {
+    "id": "191",
+    "name": "Croazia",
+    "capital": "Zagabria",
+    "population": "4 milioni",
+    "area": "56.594 km²",
+    "flag": "assets/flags/hr.png",
+    "fact": "La cravatta moderna deriva dalla Croazia - i soldati croati indossavano sciarpe distintive nel XVII secolo."
+  },
+  {
+    "id": "196",
+    "name": "Cipro",
+    "capital": "Nicosia",
+    "population": "1.2 milioni",
+    "area": "9.251 km²",
+    "flag": "assets/flags/cy.png",
+    "fact": "Cipro è l'unico paese dell'UE completamente situato in Asia geograficamente."
+  },
+  {
+    "id": "203",
+    "name": "Repubblica Ceca",
+    "capital": "Praga",
+    "population": "10.7 milioni",
+    "area": "78.866 km²",
+    "flag": "assets/flags/cz.png",
+    "fact": "I cechi sono i maggiori consumatori di birra al mondo, con circa 142 litri pro capite all'anno."
+  },
+  {
+    "id": "208",
+    "name": "Danimarca",
+    "capital": "Copenaghen",
+    "population": "5.8 milioni",
+    "area": "42.924 km²",
+    "flag": "assets/flags/dk.png",
+    "fact": "La bandiera danese è la più antica bandiera nazionale ancora in uso, risalente al 1219."
+  },
+  {
+    "id": "233",
+    "name": "Estonia",
+    "capital": "Tallinn",
+    "population": "1.3 milioni",
+    "area": "45.228 km²",
+    "flag": "assets/flags/ee.png",
+    "fact": "L'Estonia è stata il primo paese al mondo a consentire il voto online nelle elezioni nazionali nel 2005."
+  },
+  {
+    "id": "246",
+    "name": "Finlandia",
+    "capital": "Helsinki",
+    "population": "5.5 milioni",
+    "area": "338.424 km²",
+    "flag": "assets/flags/fi.png",
+    "fact": "La Finlandia ha più saune che automobili - circa 3.3 milioni di saune per 5.5 milioni di abitanti."
+  },
+  {
+    "id": "250",
+    "name": "Francia",
+    "capital": "Parigi",
+    "population": "67 milioni",
+    "area": "643.801 km²",
+    "flag": "assets/flags/fr.png",
+    "fact": "La Francia è il paese più visitato al mondo con oltre 90 milioni di turisti all'anno."
+  },
+  {
+    "id": "276",
+    "name": "Germania",
+    "capital": "Berlino",
+    "population": "83 milioni",
+    "area": "357.386 km²",
+    "flag": "assets/flags/de.png",
+    "fact": "La Germania ha oltre 1.500 tipi di salsicce e circa 5.000 varietà di birra."
+  },
+  {
+    "id": "300",
+    "name": "Grecia",
+    "capital": "Atene",
+    "population": "10.4 milioni",
+    "area": "131.957 km²",
+    "flag": "assets/flags/gr.png",
+    "fact": "La Grecia ha più siti archeologici di qualsiasi altro paese al mondo."
+  },
+  {
+    "id": "348",
+    "name": "Ungheria",
+    "capital": "Budapest",
+    "population": "9.7 milioni",
+    "area": "93.028 km²",
+    "flag": "assets/flags/hu.png",
+    "fact": "L'Ungheria ha vinto più medaglie d'oro olimpiche pro capite di qualsiasi altro paese."
+  },
+  {
+    "id": "352",
+    "name": "Islanda",
+    "capital": "Reykjavík",
+    "population": "370.000",
+    "area": "103.000 km²",
+    "flag": "assets/flags/is.png",
+    "fact": "L'Islanda non ha esercito e non ha zanzare grazie al suo clima unico."
+  },
+  {
+    "id": "372",
+    "name": "Irlanda",
+    "capital": "Dublino",
+    "population": "5 milioni",
+    "area": "70.273 km²",
+    "flag": "assets/flags/ie.png",
+    "fact": "L'Irlanda è l'unico paese al mondo che ha un strumento musicale (l'arpa) come simbolo nazionale."
+  },
+  {
+    "id": "380",
+    "name": "Italia",
+    "capital": "Roma",
+    "population": "60 milioni",
+    "area": "301.340 km²",
+    "flag": "assets/flags/it.png",
+    "fact": "L'Italia ha più siti UNESCO Patrimonio dell'Umanità di qualsiasi altro paese al mondo (59)."
+  },
+  {
+    "id": "428",
+    "name": "Lettonia",
+    "capital": "Riga",
+    "population": "1.9 milioni",
+    "area": "64.589 km²",
+    "flag": "assets/flags/lv.png",
+    "fact": "Riga ha l'edificio in stile Art Nouveau più grande del mondo, con oltre 800 edifici in questo stile."
+  },
+  {
+    "id": "438",
+    "name": "Liechtenstein",
+    "capital": "Vaduz",
+    "population": "38.000",
+    "area": "160 km²",
+    "flag": "assets/flags/li.png",
+    "fact": "Il Liechtenstein è l'unico paese al mondo il cui nome deriva da quello di una famiglia che lo ha comprato."
+  },
+  {
+    "id": "440",
+    "name": "Lituania",
+    "capital": "Vilnius",
+    "population": "2.8 milioni",
+    "area": "65.300 km²",
+    "flag": "assets/flags/lt.png",
+    "fact": "La Lituania ha la connessione internet più veloce al mondo secondo alcuni studi."
+  },
+  {
+    "id": "442",
+    "name": "Lussemburgo",
+    "capital": "Lussemburgo",
+    "population": "640.000",
+    "area": "2.586 km²",
+    "flag": "assets/flags/lu.png",
+    "fact": "Il Lussemburgo ha il PIL pro capite più alto del mondo."
+  },
+  {
+    "id": "807",
+    "name": "Macedonia del Nord",
+    "capital": "Skopje",
+    "population": "2.1 milioni",
+    "area": "25.713 km²",
+    "flag": "assets/flags/mk.png",
+    "fact": "Madre Teresa di Calcutta è nata a Skopje, capitale della Macedonia del Nord."
+  },
+  {
+    "id": "470",
+    "name": "Malta",
+    "capital": "La Valletta",
+    "population": "515.000",
+    "area": "316 km²",
+    "flag": "assets/flags/mt.png",
+    "fact": "Malta è l'unico paese dell'UE dove la caccia agli uccelli primaverile è legale."
+  },
+  {
+    "id": "498",
+    "name": "Moldavia",
+    "capital": "Chișinău",
+    "population": "2.6 milioni",
+    "area": "33.846 km²",
+    "flag": "assets/flags/md.png",
+    "fact": "La Moldavia ha una delle più grandi collezioni di vino al mondo, con oltre 2 milioni di bottiglie."
+  },
+  {
+    "id": "492",
+    "name": "Monaco",
+    "capital": "Monaco",
+    "population": "39.000",
+    "area": "2 km²",
+    "flag": "assets/flags/mc.png",
+    "fact": "Monaco è il secondo paese più piccolo del mondo e il più densamente popolato."
+  },
+  {
+    "id": "499",
+    "name": "Montenegro",
+    "capital": "Podgorica",
+    "population": "620.000",
+    "area": "13.812 km²",
+    "flag": "assets/flags/me.png",
+    "fact": "Il Montenegro ha il canyon più profondo d'Europa: il Canyon del Tara, con 1.300 metri di profondità."
+  },
+  {
+    "id": "528",
+    "name": "Paesi Bassi",
+    "capital": "Amsterdam",
+    "population": "17.5 milioni",
+    "area": "41.543 km²",
+    "flag": "assets/flags/nl.png",
+    "fact": "Il 26% dei Paesi Bassi si trova sotto il livello del mare, incluso l'aeroporto di Schiphol."
+  },
+  {
+    "id": "578",
+    "name": "Norvegia",
+    "capital": "Oslo",
+    "population": "5.4 milioni",
+    "area": "323.802 km²",
+    "flag": "assets/flags/no.png",
+    "fact": "La Norvegia regala ogni anno un albero di Natale al Regno Unito dal 1947, come ringraziamento per il supporto durante la WWII."
+  },
+  {
+    "id": "616",
+    "name": "Polonia",
+    "capital": "Varsavia",
+    "population": "38 milioni",
+    "area": "312.696 km²",
+    "flag": "assets/flags/pl.png",
+    "fact": "La Polonia ha 17 premi Nobel, più di Giappone, Cina e India messi insieme."
+  },
+  {
+    "id": "620",
+    "name": "Portogallo",
+    "capital": "Lisbona",
+    "population": "10.3 milioni",
+    "area": "92.090 km²",
+    "flag": "assets/flags/pt.png",
+    "fact": "Il Portogallo è il paese più occidentale dell'Europa continentale e ha la libreria più antica del mondo (1732)."
+  },
+  {
+    "id": "642",
+    "name": "Romania",
+    "capital": "Bucarest",
+    "population": "19 milioni",
+    "area": "238.397 km²",
+    "flag": "assets/flags/ro.png",
+    "fact": "Il Palazzo del Parlamento di Bucarest è il secondo edificio amministrativo più grande del mondo dopo il Pentagono."
+  },
+  {
+    "id": "643",
+    "name": "Russia",
+    "capital": "Mosca",
+    "population": "144 milioni",
+    "area": "17.098.242 km²",
+    "flag": "assets/flags/ru.png",
+    "fact": "La Russia copre 11 fusi orari, più di qualsiasi altro paese al mondo."
+  },
+  {
+    "id": "674",
+    "name": "San Marino",
+    "capital": "San Marino",
+    "population": "34.000",
+    "area": "61 km²",
+    "flag": "assets/flags/sm.png",
+    "fact": "San Marino è la più antica repubblica del mondo ancora esistente, fondata nel 301 d.C."
+  },
+  {
+    "id": "688",
+    "name": "Serbia",
+    "capital": "Belgrado",
+    "population": "6.9 milioni",
+    "area": "88.361 km²",
+    "flag": "assets/flags/rs.png",
+    "fact": "Nikola Tesla, uno dei più grandi inventori della storia, era serbo."
+  },
+  {
+    "id": "703",
+    "name": "Slovacchia",
+    "capital": "Bratislava",
+    "population": "5.4 milioni",
+    "area": "49.035 km²",
+    "flag": "assets/flags/sk.png",
+    "fact": "La Slovacchia ha più di 6.000 grotte, di cui 18 aperte al pubblico."
+  },
+  {
+    "id": "705",
+    "name": "Slovenia",
+    "capital": "Lubiana",
+    "population": "2.1 milioni",
+    "area": "20.273 km²",
+    "flag": "assets/flags/si.png",
+    "fact": "La Slovenia è uno dei paesi più verdi del mondo, con oltre il 60% del territorio coperto da foreste."
+  },
+  {
+    "id": "724",
+    "name": "Spagna",
+    "capital": "Madrid",
+    "population": "47 milioni",
+    "area": "505.990 km²",
+    "flag": "assets/flags/es.png",
+    "fact": "La Spagna ha più bar per abitante di qualsiasi altro paese dell'Unione Europea."
+  },
+  {
+    "id": "752",
+    "name": "Svezia",
+    "capital": "Stoccolma",
+    "population": "10.4 milioni",
+    "area": "450.295 km²",
+    "flag": "assets/flags/se.png",
+    "fact": "La Svezia non è stata in guerra per oltre 200 anni, dal 1814."
+  },
+  {
+    "id": "756",
+    "name": "Svizzera",
+    "capital": "Berna",
+    "population": "8.7 milioni",
+    "area": "41.285 km²",
+    "flag": "assets/flags/ch.png",
+    "fact": "La Svizzera ha 4 lingue ufficiali: tedesco, francese, italiano e romancio."
+  },
+  {
+    "id": "804",
+    "name": "Ucraina",
+    "capital": "Kiev",
+    "population": "41 milioni",
+    "area": "603.550 km²",
+    "flag": "assets/flags/ua.png",
+    "fact": "L'Ucraina è il paese più grande interamente in Europa per superficie."
+  },
+  {
+    "id": "826",
+    "name": "Regno Unito",
+    "capital": "Londra",
+    "population": "67 milioni",
+    "area": "242.495 km²",
+    "flag": "assets/flags/gb.png",
+    "fact": "Il Big Ben non è la torre, ma la campana all'interno che pesa 13.7 tonnellate."
+  },
+  {
+    "id": "336",
+    "name": "Città del Vaticano",
+    "capital": "Città del Vaticano",
+    "population": "800",
+    "area": "0.44 km²",
+    "flag": "assets/flags/va.png",
+    "fact": "Il Vaticano è lo stato più piccolo del mondo e ha il tasso di criminalità più alto pro capite (dovuto ai turisti)."
+  }
+]

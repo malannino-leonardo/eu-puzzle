@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Puzzle Europa - Ricostruisci il Continente!</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- D3.js e TopoJSON per geometrie -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/topojson-client@3"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="game-header">
+        <h1>🧩 Puzzle Europa</h1>
+        <div class="header-controls">
+            <button id="btn-reset" class="btn" aria-label="Ricomincia il gioco">
+                🔄 Reset
+            </button>
+            <button id="btn-music" class="btn" aria-label="Attiva/disattiva musica">
+                🔊 Musica
+            </button>
+            <button id="btn-hint" class="btn" aria-label="Mostra suggerimento">
+                💡 Suggerimento
+            </button>
+            <div class="progress-container">
+                <span id="progress-text">0 / 0</span>
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="game-main">
+        <!-- SVG Board -->
+        <div class="board-container" id="board-container">
+            <svg id="game-board" class="game-board" aria-label="Tavola del puzzle Europa">
+                <defs>
+                    <!-- Glow filters -->
+                    <filter id="glow-green" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                    <filter id="glow-red" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feColorMatrix type="matrix" values="1 0 0 0 0.8  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                    <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.3"/>
+                    </filter>
+                </defs>
+                <!-- Clusters will be appended here -->
+                <g id="clusters-container"></g>
+            </svg>
+            
+            <!-- Overlay for completion -->
+            <div id="completion-overlay" class="completion-overlay hidden">
+                <div class="completion-content">
+                    <h2>🎉 COMPLETATO!</h2>
+                    <p>Hai ricostruito l'Europa!</p>
+                    <button id="btn-restart" class="btn btn-large">🔄 Gioca ancora</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <aside id="info-panel" class="info-panel" aria-live="polite">
+            <div class="info-header">
+                <h2 id="info-country-name">Seleziona un paese</h2>
+                <button id="btn-close-panel" class="btn-close" aria-label="Chiudi pannello">×</button>
+            </div>
+            <div class="info-body">
+                <div class="info-flag" id="info-flag">
+                    <img src="" alt="" id="info-flag-img">
+                </div>
+                <div class="info-details">
+                    <p><strong>Capitale:</strong> <span id="info-capital">-</span></p>
+                    <p><strong>Popolazione:</strong> <span id="info-population">-</span></p>
+                    <p><strong>Superficie:</strong> <span id="info-area">-</span></p>
+                    <p><strong>Curiosità:</strong></p>
+                    <p id="info-fact" class="info-fact">-</p>
+                </div>
+                <div class="info-status" id="info-status">
+                    <!-- Status badge -->
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Accessibility: Click-to-select mode toggle -->
+    <div class="accessibility-bar">
+        <label class="toggle-label">
+            <input type="checkbox" id="click-mode-toggle">
+            <span>Modalità click (accessibilità)</span>
+        </label>
+    </div>
+
+    <!-- Audio elements -->
+    <audio id="audio-bg" loop preload="auto">
+        <source src="assets/sfx/bg.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="audio-correct" preload="auto">
+        <source src="assets/sfx/correct.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="audio-wrong" preload="auto">
+        <source src="assets/sfx/wrong.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Main Script -->
+    <script src="app.js"></script>
+</body>
+</html>

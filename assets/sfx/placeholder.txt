@@ -1,0 +1,2 @@
+/* Placeholder file - Replace with actual audio */
+/* correct.mp3 - Sound effect for successful snap */

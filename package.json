@@ -1,0 +1,17 @@
+{
+  "name": "puzzle-europa",
+  "version": "1.0.0",
+  "description": "Un puzzle interattivo per ricostruire l'Europa con i contorni reali dei paesi",
+  "author": "Puzzle Europa Team",
+  "license": "MIT",
+  "scripts": {
+    "start": "npx serve .",
+    "build": "node scripts/build-map.js",
+    "dev": "npx live-server --port=3000"
+  },
+  "devDependencies": {
+    "d3-geo": "^3.1.0",
+    "topojson-client": "^3.1.0",
+    "topojson-server": "^3.0.1"
+  }
+}

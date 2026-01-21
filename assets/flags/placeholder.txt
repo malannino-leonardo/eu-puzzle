@@ -1,0 +1,8 @@
+/* Placeholder - Add country flag images here */
+/* Format: [country-code].png (e.g., it.png, fr.png, de.png) */
+/* Recommended size: 300x200 pixels */
+/* 
+Download flags from: 
+- https://flagcdn.com/
+- https://www.countryflags.com/
+*/
