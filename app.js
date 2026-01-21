@@ -121,6 +121,15 @@
         projection: null,
         pathGenerator: null,
         
+        // Zoom and pan state
+        viewBox: { x: 0, y: 0, w: 1000, h: 700 },
+        isPanning: false,
+        panStart: { x: 0, y: 0 },
+        viewBoxStart: { x: 0, y: 0 },
+        zoomLevel: 1,
+        minZoom: 0.5,
+        maxZoom: 4,
+        
         // Game progress
         totalCountries: 0,
         connectedCountries: 0,
@@ -164,8 +173,8 @@
             
             showLoading(false);
             
-            console.log('🎮 Puzzle Europa initialized!');
-            console.log(`📊 Loaded ${state.countries.size} countries`);
+            console.log('[Puzzle Europa] Initialized!');
+            console.log(`[Info] Loaded ${state.countries.size} countries`);
             
         } catch (error) {
             console.error('Failed to initialize game:', error);
@@ -183,8 +192,16 @@
         CONFIG.BOARD_WIDTH = rect.width;
         CONFIG.BOARD_HEIGHT = rect.height;
         
+        // Initialize viewBox state
+        state.viewBox = { x: 0, y: 0, w: CONFIG.BOARD_WIDTH, h: CONFIG.BOARD_HEIGHT };
+        
         // Set SVG viewBox
-        state.svg.setAttribute('viewBox', `0 0 ${CONFIG.BOARD_WIDTH} ${CONFIG.BOARD_HEIGHT}`);
+        updateViewBox();
+    }
+    
+    function updateViewBox() {
+        const { x, y, w, h } = state.viewBox;
+        state.svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
     }
 
     async function loadCountryInfo() {
@@ -235,16 +252,22 @@
             const id = String(feature.id || feature.properties?.iso_n3 || Math.random());
             const name = feature.properties?.name || 'Unknown';
             
+            const filteredFeature = filterFeatureToEurope(feature, state.pathGenerator);
+            if (!filteredFeature) {
+                console.log(`[Skip] ${name} - no European geometry after filtering`);
+                return;
+            }
+            
             // Generate SVG path
-            const pathD = state.pathGenerator(feature);
+            const pathD = state.pathGenerator(filteredFeature);
             if (!pathD) return;
             
             // Calculate centroid for snapping calculations
-            const centroid = state.pathGenerator.centroid(feature);
+            const centroid = state.pathGenerator.centroid(filteredFeature);
             if (!centroid || isNaN(centroid[0])) return;
             
             // Calculate bounds
-            const bounds = state.pathGenerator.bounds(feature);
+            const bounds = state.pathGenerator.bounds(filteredFeature);
             
             state.countries.set(id, {
                 id,
@@ -252,7 +275,7 @@
                 pathD,
                 centroid,
                 bounds,
-                feature
+                feature: filteredFeature
             });
         });
         
@@ -277,6 +300,59 @@
         
         const nameLower = name.toLowerCase();
         return europeanNames.some(n => nameLower.includes(n));
+    }
+    
+    // Check if geometry centroid is within European bounds (exclude overseas territories)
+    function isInEuropeanBounds(feature, pathGenerator) {
+        return isGeometryInEuropeanBounds(feature.geometry, pathGenerator);
+    }
+
+    function isGeometryInEuropeanBounds(geometry, pathGenerator) {
+        const tempFeature = { type: 'Feature', properties: {}, geometry };
+        const bounds = pathGenerator.bounds(tempFeature);
+        if (!bounds) return false;
+        
+        const minX = bounds[0][0];
+        const maxX = bounds[1][0];
+        const minY = bounds[0][1];
+        const maxY = bounds[1][1];
+        
+        const cx = (minX + maxX) / 2;
+        const cy = (minY + maxY) / 2;
+        
+        const europeMinX = -500;
+        const europeMaxX = 1500;
+        const europeMinY = -200;
+        const europeMaxY = 1200;
+        
+        return cx >= europeMinX && cx <= europeMaxX && cy >= europeMinY && cy <= europeMaxY;
+    }
+
+    function filterFeatureToEurope(feature, pathGenerator) {
+        if (!feature?.geometry) return null;
+        
+        const geometry = feature.geometry;
+        if (geometry.type === 'Polygon') {
+            return isGeometryInEuropeanBounds(geometry, pathGenerator) ? feature : null;
+        }
+        
+        if (geometry.type === 'MultiPolygon') {
+            const kept = geometry.coordinates.filter(coords => {
+                const polygonGeometry = { type: 'Polygon', coordinates: coords };
+                return isGeometryInEuropeanBounds(polygonGeometry, pathGenerator);
+            });
+            
+            if (!kept.length) return null;
+            return {
+                ...feature,
+                geometry: {
+                    type: 'MultiPolygon',
+                    coordinates: kept
+                }
+            };
+        }
+        
+        return feature;
     }
 
     function calculateAdjacencies() {
@@ -424,27 +500,43 @@
         const width = CONFIG.BOARD_WIDTH;
         const height = CONFIG.BOARD_HEIGHT;
         
-        // Calculate the "correct" center area (where Europe should be assembled)
+        // Calculate the center area to avoid (where Europe will be assembled)
         const centerX = width / 2;
         const centerY = height / 2;
-        const safeRadius = Math.min(width, height) * 0.25;
+        const avoidRadius = Math.min(width, height) * 0.15;
         
-        state.clusters.forEach(cluster => {
-            let x, y;
-            let attempts = 0;
+        // Define scatter zones around the edges of the board
+        const margin = 80;
+        const scatterWidth = Math.min(200, width * 0.25);
+        const scatterHeight = Math.min(200, height * 0.25);
+        
+        const zones = [
+            // Top edge
+            { x: margin, y: margin, w: width - 2 * margin, h: scatterHeight },
+            // Bottom edge
+            { x: margin, y: height - margin - scatterHeight, w: width - 2 * margin, h: scatterHeight },
+            // Left edge
+            { x: margin, y: margin + scatterHeight, w: scatterWidth, h: height - 2 * margin - 2 * scatterHeight },
+            // Right edge
+            { x: width - margin - scatterWidth, y: margin + scatterHeight, w: scatterWidth, h: height - 2 * margin - 2 * scatterHeight }
+        ];
+        
+        const clustersArray = Array.from(state.clusters.values());
+        
+        clustersArray.forEach((cluster, index) => {
+            // Distribute clusters across zones
+            const zone = zones[index % zones.length];
             
-            // Generate random position avoiding the center
-            do {
-                x = padding + Math.random() * (width - 2 * padding) - width / 2;
-                y = padding + Math.random() * (height - 2 * padding) - height / 2;
-                attempts++;
-            } while (
-                Math.sqrt(x * x + y * y) < safeRadius && 
-                attempts < 50
-            );
+            // Random position within the zone, then offset to keep pieces visible
+            const localX = zone.x + Math.random() * zone.w;
+            const localY = zone.y + Math.random() * zone.h;
             
-            // Random rotation
-            const rotation = (Math.random() - 0.5) * CONFIG.ROTATION_RANGE * 2;
+            // Convert to transform offset from center (since paths are in map space centered)
+            const x = localX - centerX;
+            const y = localY - centerY;
+            
+            // Small random rotation
+            const rotation = (Math.random() - 0.5) * CONFIG.ROTATION_RANGE;
             
             cluster.transform = { x, y, rotation };
             updateClusterTransform(cluster.element, cluster.transform);
@@ -639,6 +731,18 @@
         state.svg.addEventListener('pointerup', onPointerUp);
         state.svg.addEventListener('pointercancel', onPointerUp);
         
+        // Zoom with mouse wheel
+        state.svg.addEventListener('wheel', onWheel, { passive: false });
+        
+        // Right mouse button for panning
+        state.svg.addEventListener('mousedown', onMouseDownPan);
+        state.svg.addEventListener('mousemove', onMouseMovePan);
+        state.svg.addEventListener('mouseup', onMouseUpPan);
+        state.svg.addEventListener('mouseleave', onMouseUpPan);
+        
+        // Prevent context menu on right-click (for pan)
+        state.svg.addEventListener('contextmenu', e => e.preventDefault());
+        
         // Prevent default touch behaviors
         state.svg.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
         
@@ -658,6 +762,11 @@
         document.getElementById('btn-hint').addEventListener('click', showHint);
         document.getElementById('btn-close-panel').addEventListener('click', closeInfoPanel);
         document.getElementById('btn-restart').addEventListener('click', resetGame);
+        
+        // Zoom controls
+        document.getElementById('btn-zoom-in').addEventListener('click', zoomIn);
+        document.getElementById('btn-zoom-out').addEventListener('click', zoomOut);
+        document.getElementById('btn-zoom-reset').addEventListener('click', resetZoom);
         
         // Accessibility mode toggle
         document.getElementById('click-mode-toggle').addEventListener('change', toggleClickMode);
@@ -790,6 +899,129 @@
         pt.x = e.clientX;
         pt.y = e.clientY;
         return pt.matrixTransform(svg.getScreenCTM().inverse());
+    }
+
+    // =====================================================
+    // ZOOM AND PAN
+    // =====================================================
+    
+    function onWheel(e) {
+        e.preventDefault();
+        
+        // Inverted: scroll up (negative deltaY) = zoom in, scroll down = zoom out
+        const delta = e.deltaY < 0 ? 1.1 : 0.9;
+        const newZoom = state.zoomLevel * delta;
+        
+        // Clamp zoom level
+        if (newZoom < state.minZoom || newZoom > state.maxZoom) return;
+        
+        // Get mouse position in SVG coordinates before zoom
+        const svgPoint = getSVGPoint(e);
+        
+        // Calculate new viewBox dimensions
+        const newW = CONFIG.BOARD_WIDTH / newZoom;
+        const newH = CONFIG.BOARD_HEIGHT / newZoom;
+        
+        // Calculate new viewBox position to zoom towards mouse cursor
+        const dx = (state.viewBox.w - newW) * ((svgPoint.x - state.viewBox.x) / state.viewBox.w);
+        const dy = (state.viewBox.h - newH) * ((svgPoint.y - state.viewBox.y) / state.viewBox.h);
+        
+        state.viewBox.x += dx;
+        state.viewBox.y += dy;
+        state.viewBox.w = newW;
+        state.viewBox.h = newH;
+        state.zoomLevel = newZoom;
+        
+        updateViewBox();
+        updateZoomDisplay();
+    }
+    
+    function onMouseDownPan(e) {
+        // Right mouse button (button === 2) for panning
+        if (e.button === 2) {
+            e.preventDefault();
+            state.isPanning = true;
+            state.panStart = { x: e.clientX, y: e.clientY };
+            state.viewBoxStart = { x: state.viewBox.x, y: state.viewBox.y };
+            state.svg.style.cursor = 'grabbing';
+        }
+    }
+    
+    function onMouseMovePan(e) {
+        if (!state.isPanning) return;
+        
+        // Calculate how much to pan based on current zoom level
+        const scale = state.viewBox.w / CONFIG.BOARD_WIDTH;
+        const dx = (state.panStart.x - e.clientX) * scale;
+        const dy = (state.panStart.y - e.clientY) * scale;
+        
+        state.viewBox.x = state.viewBoxStart.x + dx;
+        state.viewBox.y = state.viewBoxStart.y + dy;
+        
+        updateViewBox();
+    }
+    
+    function onMouseUpPan(e) {
+        if (state.isPanning) {
+            state.isPanning = false;
+            state.svg.style.cursor = '';
+        }
+    }
+    
+    function updateZoomDisplay() {
+        const zoomText = document.getElementById('zoom-level-text');
+        if (zoomText) {
+            zoomText.textContent = Math.round(state.zoomLevel * 100) + '%';
+        }
+    }
+    
+    function zoomIn() {
+        const newZoom = state.zoomLevel * 1.2;
+        if (newZoom > state.maxZoom) return;
+        
+        // Zoom towards center
+        const centerX = state.viewBox.x + state.viewBox.w / 2;
+        const centerY = state.viewBox.y + state.viewBox.h / 2;
+        
+        const newW = CONFIG.BOARD_WIDTH / newZoom;
+        const newH = CONFIG.BOARD_HEIGHT / newZoom;
+        
+        state.viewBox.x = centerX - newW / 2;
+        state.viewBox.y = centerY - newH / 2;
+        state.viewBox.w = newW;
+        state.viewBox.h = newH;
+        state.zoomLevel = newZoom;
+        
+        updateViewBox();
+        updateZoomDisplay();
+    }
+    
+    function zoomOut() {
+        const newZoom = state.zoomLevel * 0.8;
+        if (newZoom < state.minZoom) return;
+        
+        // Zoom from center
+        const centerX = state.viewBox.x + state.viewBox.w / 2;
+        const centerY = state.viewBox.y + state.viewBox.h / 2;
+        
+        const newW = CONFIG.BOARD_WIDTH / newZoom;
+        const newH = CONFIG.BOARD_HEIGHT / newZoom;
+        
+        state.viewBox.x = centerX - newW / 2;
+        state.viewBox.y = centerY - newH / 2;
+        state.viewBox.w = newW;
+        state.viewBox.h = newH;
+        state.zoomLevel = newZoom;
+        
+        updateViewBox();
+        updateZoomDisplay();
+    }
+    
+    function resetZoom() {
+        state.zoomLevel = 1;
+        state.viewBox = { x: 0, y: 0, w: CONFIG.BOARD_WIDTH, h: CONFIG.BOARD_HEIGHT };
+        updateViewBox();
+        updateZoomDisplay();
     }
 
     function onKeyDown(e) {
@@ -936,6 +1168,19 @@
     // INFO PANEL
     // =====================================================
 
+    // Map country ISO codes to flag file codes
+    const countryFlagMap = {
+        '008': 'al', '020': 'ad', '040': 'at', '056': 'be', '070': 'ba',
+        '100': 'bg', '112': 'by', '191': 'hr', '196': 'cy', '203': 'cz',
+        '208': 'dk', '233': 'ee', '246': 'fi', '250': 'fr', '276': 'de',
+        '300': 'gr', '348': 'hu', '352': 'is', '372': 'ie', '380': 'it',
+        '428': 'lv', '438': 'li', '440': 'lt', '442': 'lu', '807': 'mk',
+        '470': 'mt', '498': 'md', '492': 'mc', '499': 'me', '528': 'nl',
+        '578': 'no', '616': 'pl', '620': 'pt', '642': 'ro', '643': 'ru',
+        '674': 'sm', '688': 'rs', '703': 'sk', '705': 'si', '724': 'es',
+        '752': 'se', '756': 'ch', '804': 'ua', '826': 'gb', '336': 'va'
+    };
+    
     function showCountryInfo(countryId) {
         const country = state.countries.get(countryId);
         const info = state.countryInfo.get(countryId) || {};
@@ -954,18 +1199,42 @@
         document.getElementById('info-area').textContent = info.area || 'N/D';
         document.getElementById('info-fact').textContent = info.fact || 'Informazioni non disponibili.';
         
-        // Flag
-        const flagImg = document.getElementById('info-flag-img');
-        const flagPath = info.flag || `assets/flags/${countryId}.png`;
-        flagImg.src = flagPath;
-        flagImg.alt = `Bandiera di ${info.name || country.name}`;
-        flagImg.onerror = () => { flagImg.src = ''; };
+        // Flag - use SVG from data/flags folder
+        const flagContainer = document.getElementById('info-flag');
+        const flagCode = countryFlagMap[countryId] || countryId.toLowerCase();
+        const flagPath = `data/flags/${flagCode}.svg`;
+        
+        // Load SVG flag
+        fetch(flagPath)
+            .then(response => {
+                if (!response.ok) throw new Error('Flag not found');
+                return response.text();
+            })
+            .then(svgContent => {
+                flagContainer.innerHTML = svgContent;
+                const svgEl = flagContainer.querySelector('svg');
+                if (svgEl) {
+                    const width = parseFloat(svgEl.getAttribute('width')) || 640;
+                    const height = parseFloat(svgEl.getAttribute('height')) || 480;
+                    
+                    svgEl.setAttribute('viewBox', `0 0 ${width} ${height}`);
+                    svgEl.removeAttribute('width');
+                    svgEl.removeAttribute('height');
+                    svgEl.style.width = '100%';
+                    svgEl.style.height = '100%';
+                    svgEl.style.display = 'block';
+                    svgEl.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+                }
+            })
+            .catch(() => {
+                flagContainer.innerHTML = '<div class="flag-placeholder"></div>';
+            });
         
         // Status
         const statusEl = document.getElementById('info-status');
         statusEl.innerHTML = isConnected
-            ? '<span class="status-badge connected">✓ Collegato</span>'
-            : '<span class="status-badge loose">○ Non collegato</span>';
+            ? '<span class="status-badge connected"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Collegato</span>'
+            : '<span class="status-badge loose"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg> Non collegato</span>';
         
         // Show panel
         panel.classList.remove('hidden');
@@ -1106,15 +1375,19 @@
         state.musicEnabled = !state.musicEnabled;
         const btn = document.getElementById('btn-music');
         const audio = document.getElementById('audio-bg');
+        const iconOn = btn.querySelector('.icon-volume-on');
+        const iconOff = btn.querySelector('.icon-volume-off');
         
         if (state.musicEnabled) {
             audio.play().catch(() => {});
-            btn.textContent = '🔊 Musica';
             btn.classList.remove('muted');
+            if (iconOn) iconOn.classList.remove('hidden');
+            if (iconOff) iconOff.classList.add('hidden');
         } else {
             audio.pause();
-            btn.textContent = '🔇 Musica';
             btn.classList.add('muted');
+            if (iconOn) iconOn.classList.add('hidden');
+            if (iconOff) iconOff.classList.remove('hidden');
         }
     }
 
@@ -1159,7 +1432,8 @@
         const overlay = document.querySelector('.loading-overlay');
         if (overlay) {
             overlay.innerHTML = `
-                <p class="loading-text" style="color: #ef4444;">❌ ${message}</p>
+                <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" width="48" height="48"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                <p class="loading-text" style="color: #ef4444;">${message}</p>
             `;
         }
     }

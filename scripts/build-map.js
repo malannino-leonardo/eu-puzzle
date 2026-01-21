@@ -40,7 +40,7 @@ const TOPOJSON_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.j
 
 async function downloadJSON(url) {
     return new Promise((resolve, reject) => {
-        console.log(`📥 Scaricamento da: ${url}`);
+        console.log(`[Download] ${url}`);
         
         https.get(url, (response) => {
             let data = '';
@@ -68,18 +68,18 @@ function isEuropeanCountry(id, name) {
 }
 
 async function buildMap() {
-    console.log('🚀 Inizio build mappa Europa...\n');
+    console.log('[Build] Inizio build mappa Europa...\n');
     
     try {
         // 1. Scarica TopoJSON
         const topology = await downloadJSON(TOPOJSON_URL);
-        console.log('✅ TopoJSON scaricato\n');
+        console.log('[OK] TopoJSON scaricato\n');
         
         // 2. Estrai la chiave degli oggetti
         const objectKey = Object.keys(topology.objects)[0];
         const geometries = topology.objects[objectKey].geometries;
         
-        console.log(`📊 Totale geometrie nel file: ${geometries.length}`);
+        console.log(`[Info] Totale geometrie nel file: ${geometries.length}`);
         
         // 3. Filtra paesi europei
         const europeanGeometries = geometries.filter(geo => {
@@ -88,7 +88,7 @@ async function buildMap() {
             return isEuropeanCountry(id, name);
         });
         
-        console.log(`🇪🇺 Paesi europei trovati: ${europeanGeometries.length}\n`);
+        console.log(`[Europa] Paesi europei trovati: ${europeanGeometries.length}\n`);
         
         // Lista paesi trovati
         europeanGeometries.forEach(geo => {
@@ -120,11 +120,11 @@ async function buildMap() {
         fs.writeFileSync(outputPath, JSON.stringify(europeTopology));
         
         const fileSizeKB = (fs.statSync(outputPath).size / 1024).toFixed(2);
-        console.log(`\n✅ File salvato: ${outputPath}`);
-        console.log(`📦 Dimensione: ${fileSizeKB} KB\n`);
+        console.log(`\n[OK] File salvato: ${outputPath}`);
+        console.log(`[Info] Dimensione: ${fileSizeKB} KB\n`);
         
         // 6. Genera anche lista adiacenze (se non esiste già una migliore)
-        console.log('📝 Verifica file adiacenze...');
+        console.log('[Check] Verifica file adiacenze...');
         const adjPath = path.join(outputDir, 'adjacencies.json');
         
         if (fs.existsSync(adjPath)) {
@@ -133,13 +133,13 @@ async function buildMap() {
             console.log('   File adiacenze non trovato, verrà usato il calcolo runtime.\n');
         }
         
-        console.log('🎉 Build completato con successo!');
-        console.log('\n📋 Prossimi passi:');
+        console.log('[Done] Build completato con successo!');
+        console.log('\n[Next] Prossimi passi:');
         console.log('   1. Avvia un server locale: npm start');
         console.log('   2. Apri http://localhost:5000 nel browser');
         
     } catch (error) {
-        console.error('❌ Errore durante la build:', error);
+        console.error('[Error] Errore durante la build:', error);
         process.exit(1);
     }
 }

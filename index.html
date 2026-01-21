@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Puzzle Europa - Ricostruisci il Continente!</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
     <!-- D3.js e TopoJSON per geometrie -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -12,16 +13,20 @@
 <body>
     <!-- Header -->
     <header class="game-header">
-        <h1>🧩 Puzzle Europa</h1>
+        <h1><svg class="icon icon-puzzle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.452-.968-.904-.296-.807-1.069-1.387-1.99-1.387-.673 0-1.283.282-1.716.734-.433.453-.684 1.068-.684 1.746 0 1.197-.956 2.17-2.135 2.17H9.25c-.294 0-.575-.058-.832-.162a2.126 2.126 0 0 1-.933-.681c-.223-.281-.38-.614-.458-.975a2.142 2.142 0 0 1 .068-1.052c.121-.348.16-.727.055-1.086-.228-.776-.903-1.37-1.733-1.37-.872 0-1.613.507-1.954 1.25-.166.363-.468.685-.891.685H2.17c-1.179 0-2.135-.973-2.135-2.17V9.917c0-.297.057-.58.161-.837.104-.256.256-.49.448-.693.192-.202.419-.367.67-.482.251-.116.523-.176.802-.176.695 0 1.318-.327 1.741-.777.424-.451.686-1.067.686-1.75 0-1.197.956-2.17 2.135-2.17h2.115c.294 0 .575.058.832.162.257.104.488.256.685.45.197.194.357.422.473.675.116.253.177.527.177.823 0 .59.177 1.14.494 1.6.316.458.76.823 1.285 1.044.524.22 1.1.29 1.666.2.566-.089 1.088-.33 1.51-.716.421-.385.725-.89.88-1.454l.07-.257c.136-.502.492-.907.967-.976.474-.07.974.09 1.336.452l1.548 1.548c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.568 1.568c-.23.23-.338.556-.289.878Z"/></svg> Puzzle Europa</h1>
         <div class="header-controls">
             <button id="btn-reset" class="btn" aria-label="Ricomincia il gioco">
-                🔄 Reset
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span>Reset</span>
             </button>
             <button id="btn-music" class="btn" aria-label="Attiva/disattiva musica">
-                🔊 Musica
+                <svg class="icon icon-volume-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                <svg class="icon icon-volume-off hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                <span>Musica</span>
             </button>
             <button id="btn-hint" class="btn" aria-label="Mostra suggerimento">
-                💡 Suggerimento
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+                <span>Suggerimento</span>
             </button>
             <div class="progress-container">
                 <span id="progress-text">0 / 0</span>
@@ -62,25 +67,43 @@
                 <g id="clusters-container"></g>
             </svg>
             
+            <!-- Zoom Controls -->
+            <div class="zoom-controls">
+                <button id="btn-zoom-out" class="zoom-btn" aria-label="Zoom out">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+                <button id="btn-zoom-reset" class="zoom-btn zoom-level" aria-label="Reset zoom">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <span id="zoom-level-text">100%</span>
+                </button>
+                <button id="btn-zoom-in" class="zoom-btn" aria-label="Zoom in">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+            </div>
+
             <!-- Overlay for completion -->
             <div id="completion-overlay" class="completion-overlay hidden">
                 <div class="completion-content">
-                    <h2>🎉 COMPLETATO!</h2>
+                    <svg class="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                    <h2>COMPLETATO!</h2>
                     <p>Hai ricostruito l'Europa!</p>
-                    <button id="btn-restart" class="btn btn-large">🔄 Gioca ancora</button>
+                    <button id="btn-restart" class="btn btn-large">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        <span>Gioca ancora</span>
+                    </button>
                 </div>
             </div>
         </div>
 
         <!-- Info Panel -->
-        <aside id="info-panel" class="info-panel" aria-live="polite">
+        <aside id="info-panel" class="info-panel hidden" aria-live="polite">
             <div class="info-header">
                 <h2 id="info-country-name">Seleziona un paese</h2>
                 <button id="btn-close-panel" class="btn-close" aria-label="Chiudi pannello">×</button>
             </div>
             <div class="info-body">
                 <div class="info-flag" id="info-flag">
-                    <img src="" alt="" id="info-flag-img">
+                    <!-- SVG flag will be loaded here -->
                 </div>
                 <div class="info-details">
                     <p><strong>Capitale:</strong> <span id="info-capital">-</span></p>

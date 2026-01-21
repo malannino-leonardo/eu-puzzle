@@ -1,19 +1,19 @@
-# 🧩 Puzzle Europa
+# Puzzle Europa
 
 Un puzzle interattivo per ricostruire l'Europa con i confini reali dei paesi. Trascina i pezzi e attaccali ai paesi confinanti per completare il continente!
 
 ![Puzzle Europa Screenshot](assets/screenshot.png)
 
-## 🎮 Come Giocare
+## Come Giocare
 
 1. **Trascina** un paese (pezzo del puzzle) sulla board
-2. **Avvicinalo** a un paese confinante reale (es. Italia → Svizzera)
+2. **Avvicinalo** a un paese confinante reale (es. Italia > Svizzera)
 3. Se la posizione è corretta, i pezzi si **agganciano automaticamente**
 4. I pezzi agganciati formano un **cluster** che si muove insieme
 5. **Clicca** su un paese per vedere informazioni, capitale e curiosità
 6. Completa il puzzle connettendo **tutti i paesi europei**!
 
-## 🚀 Avvio Rapido
+## Avvio Rapido
 
 ### Metodo 1: Server statico semplice (consigliato)
 
@@ -46,7 +46,7 @@ Poi apri: **http://localhost:3000**
 
 Su alcuni browser puoi aprire `index.html` direttamente, ma potresti avere problemi CORS nel caricamento dei dati JSON. Si consiglia un server locale.
 
-## 📁 Struttura Progetto
+## Struttura Progetto
 
 ```
 progetto-europa/
@@ -74,7 +74,7 @@ progetto-europa/
     └── build-map.js    # Script per pre-processare mappa (opzionale)
 ```
 
-## ⚙️ Configurazione
+## Configurazione
 
 ### Modificare le soglie di snap
 
@@ -143,7 +143,7 @@ const CONFIG = {
 | Liechtenstein | 438 | Regno Unito | 826 |
 | Vaticano | 336 | | |
 
-## 🎨 Personalizzazione Stili
+## Personalizzazione Stili
 
 I colori principali sono definiti come CSS variables in `styles.css`:
 
@@ -158,7 +158,7 @@ I colori principali sono definiti come CSS variables in `styles.css`:
 }
 ```
 
-## 🔊 Audio
+## Audio
 
 Inserisci i file audio nella cartella `assets/sfx/`:
 
@@ -168,7 +168,7 @@ Inserisci i file audio nella cartella `assets/sfx/`:
 
 Se i file non esistono, il gioco funziona comunque senza audio.
 
-## ♿ Accessibilità
+## Accessibilita
 
 Il gioco supporta:
 
@@ -177,7 +177,7 @@ Il gioco supporta:
 - **ARIA labels**: I paesi hanno etichette accessibili per screen reader
 - **Focus visibile**: Indicatori visivi per la navigazione da tastiera
 
-## 🛠️ Build Script (Opzionale)
+## Build Script (Opzionale)
 
 Se vuoi pre-processare la mappa per ottimizzare il caricamento:
 
@@ -188,7 +188,7 @@ npm run build
 
 Questo scarica il TopoJSON mondiale, filtra solo l'Europa e genera un file ottimizzato.
 
-## 🌐 Browser Supportati
+## Browser Supportati
 
 - Chrome 80+
 - Firefox 75+
@@ -196,14 +196,14 @@ Questo scarica il TopoJSON mondiale, filtra solo l'Europa e genera un file ottim
 - Edge 80+
 - Mobile: iOS Safari 13+, Chrome Android 80+
 
-## 📝 Note Tecniche
+## Note Tecniche
 
 - **Nessun framework pesante**: Solo D3.js (per geometrie) e TopoJSON-client (per parsing)
 - **Pointer Events**: Supporto unificato per mouse, touch e stylus
 - **SVG transforms**: Le trasformazioni sono applicate ai gruppi, non ai path, per performance ottimali
 - **Cluster system**: I paesi agganciati condividono lo stesso gruppo SVG `<g>`
 
-## 🐛 Risoluzione Problemi
+## Risoluzione Problemi
 
 ### "Failed to load map data"
 - Verifica la connessione internet (il TopoJSON è caricato da CDN)
@@ -218,11 +218,11 @@ Questo scarica il TopoJSON mondiale, filtra solo l'Europa e genera un file ottim
 - Non aprire `index.html` direttamente da file://
 - Usa un server locale (vedi "Avvio Rapido")
 
-## 📄 Licenza
+## Licenza
 
 MIT License - Usa liberamente per scopi educativi e personali.
 
-## 🤝 Contributi
+## Contributi
 
 Contributi benvenuti! Puoi:
 - Aggiungere più curiosità sui paesi
@@ -233,4 +233,4 @@ Contributi benvenuti! Puoi:
 
 ---
 
-Buon divertimento con il Puzzle Europa! 🇪🇺
+Buon divertimento con il Puzzle Europa!
