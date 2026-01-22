@@ -30,7 +30,7 @@
         
         // Initial scatter settings
         SCATTER_PADDING: 50,
-        ROTATION_RANGE: 30, // degrees
+        ROTATION_RANGE: 0, // degrees - set to 0 to keep countries properly oriented
         
         // Animation durations
         SNAP_DURATION: 200,
@@ -535,8 +535,8 @@
             const x = localX - centerX;
             const y = localY - centerY;
             
-            // Small random rotation
-            const rotation = (Math.random() - 0.5) * CONFIG.ROTATION_RANGE;
+            // No rotation - keep countries properly oriented as they appear on the map
+            const rotation = 0;
             
             cluster.transform = { x, y, rotation };
             updateClusterTransform(cluster.element, cluster.transform);
