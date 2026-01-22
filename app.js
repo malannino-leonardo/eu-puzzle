@@ -126,7 +126,7 @@
         isPanning: false,
         panStart: { x: 0, y: 0 },
         viewBoxStart: { x: 0, y: 0 },
-        zoomLevel: 1,
+        zoomLevel: 0.6,
         minZoom: 0.5,
         maxZoom: 4,
         

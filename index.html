@@ -6,7 +6,6 @@
     <title>Puzzle Europa - Ricostruisci il Continente!</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
-    <!-- D3.js e TopoJSON per geometrie -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/topojson-client@3"></script>
 </head>
@@ -63,7 +62,6 @@
                         <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.3"/>
                     </filter>
                 </defs>
-                <!-- Clusters will be appended here -->
                 <g id="clusters-container"></g>
             </svg>
             
@@ -74,7 +72,7 @@
                 </button>
                 <button id="btn-zoom-reset" class="zoom-btn zoom-level" aria-label="Reset zoom">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <span id="zoom-level-text">100%</span>
+                    <span id="zoom-level-text">60%</span>
                 </button>
                 <button id="btn-zoom-in" class="zoom-btn" aria-label="Zoom in">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
