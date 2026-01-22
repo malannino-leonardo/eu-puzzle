@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="-140 -70 750 500"
+   fill="#f8e92e"
+   version="1.1"
+   id="svg10"
+   sodipodi:docname="MKD_landscape.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   width="750"
+   height="500"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs14" />
+  <sodipodi:namedview
+     id="namedview12"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="0.59599"
+     inkscape:cx="135.06938"
+     inkscape:cy="265.10512"
+     inkscape:window-width="1340"
+     inkscape:window-height="1041"
+     inkscape:window-x="576"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg10" />
+  <path
+     fill="#d82126"
+     d="M -265,-70 H 735 V 430 H -265 Z"
+     id="path2"
+     style="stroke-width:3.57143" />
+  <path
+     d="M -265,230 V 130 L 735,230 V 130 Z M 185,-70 H 285 L 235,126.42857 Z M 285,430 H 185 L 235,233.57143 Z M -265,-70 h 150 l 395.92857,277.57143 z m 0,500 h 150 L 280.92857,152.42857 Z M 735,-70 H 585 L 189.07143,207.57143 Z m 0,500 H 585 L 189.07143,152.42857 Z"
+     id="path4"
+     style="stroke-width:3.57143" />
+  <circle
+     fill="#d82126"
+     id="circle6"
+     cx="235"
+     cy="180"
+     r="89.285713"
+     style="stroke-width:3.57143" />
+  <circle
+     id="circle8"
+     cx="235"
+     cy="180"
+     r="71.428574"
+     style="stroke-width:3.57143" />
+</svg>

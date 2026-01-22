@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 750 500"
+   version="1.1"
+   id="svg455"
+   sodipodi:docname="BUL_landscape.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   width="750"
+   height="500"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs459" />
+  <sodipodi:namedview
+     id="namedview457"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="0.43457604"
+     inkscape:cx="-147.26997"
+     inkscape:cy="158.77543"
+     inkscape:window-width="1347"
+     inkscape:window-height="1041"
+     inkscape:window-x="569"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg455" />
+  <path
+     fill="#ffffff"
+     d="M 0,0 H 833.33333 V 500 H 0 Z"
+     id="path449"
+     style="stroke-width:166.667" />
+  <path
+     fill="#00966e"
+     d="M 0,166.66667 H 833.33333 V 500 H 0 Z"
+     id="path451"
+     style="stroke-width:166.667" />
+  <path
+     fill="#d62612"
+     d="M 0,333.33333 H 833.33333 V 500 H 0 Z"
+     id="path453"
+     style="stroke-width:166.667" />
+</svg>

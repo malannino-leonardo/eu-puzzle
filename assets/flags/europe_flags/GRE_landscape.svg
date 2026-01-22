@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 750 500"
+   version="1.1"
+   id="svg6"
+   sodipodi:docname="GRE_landscape.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   width="750"
+   height="500"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs10" />
+  <sodipodi:namedview
+     id="namedview8"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="0.28971736"
+     inkscape:cx="-381.40621"
+     inkscape:cy="-96.645916"
+     inkscape:window-width="1340"
+     inkscape:window-height="1041"
+     inkscape:window-x="576"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg6" />
+  <path
+     fill="#0d5eaf"
+     d="M 0,0 H 750 V 500 H 0 Z"
+     id="path2"
+     style="stroke-width:27.7778" />
+  <path
+     fill="none"
+     stroke-width="55.5556"
+     stroke="#ffffff"
+     d="M 138.88889,0 V 305.55556 M 0,138.88889 h 277.77778 m 0,-55.555557 H 750 M 277.77778,194.44444 H 750 M 0,305.55556 H 750 M 0,416.66667 h 750"
+     id="path4" />
+</svg>
