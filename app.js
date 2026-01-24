@@ -550,6 +550,14 @@
         
         if (!a || !b) return;
         
+        // Clear all snap preview classes from both clusters before merging
+        a.element.querySelectorAll('.country-path').forEach(path => {
+            path.classList.remove('snap-preview', 'snap-error');
+        });
+        b.element.querySelectorAll('.country-path').forEach(path => {
+            path.classList.remove('snap-preview', 'snap-error');
+        });
+        
         // Update cluster membership
         b.members.forEach(countryId => {
             a.members.add(countryId);
@@ -576,6 +584,11 @@
         
         // Update aria label
         a.element.setAttribute('aria-label', getClusterLabel(a));
+        
+        // Remove focus from the merged cluster to prevent it from staying focused
+        if (document.activeElement === a.element) {
+            a.element.blur();
+        }
         
         // Play sound
         playSound('correct');
@@ -1170,15 +1183,15 @@
 
     // Map country ISO codes to flag file codes
     const countryFlagMap = {
-        '008': 'al', '020': 'ad', '040': 'at', '056': 'be', '070': 'ba',
-        '100': 'bg', '112': 'by', '191': 'hr', '196': 'cy', '203': 'cz',
-        '208': 'dk', '233': 'ee', '246': 'fi', '250': 'fr', '276': 'de',
-        '300': 'gr', '348': 'hu', '352': 'is', '372': 'ie', '380': 'it',
-        '428': 'lv', '438': 'li', '440': 'lt', '442': 'lu', '807': 'mk',
-        '470': 'mt', '498': 'md', '492': 'mc', '499': 'me', '528': 'nl',
-        '578': 'no', '616': 'pl', '620': 'pt', '642': 'ro', '643': 'ru',
-        '674': 'sm', '688': 'rs', '703': 'sk', '705': 'si', '724': 'es',
-        '752': 'se', '756': 'ch', '804': 'ua', '826': 'gb', '336': 'va'
+        '008': 'ALB_landscape', '020': 'AND_landscape', '040': 'AUT_landscape', '056': 'BEL_landscape', '070': 'BIH_landscape',
+        '100': 'BUL_landscape', '112': 'BLR_landscape', '191': 'CRO_landscape', '196': 'CYP_landscape', '203': 'CZE_landscape',
+        '208': 'DEN_landscape', '233': 'EST_landscape', '246': 'FIN_landscape', '250': 'FRA_landscape', '276': 'GER_landscape',
+        '300': 'GRE_landscape', '348': 'HUN_landscape', '352': 'ISL_landscape', '372': 'IRL_landscape', '380': 'ITA_landscape',
+        '428': 'LAT_landscape', '438': 'LIE_landscape', '440': 'LTU_landscape', '442': 'LUX_landscape', '807': 'MKD_landscape',
+        '470': 'MLT_landscape', '498': 'MDA_landscape', '492': 'MON_landscape', '499': 'MNE_landscape', '528': 'NED_landscape',
+        '578': 'NOR_landscape', '616': 'POL_landscape', '620': 'POR_landscape', '642': 'ROU_landscape', '643': 'RUS_landscape',
+        '674': 'SMR_landscape', '688': 'SRB_landscape', '703': 'SVK_landscape', '705': 'SLO_landscape', '724': 'ESP_landscape',
+        '752': 'SWE_landscape', '756': 'SUI_landscape', '804': 'UKR_landscape', '826': 'GBR_landscape', '336': 'SMR_landscape'
     };
     
     function showCountryInfo(countryId) {
@@ -1199,10 +1212,10 @@
         document.getElementById('info-area').textContent = info.area || 'N/D';
         document.getElementById('info-fact').textContent = info.fact || 'Informazioni non disponibili.';
         
-        // Flag - use SVG from data/flags folder
+        // Flag - use SVG from assets/flags folder
         const flagContainer = document.getElementById('info-flag');
         const flagCode = countryFlagMap[countryId] || countryId.toLowerCase();
-        const flagPath = `data/flags/${flagCode}.svg`;
+        const flagPath = `assets/flags/${flagCode}.svg`;
         
         // Load SVG flag
         fetch(flagPath)
