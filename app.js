@@ -796,6 +796,9 @@
         const cluster = state.clusters.get(clusterId);
         if (!cluster) return;
         
+        // Prevent dragging with right click (reserved for panning)
+        if (e.button === 2) return;
+        
         // Handle click mode (accessibility)
         if (state.clickMode) {
             handleClickModeSelect(clusterId);
@@ -968,8 +971,20 @@
         const dx = (state.panStart.x - e.clientX) * scale;
         const dy = (state.panStart.y - e.clientY) * scale;
         
-        state.viewBox.x = state.viewBoxStart.x + dx;
-        state.viewBox.y = state.viewBoxStart.y + dy;
+        // Calculate new position
+        let newX = state.viewBoxStart.x + dx;
+        let newY = state.viewBoxStart.y + dy;
+        
+        // Define pan boundaries (allow some padding beyond board edges)
+        const panPadding = 500; // pixels of padding beyond content
+        const minX = -panPadding;
+        const maxX = CONFIG.BOARD_WIDTH + panPadding - state.viewBox.w;
+        const minY = -panPadding;
+        const maxY = CONFIG.BOARD_HEIGHT + panPadding - state.viewBox.h;
+        
+        // Constrain the viewBox position
+        state.viewBox.x = Math.max(minX, Math.min(maxX, newX));
+        state.viewBox.y = Math.max(minY, Math.min(maxY, newY));
         
         updateViewBox();
     }
