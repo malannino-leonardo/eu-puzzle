@@ -112,9 +112,6 @@
         clickMode: false,
         selectedForAttach: null,
         
-        // Audio
-        musicEnabled: false,
-        
         // DOM references
         svg: null,
         clustersContainer: null,
@@ -590,9 +587,6 @@
             a.element.blur();
         }
         
-        // Play sound
-        playSound('correct');
-        
         // Update progress
         updateProgress();
         
@@ -730,7 +724,6 @@
             path.classList.add('snap-error');
             setTimeout(() => path.classList.remove('snap-error'), 300);
         });
-        playSound('wrong');
     }
 
     // =====================================================
@@ -771,7 +764,6 @@
         
         // UI buttons
         document.getElementById('btn-reset').addEventListener('click', resetGame);
-        document.getElementById('btn-music').addEventListener('click', toggleMusic);
         document.getElementById('btn-hint').addEventListener('click', showHint);
         document.getElementById('btn-close-panel').addEventListener('click', closeInfoPanel);
         document.getElementById('btn-restart').addEventListener('click', resetGame);
@@ -1335,7 +1327,6 @@
 
     function showCompletionOverlay() {
         document.getElementById('completion-overlay').classList.remove('hidden');
-        playSound('correct');
     }
 
     function resetGame() {
@@ -1362,74 +1353,84 @@
     }
 
     function showHint() {
-        // Find a loose piece that can be attached somewhere
-        let hintCluster = null;
-        let targetCluster = null;
-        
-        state.clusters.forEach((cluster, clusterId) => {
-            if (hintCluster) return;
-            
-            // Find a cluster that has adjacent pieces in another cluster
-            cluster.members.forEach(countryId => {
-                const neighbors = state.adjacencies.get(countryId) || new Set();
-                
-                neighbors.forEach(neighborId => {
-                    const neighborClusterId = state.countryToCluster.get(neighborId);
-                    if (neighborClusterId !== clusterId) {
-                        hintCluster = cluster;
-                        targetCluster = state.clusters.get(neighborClusterId);
-                    }
-                });
-            });
-        });
-        
-        if (hintCluster && targetCluster) {
-            // Highlight both clusters
-            hintCluster.element.classList.add('hint-highlight');
-            targetCluster.element.classList.add('hint-highlight');
-            
-            setTimeout(() => {
-                hintCluster.element.classList.remove('hint-highlight');
-                targetCluster.element.classList.remove('hint-highlight');
-            }, 2000);
-        }
-    }
+        // Clear previous hint highlights
+        const existingCircle = document.getElementById('hint-circle');
+        if (existingCircle) existingCircle.remove();
 
-    // =====================================================
-    // AUDIO
-    // =====================================================
-
-    function toggleMusic() {
-        state.musicEnabled = !state.musicEnabled;
-        const btn = document.getElementById('btn-music');
-        const audio = document.getElementById('audio-bg');
-        const iconOn = btn.querySelector('.icon-volume-on');
-        const iconOff = btn.querySelector('.icon-volume-off');
-        
-        if (state.musicEnabled) {
-            audio.play().catch(() => {});
-            btn.classList.remove('muted');
-            if (iconOn) iconOn.classList.remove('hidden');
-            if (iconOff) iconOff.classList.add('hidden');
-        } else {
-            audio.pause();
-            btn.classList.add('muted');
-            if (iconOn) iconOn.classList.add('hidden');
-            if (iconOff) iconOff.classList.remove('hidden');
-        }
-    }
-
-    function playSound(type) {
-        try {
-            const audioId = type === 'correct' ? 'audio-correct' : 'audio-wrong';
-            const audio = document.getElementById(audioId);
-            if (audio) {
-                audio.currentTime = 0;
-                audio.play().catch(() => {});
+        // Gather all single unconnected countries
+        const candidates = [];
+        state.clusters.forEach(cluster => {
+            if (cluster.members.size === 1) {
+                const countryId = Array.from(cluster.members)[0];
+                const country = state.countries.get(countryId);
+                if (country) {
+                    candidates.push({ 
+                        cluster, 
+                        country, 
+                        size: getCountrySize(country) 
+                    });
+                }
             }
-        } catch (error) {
-            // Silently fail if audio not available
+        });
+
+        if (candidates.length === 0) return;
+
+        // Sort by size ascending (smallest first)
+        candidates.sort((a, b) => a.size - b.size);
+        
+        // Pick the smallest
+        const best = candidates[0];
+        const path = best.cluster.element.querySelector('.country-path');
+
+        if (path) {
+            showHintCircle(path);
         }
+    }
+
+    function showHintCircle(targetPath) {
+        // Get visual center and size of the path
+        const rect = targetPath.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        // Convert center to SVG coordinates
+        const pt = state.svg.createSVGPoint();
+        pt.x = centerX;
+        pt.y = centerY;
+        const svgP = pt.matrixTransform(state.svg.getScreenCTM().inverse());
+
+        // Calculate radius in SVG units
+        // We map a point at the edge of the bounding box to SVG space to measure distance
+        const ptEdge = state.svg.createSVGPoint();
+        ptEdge.x = centerX + rect.width / 2;
+        ptEdge.y = centerY;
+        const svgPEdge = ptEdge.matrixTransform(state.svg.getScreenCTM().inverse());
+        
+        // Determine radius: Max of width/height aspect, plus padding
+        // Using screen rectangle diagonal approximation converted to SVG units
+        let radius = Math.abs(svgPEdge.x - svgP.x);
+        
+        // Enforce a minimum visibility size and add generous padding
+        // "roughly the position" -> large circle
+        radius = Math.max(radius * 2, 50); 
+
+        // Create the circle element
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', svgP.x);
+        circle.setAttribute('cy', svgP.y);
+        circle.setAttribute('r', radius);
+        circle.setAttribute('id', 'hint-circle');
+        circle.setAttribute('class', 'hint-circle');
+        
+        // Append to SVG (ensure it's on top of clusters)
+        state.svg.appendChild(circle);
+        
+        // Remove after animation (matches CSS duration)
+        setTimeout(() => {
+            if (circle.parentNode) {
+                circle.remove();
+            }
+        }, 3000);
     }
 
     // =====================================================
