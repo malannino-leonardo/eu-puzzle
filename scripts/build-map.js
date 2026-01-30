@@ -18,22 +18,11 @@ const path = require('path');
 
 // Lista codici ISO dei paesi europei
 const EUROPEAN_COUNTRY_IDS = [
-    '008', '020', '040', '056', '070', '100', '112', '191', '196', '203',
-    '208', '233', '246', '250', '276', '300', '348', '352', '372', '380',
-    '428', '438', '440', '442', '807', '470', '498', '492', '499', '528',
-    '578', '616', '620', '642', '643', '674', '688', '703', '705', '724',
-    '752', '756', '804', '826', '336'
+    '040', '056', '100', '191', '196', '203', '208', '233', '246', '250', '276', '300', '348', '372', '380', '428', '440', '442', '470', '528', '616', '620', '642', '703', '705', '724', '752'
 ];
 
 const EUROPEAN_NAMES = [
-    'albania', 'andorra', 'austria', 'belarus', 'belgium', 'bosnia', 
-    'bulgaria', 'croatia', 'cyprus', 'czech', 'denmark', 'estonia',
-    'finland', 'france', 'germany', 'greece', 'hungary', 'iceland',
-    'ireland', 'italy', 'kosovo', 'latvia', 'liechtenstein', 'lithuania',
-    'luxembourg', 'macedonia', 'malta', 'moldova', 'monaco', 'montenegro',
-    'netherlands', 'norway', 'poland', 'portugal', 'romania', 'russia',
-    'san marino', 'serbia', 'slovakia', 'slovenia', 'spain', 'sweden',
-    'switzerland', 'ukraine', 'united kingdom', 'vatican', 'uk', 'britain'
+    'austria', 'belgium', 'bulgaria', 'croatia', 'cyprus', 'czech', 'denmark', 'estonia', 'finland', 'france', 'germany', 'greece', 'hungary', 'ireland', 'italy', 'latvia', 'lithuania', 'luxembourg', 'malta', 'netherlands', 'poland', 'portugal', 'romania', 'slovakia', 'slovenia', 'spain', 'sweden'
 ];
 
 const TOPOJSON_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json';

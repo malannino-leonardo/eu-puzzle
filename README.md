@@ -1,8 +1,8 @@
-# Puzzle Europa
+# Puzzle Unione Europea
 
-Un puzzle interattivo per ricostruire l'Europa con i confini reali dei paesi. Trascina i pezzi e attaccali ai paesi confinanti per completare il continente!
+Un puzzle interattivo per ricostruire l'Unione Europea con i confini reali dei paesi. Trascina i pezzi e attaccali ai paesi confinanti per completare il continente!
 
-![Puzzle Europa Screenshot](assets/screenshot.png)
+![Puzzle UE Screenshot](assets/screenshot.png)
 
 ## Come Giocare
 

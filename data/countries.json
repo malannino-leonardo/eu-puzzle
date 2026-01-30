@@ -1,30 +1,23 @@
 [
   {
-    "id": "008",
-    "name": "Albania",
-    "capital": "Tirana",
-    "population": "2.9 milioni",
-    "area": "28.748 km²",
-    "flag": "assets/flags/al.png",
-    "fact": "L'Albania ha oltre 750.000 bunker costruiti durante la Guerra Fredda, circa uno ogni quattro abitanti dell'epoca."
-  },
-  {
-    "id": "020",
-    "name": "Andorra",
-    "capital": "Andorra la Vella",
-    "population": "77.000",
-    "area": "468 km²",
-    "flag": "assets/flags/ad.png",
-    "fact": "Andorra è l'unico paese al mondo con il catalano come lingua ufficiale."
-  },
-  {
     "id": "040",
     "name": "Austria",
     "capital": "Vienna",
     "population": "9 milioni",
     "area": "83.879 km²",
     "flag": "assets/flags/at.png",
-    "fact": "Vienna ospita il parco di divertimenti più antico del mondo ancora in funzione: il Prater, aperto nel 1766."
+    "facts": [
+      "Vienna ospita il parco di divertimenti più antico del mondo ancora in funzione: il Prater.",
+      "Il 62% del territorio austriaco è coperto dalle Alpi.",
+      "La macchina da cucire è stata inventata dall'austriaco Josef Madersperger.",
+      "Ospita lo zoo più antico del mondo (Tiergarten Schönbrunn).",
+      "Il fondatore della Porsche, Ferdinand Porsche, era austriaco.",
+      "L'Austria non è membro della NATO ed è costituzionalmente neutrale.",
+      "La bandiera nazionale è una delle più antiche al mondo (1191).",
+      "La Red Bull ha origini austriache.",
+      "Le cartoline sono state inventate in Austria.",
+      "Mozart è nato a Salisburgo, in Austria."
+    ]
   },
   {
     "id": "056",
@@ -33,16 +26,18 @@
     "population": "11.5 milioni",
     "area": "30.528 km²",
     "flag": "assets/flags/be.png",
-    "fact": "Il Belgio produce 220.000 tonnellate di cioccolato all'anno e ha oltre 2.000 negozi di cioccolato."
-  },
-  {
-    "id": "070",
-    "name": "Bosnia ed Erzegovina",
-    "capital": "Sarajevo",
-    "population": "3.3 milioni",
-    "area": "51.197 km²",
-    "flag": "assets/flags/ba.png",
-    "fact": "Sarajevo fu la prima città in Europa ad avere una rete tranviaria a tempo pieno, dal 1885."
+    "facts": [
+      "Il Belgio produce 220.000 tonnellate di cioccolato all'anno.",
+      "L'aeroporto di Bruxelles vende più cioccolato di qualsiasi altro luogo al mondo.",
+      "Il sassofono è stato inventato da Adolphe Sax in Belgio.",
+      "Il Belgio detiene il record mondiale per il periodo più lungo senza governo (541 giorni).",
+      "Ospita Tomorrowland, uno dei più grandi festival musicali al mondo.",
+      "Si dice che le patatine fritte siano state inventate qui.",
+      "Ha il più alto numero di castelli per metro quadrato.",
+      "Le palle da biliardo sono state inventate in Belgio.",
+      "I Puffi sono stati creati dall'artista belga Peyo.",
+      "Bruxelles è considerata la capitale dell'Unione Europea."
+    ]
   },
   {
     "id": "100",
@@ -51,16 +46,18 @@
     "population": "6.9 milioni",
     "area": "110.879 km²",
     "flag": "assets/flags/bg.png",
-    "fact": "In Bulgaria scuotere la testa significa 'sì' e annuire significa 'no'."
-  },
-  {
-    "id": "112",
-    "name": "Bielorussia",
-    "capital": "Minsk",
-    "population": "9.4 milioni",
-    "area": "207.600 km²",
-    "flag": "assets/flags/by.png",
-    "fact": "La Bielorussia ha una delle percentuali più alte di foreste in Europa, coprendo il 40% del territorio."
+    "facts": [
+      "In Bulgaria scuotere la testa significa 'sì' e annuire significa 'no'.",
+      "Il tesoro d'oro lavorato più antico del mondo è stato trovato a Varna.",
+      "Produce l'85% dell'olio di rose mondiale.",
+      "L'alfabeto cirillico ha origine qui.",
+      "Il batterio dello yogurt (Lactobacillus bulgaricus) si trova solo qui naturalmente.",
+      "Plovdiv è una delle città più antiche d'Europa ancora abitate.",
+      "La cornamusa (Gaida) è uno strumento nazionale.",
+      "È l'unico paese europeo a non aver mai cambiato nome dal 681 d.C.",
+      "L'inventore del computer digitale John Atanasoff aveva origini bulgare.",
+      "Quasi un terzo del paese è coperto da foreste."
+    ]
   },
   {
     "id": "191",
@@ -69,7 +66,18 @@
     "population": "4 milioni",
     "area": "56.594 km²",
     "flag": "assets/flags/hr.png",
-    "fact": "La cravatta moderna deriva dalla Croazia - i soldati croati indossavano sciarpe distintive nel XVII secolo."
+    "facts": [
+      "La cravatta moderna deriva dalla Croazia (dai soldati croati del XVII secolo).",
+      "King's Landing di Game of Thrones è stato girato a Dubrovnik.",
+      "Nikola Tesla è nato a Smiljan, in Croazia.",
+      "Ha 1.246 isole, isolotti e scogli.",
+      "La razza canina Dalmata prende il nome dalla regione della Dalmazia.",
+      "Ospita la città più piccola del mondo, Hum.",
+      "La pietra dell'isola di Brač è stata usata per la Casa Bianca.",
+      "Ha la più ricca collezione di resti di Neanderthal al mondo.",
+      "Il siluro (torpedo) è stato inventato a Rijeka.",
+      "A Zara c'è un organo marino che suona grazie alle onde."
+    ]
   },
   {
     "id": "196",
@@ -78,7 +86,18 @@
     "population": "1.2 milioni",
     "area": "9.251 km²",
     "flag": "assets/flags/cy.png",
-    "fact": "Cipro è l'unico paese dell'UE completamente situato in Asia geograficamente."
+    "facts": [
+      "Geograficamente in Asia, ma culturalmente e politicamente europea.",
+      "Si dice che la dea Afrodite sia nata qui.",
+      "Il Commandaria è il vino più antico del mondo ancora in produzione.",
+      "Nicosia è l'unica capitale divisa al mondo.",
+      "È famosa per il formaggio Halloumi.",
+      "Ci sono più gatti che esseri umani sull'isola.",
+      "Gode di circa 340 giorni di sole all'anno.",
+      "È la terza isola più grande del Mediterraneo.",
+      "Il nome del rame (Cuprum) deriva da Cipro.",
+      "È famosa per una specie rara di pecora selvatica, il muflone."
+    ]
   },
   {
     "id": "203",
@@ -87,7 +106,18 @@
     "population": "10.7 milioni",
     "area": "78.866 km²",
     "flag": "assets/flags/cz.png",
-    "fact": "I cechi sono i maggiori consumatori di birra al mondo, con circa 142 litri pro capite all'anno."
+    "facts": [
+      "I cechi sono i maggiori consumatori di birra pro capite al mondo.",
+      "Praga è conosciuta come la città delle 100 guglie.",
+      "Le lenti a contatto morbide sono state inventate da un chimico ceco.",
+      "La parola 'Robot' è stata inventata dallo scrittore ceco Karel Čapek.",
+      "Il Castello di Praga è il più grande castello antico al mondo.",
+      "Le zollette di zucchero sono state inventate qui.",
+      "È famosa per il cristallo di Boemia.",
+      "L'Università Carlo è una delle più antiche d'Europa (1348).",
+      "Skoda è uno dei produttori di auto più antichi.",
+      "Il paese è quasi interamente circondato da montagne."
+    ]
   },
   {
     "id": "208",
@@ -96,7 +126,18 @@
     "population": "5.8 milioni",
     "area": "42.924 km²",
     "flag": "assets/flags/dk.png",
-    "fact": "La bandiera danese è la più antica bandiera nazionale ancora in uso, risalente al 1219."
+    "facts": [
+      "La bandiera danese è la più antica al mondo ancora in uso (dal 1219).",
+      "I LEGO sono stati inventati in Danimarca.",
+      "Nessun punto del paese dista più di 52 km dal mare.",
+      "9 persone su 10 possiedono una bicicletta.",
+      "Il concetto di 'Hygge' (accoglienza/comfort) è nato qui.",
+      "Ha la monarchia più antica d'Europa.",
+      "Hans Christian Andersen (La Sirenetta) era danese.",
+      "I giardini di Tivoli hanno ispirato Walt Disney.",
+      "La Groenlandia è un territorio autonomo della Danimarca.",
+      "La tecnologia Bluetooth prende il nome dal re Harald Bluetooth."
+    ]
   },
   {
     "id": "233",
@@ -105,7 +146,18 @@
     "population": "1.3 milioni",
     "area": "45.228 km²",
     "flag": "assets/flags/ee.png",
-    "fact": "L'Estonia è stata il primo paese al mondo a consentire il voto online nelle elezioni nazionali nel 2005."
+    "facts": [
+      "È stato il primo paese a consentire il voto online.",
+      "Skype è stato sviluppato da programmatori estoni.",
+      "Il 50% del paese è coperto da foreste.",
+      "Quasi tutti i servizi pubblici sono digitalizzati (e-Estonia).",
+      "Ha oltre 2.000 isole.",
+      "Il trasporto di mogli è uno sport popolare nato nella regione.",
+      "I trasporti pubblici a Tallinn sono gratuiti per i residenti.",
+      "È uno dei paesi meno religiosi al mondo.",
+      "Il tasso di alfabetizzazione è del 99,8%.",
+      "Il Kiiking (altalena estrema) è uno sport inventato qui."
+    ]
   },
   {
     "id": "246",
@@ -114,7 +166,18 @@
     "population": "5.5 milioni",
     "area": "338.424 km²",
     "flag": "assets/flags/fi.png",
-    "fact": "La Finlandia ha più saune che automobili - circa 3.3 milioni di saune per 5.5 milioni di abitanti."
+    "facts": [
+      "Ci sono più saune che automobili (3,3 milioni di saune).",
+      "Rovaniemi è la casa ufficiale di Babbo Natale.",
+      "È classificato come il paese più felice del mondo.",
+      "Hanno inventato la bomba Molotov.",
+      "Ospita i campionati mondiali di chitarra aerea.",
+      "È chiamata la terra dei 188.000 laghi.",
+      "Ha il consumo di latte pro capite più alto al mondo.",
+      "Primo paese europeo a dare il voto alle donne (1906).",
+      "Angry Birds è stato creato qui.",
+      "In Lapponia si può vedere l'aurora boreale 200 notti all'anno."
+    ]
   },
   {
     "id": "250",
@@ -123,7 +186,18 @@
     "population": "67 milioni",
     "area": "643.801 km²",
     "flag": "assets/flags/fr.png",
-    "fact": "La Francia è il paese più visitato al mondo con oltre 90 milioni di turisti all'anno."
+    "facts": [
+      "È il paese più visitato al mondo.",
+      "I fratelli Lumière hanno inventato il cinema qui.",
+      "Produce oltre 1.600 tipi di formaggio.",
+      "Il Louvre è il museo d'arte più grande del mondo.",
+      "Il francese è stato la lingua ufficiale dell'Inghilterra per 300 anni.",
+      "La mongolfiera è stata inventata in Francia.",
+      "È legale sposare una persona deceduta (in casi speciali).",
+      "Ospita il Tour de France, la gara ciclistica più famosa.",
+      "Lo Champagne può essere prodotto solo nella regione dello Champagne.",
+      "Il sistema metrico è stato inventato durante la Rivoluzione Francese."
+    ]
   },
   {
     "id": "276",
@@ -132,7 +206,18 @@
     "population": "83 milioni",
     "area": "357.386 km²",
     "flag": "assets/flags/de.png",
-    "fact": "La Germania ha oltre 1.500 tipi di salsicce e circa 5.000 varietà di birra."
+    "facts": [
+      "Esistono oltre 1.500 tipi di salsicce tedesche.",
+      "Èstato il primo paese ad adottare l'ora legale.",
+      "La tradizione dell'albero di Natale è nata qui.",
+      "Ci sono oltre 20.000 castelli.",
+      "Berlino ha più ponti di Venezia.",
+      "È la più grande economia dell'Unione Europea.",
+      "Molti tratti delle Autobahn non hanno limiti di velocità.",
+      "I raggi X sono stati scoperti dal tedesco Röntgen.",
+      "La legge sulla purezza della birra risale al 1516.",
+      "La stampa a caratteri mobili è stata inventata da Gutenberg qui."
+    ]
   },
   {
     "id": "300",
@@ -141,7 +226,18 @@
     "population": "10.4 milioni",
     "area": "131.957 km²",
     "flag": "assets/flags/gr.png",
-    "fact": "La Grecia ha più siti archeologici di qualsiasi altro paese al mondo."
+    "facts": [
+      "Ha più musei archeologici di qualsiasi altro paese.",
+      "È la culla della democrazia.",
+      "I Giochi Olimpici sono nati qui.",
+      "Ha migliaia di isole, ma solo circa 200 sono abitate.",
+      "Il voto è obbligatorio per legge per tutti i cittadini maggiorenni.",
+      "La lingua greca è parlata da oltre 3.000 anni.",
+      "L'80% del territorio è montuoso.",
+      "Il formaggio Feta è un prodotto naziona protetto.",
+      "Gode di sole per 250 giorni all'anno.",
+      "La parola 'alfabeto' deriva dalle prime due lettere greche (Alpha, Beta)."
+    ]
   },
   {
     "id": "348",
@@ -150,16 +246,18 @@
     "population": "9.7 milioni",
     "area": "93.028 km²",
     "flag": "assets/flags/hu.png",
-    "fact": "L'Ungheria ha vinto più medaglie d'oro olimpiche pro capite di qualsiasi altro paese."
-  },
-  {
-    "id": "352",
-    "name": "Islanda",
-    "capital": "Reykjavík",
-    "population": "370.000",
-    "area": "103.000 km²",
-    "flag": "assets/flags/is.png",
-    "fact": "L'Islanda non ha esercito e non ha zanzare grazie al suo clima unico."
+    "facts": [
+      "Ha vinto più medaglie d'oro olimpiche pro capite di chiunque altro (tra chi non ha mai ospitato i giochi).",
+      "Il Cubo di Rubik è stato inventato dall'ungherese Ernő Rubik.",
+      "Budapest ha il maggior numero di sorgenti termali al mondo per una capitale.",
+      "La lingua ungherese è unica e non indoeuropea.",
+      "Il lago Balaton è il più grande dell'Europa centrale.",
+      "Ha la seconda metropolitana più antica d'Europa (dopo Londra).",
+      "La penna a sfera (biro) è stata inventata da un ungherese.",
+      "La Vitamina C è stata scoperta dallo scienziato ungherese Albert Szent-Györgyi.",
+      "Il Parlamento di Budapest è il terzo più grande al mondo.",
+      "La paprika è la spezia nazionale."
+    ]
   },
   {
     "id": "372",
@@ -168,7 +266,18 @@
     "population": "5 milioni",
     "area": "70.273 km²",
     "flag": "assets/flags/ie.png",
-    "fact": "L'Irlanda è l'unico paese al mondo che ha un strumento musicale (l'arpa) come simbolo nazionale."
+    "facts": [
+      "L'arpa è il simbolo nazionale (unico paese ad avere uno strumento musicale).",
+      "Halloween deriva dall'antica festa celtica di Samhain.",
+      "San Patrizio non era irlandese (era romano-britannico).",
+      "Il Titanic è stato costruito a Belfast (Irlanda del Nord/Isola d'Irlanda).",
+      "La birreria Guinness ha un contratto di affitto di 9.000 anni.",
+      "La Wild Atlantic Way è la strada costiera più lunga del mondo.",
+      "Più persone di origine irlandese vivono all'estero che in Irlanda.",
+      "Ha vinto l'Eurovision Song Contest 7 volte.",
+      "Non ci sono serpenti in Irlanda.",
+      "Le famiglie di Obama e Kennedy hanno origini irlandesi."
+    ]
   },
   {
     "id": "380",
@@ -177,7 +286,18 @@
     "population": "60 milioni",
     "area": "301.340 km²",
     "flag": "assets/flags/it.png",
-    "fact": "L'Italia ha più siti UNESCO Patrimonio dell'Umanità di qualsiasi altro paese al mondo (59)."
+    "facts": [
+      "Ha il maggior numero di siti UNESCO al mondo (59).",
+      "Ospita due stati indipendenti al suo interno (Vaticano e San Marino).",
+      "La pizza moderna è nata a Napoli.",
+      "L'Università di Bologna è la più antica d'Europa (1088).",
+      "Ogni anno 500.000 persone visitano il Papa.",
+      "Esiste una fontana che distribuisce vino gratuitamente 24/7 in Abruzzo.",
+      "Gli italiani hanno inventato il pianoforte, il termometro e le batterie.",
+      "Roma ha più di 2.700 anni di storia.",
+      "Ha tre vulcani attivi (Etna, Stromboli, Vesuvio).",
+      "Cristoforo Colombo era italiano."
+    ]
   },
   {
     "id": "428",
@@ -186,16 +306,18 @@
     "population": "1.9 milioni",
     "area": "64.589 km²",
     "flag": "assets/flags/lv.png",
-    "fact": "Riga ha l'edificio in stile Art Nouveau più grande del mondo, con oltre 800 edifici in questo stile."
-  },
-  {
-    "id": "438",
-    "name": "Liechtenstein",
-    "capital": "Vaduz",
-    "population": "38.000",
-    "area": "160 km²",
-    "flag": "assets/flags/li.png",
-    "fact": "Il Liechtenstein è l'unico paese al mondo il cui nome deriva da quello di una famiglia che lo ha comprato."
+    "facts": [
+      "Riga ha la più grande collezione di edifici Art Nouveau al mondo.",
+      "È uno dei paesi più verdi, col 50% di foreste.",
+      "I jeans sono stati inventati dal sartore lettone Jacob Davis.",
+      "L'ambra è considerata la pietra preziosa nazionale.",
+      "Ha una delle velocità di internet più alte al mondo.",
+      "La cascata Ventas Rumba è la più larga d'Europa.",
+      "Il mercato centrale di Riga si trova in vecchi hangar per Zeppelin.",
+      "Rivendica il primo albero di Natale della storia (1510).",
+      "L'hockey su ghiaccio è lo sport nazionale.",
+      "Ha una collezione di oltre 1,5 milioni di canzoni popolari."
+    ]
   },
   {
     "id": "440",
@@ -204,7 +326,18 @@
     "population": "2.8 milioni",
     "area": "65.300 km²",
     "flag": "assets/flags/lt.png",
-    "fact": "La Lituania ha la connessione internet più veloce al mondo secondo alcuni studi."
+    "facts": [
+      "Il lituano è la lingua indoeuropea più antica ancora parlata.",
+      "Il basket è considerato una seconda religione.",
+      "Esiste un profumo ufficiale chiamato 'Scent of Lithuania'.",
+      "Il centro geografico dell'Europa si trova qui (secondo alcuni calcoli).",
+      "La Collina delle Croci ospita oltre 100.000 croci.",
+      "Nel XIV secolo era il paese più grande d'Europa.",
+      "La cicogna è l'uccello nazionale e molto amata.",
+      "A Pasqua è 'Nonna Pasqua' a portare le uova, non il coniglio.",
+      "Il pane fritto con aglio è lo snack più popolare.",
+      "Ha una delle connessioni internet pubbliche più veloci."
+    ]
   },
   {
     "id": "442",
@@ -213,16 +346,18 @@
     "population": "640.000",
     "area": "2.586 km²",
     "flag": "assets/flags/lu.png",
-    "fact": "Il Lussemburgo ha il PIL pro capite più alto del mondo."
-  },
-  {
-    "id": "807",
-    "name": "Macedonia del Nord",
-    "capital": "Skopje",
-    "population": "2.1 milioni",
-    "area": "25.713 km²",
-    "flag": "assets/flags/mk.png",
-    "fact": "Madre Teresa di Calcutta è nata a Skopje, capitale della Macedonia del Nord."
+    "facts": [
+      "Ha il PIL pro capite più alto al mondo.",
+      "È il primo paese ad aver reso gratuiti tutti i trasporti pubblici.",
+      "È l'unico Granducato rimasto al mondo.",
+      "Il motto nazionale è 'Vogliamo rimanere ciò che siamo'.",
+      "Ha tre lingue ufficiali: francese, tedesco e lussemburghese.",
+      "Quasi il 50% della popolazione è straniera.",
+      "La città di Lussemburgo è patrimonio UNESCO per le sue fortificazioni.",
+      "Skype ha la sua sede europea qui.",
+      "Il Primo Ministro Xavier Bettel è stato il primo leader gay dell'UE a sposarsi.",
+      "Il ristorante Chiggeri ha la carta dei vini più lunga del mondo."
+    ]
   },
   {
     "id": "470",
@@ -231,34 +366,18 @@
     "population": "515.000",
     "area": "316 km²",
     "flag": "assets/flags/mt.png",
-    "fact": "Malta è l'unico paese dell'UE dove la caccia agli uccelli primaverile è legale."
-  },
-  {
-    "id": "498",
-    "name": "Moldavia",
-    "capital": "Chișinău",
-    "population": "2.6 milioni",
-    "area": "33.846 km²",
-    "flag": "assets/flags/md.png",
-    "fact": "La Moldavia ha una delle più grandi collezioni di vino al mondo, con oltre 2 milioni di bottiglie."
-  },
-  {
-    "id": "492",
-    "name": "Monaco",
-    "capital": "Monaco",
-    "population": "39.000",
-    "area": "2 km²",
-    "flag": "assets/flags/mc.png",
-    "fact": "Monaco è il secondo paese più piccolo del mondo e il più densamente popolato."
-  },
-  {
-    "id": "499",
-    "name": "Montenegro",
-    "capital": "Podgorica",
-    "population": "620.000",
-    "area": "13.812 km²",
-    "flag": "assets/flags/me.png",
-    "fact": "Il Montenegro ha il canyon più profondo d'Europa: il Canyon del Tara, con 1.300 metri di profondità."
+    "facts": [
+      "La caccia primaverile è una tradizione controversa ma legale.",
+      "È stata set di film come Il Gladiatore, Troy e Game of Thrones.",
+      "Accoglie 3 volte più turisti dei suoi abitanti.",
+      "Si guida a sinistra (eredità britannica).",
+      "L'isola di Comino ha solo 3 residenti permanenti.",
+      "Il maltese è l'unica lingua semitica scritta in caratteri latini.",
+      "Ha 365 chiese, una per ogni giorno dell'anno.",
+      "La Valletta è una delle capitali più piccole d'Europa.",
+      "I suoi templi megalitici sono più antichi di Stonehenge.",
+      "La George Cross britannica è raffigurata sulla bandiera."
+    ]
   },
   {
     "id": "528",
@@ -267,16 +386,18 @@
     "population": "17.5 milioni",
     "area": "41.543 km²",
     "flag": "assets/flags/nl.png",
-    "fact": "Il 26% dei Paesi Bassi si trova sotto il livello del mare, incluso l'aeroporto di Schiphol."
-  },
-  {
-    "id": "578",
-    "name": "Norvegia",
-    "capital": "Oslo",
-    "population": "5.4 milioni",
-    "area": "323.802 km²",
-    "flag": "assets/flags/no.png",
-    "fact": "La Norvegia regala ogni anno un albero di Natale al Regno Unito dal 1947, come ringraziamento per il supporto durante la WWII."
+    "facts": [
+      "Il 26% del paese si trova sotto il livello del mare.",
+      "Ci sono più biciclette (22 milioni) che abitanti (17 milioni).",
+      "Gli uomini olandesi sono i più alti al mondo in media.",
+      "Amsterdam è costruita su milioni di pali di legno.",
+      "Le carote sono arancioni in onore della Casa d'Orange.",
+      "È il più grande esportatore di fiori al mondo (tulipani).",
+      "L'aeroporto di Schiphol si trova a 4 metri sotto il livello del mare.",
+      "Gli olandesi amano la liquirizia salata (drop).",
+      "È la patria di grandi aziende come Philips e Shell.",
+      "L'inno nazionale (Wilhelmus) è il più antico del mondo."
+    ]
   },
   {
     "id": "616",
@@ -285,7 +406,18 @@
     "population": "38 milioni",
     "area": "312.696 km²",
     "flag": "assets/flags/pl.png",
-    "fact": "La Polonia ha 17 premi Nobel, più di Giappone, Cina e India messi insieme."
+    "facts": [
+      "Vanta 17 premi Nobel nella sua storia.",
+      "Marie Curie (nata Skłodowska) era polacca.",
+      "Ha adottato la prima costituzione in Europa (1791).",
+      "Il castello di Malbork è il più grande al mondo per superficie.",
+      "L'origine della vodka è contesa tra Polonia e Russia.",
+      "Papa Giovanni Paolo II era polacco.",
+      "La Polonia è scomparsa dalle mappe per 123 anni.",
+      "La foresta di Białowieża ospita gli ultimi bisonti europei selvaggi.",
+      "È uno dei maggiori esportatori di ambra.",
+      "È comune mangiare la pizza con il ketchup."
+    ]
   },
   {
     "id": "620",
@@ -294,7 +426,18 @@
     "population": "10.3 milioni",
     "area": "92.090 km²",
     "flag": "assets/flags/pt.png",
-    "fact": "Il Portogallo è il paese più occidentale dell'Europa continentale e ha la libreria più antica del mondo (1732)."
+    "facts": [
+      "Ha i confini più antichi d'Europa (definiti nel 1143).",
+      "Produce il 50% del sughero mondiale.",
+      "Il ponte Vasco da Gama è il più lungo d'Europa.",
+      "Il vino Porto prende il nome dalla città di Porto.",
+      "I suoi esploratori (Magellano, Vasco da Gama) hanno mappato il mondo.",
+      "Ospita la libreria più antica del mondo (Bertrand, Lisbona).",
+      "Le piastrelle dipinte (Azulejos) sono un simbolo nazionale.",
+      "La musica Fado è patrimonio immateriale UNESCO.",
+      "La tempura giapponese deriva da un piatto portoghese.",
+      "Nazaré ha alcune delle onde più alte al mondo per il surf."
+    ]
   },
   {
     "id": "642",
@@ -303,34 +446,18 @@
     "population": "19 milioni",
     "area": "238.397 km²",
     "flag": "assets/flags/ro.png",
-    "fact": "Il Palazzo del Parlamento di Bucarest è il secondo edificio amministrativo più grande del mondo dopo il Pentagono."
-  },
-  {
-    "id": "643",
-    "name": "Russia",
-    "capital": "Mosca",
-    "population": "144 milioni",
-    "area": "17.098.242 km²",
-    "flag": "assets/flags/ru.png",
-    "fact": "La Russia copre 11 fusi orari, più di qualsiasi altro paese al mondo."
-  },
-  {
-    "id": "674",
-    "name": "San Marino",
-    "capital": "San Marino",
-    "population": "34.000",
-    "area": "61 km²",
-    "flag": "assets/flags/sm.png",
-    "fact": "San Marino è la più antica repubblica del mondo ancora esistente, fondata nel 301 d.C."
-  },
-  {
-    "id": "688",
-    "name": "Serbia",
-    "capital": "Belgrado",
-    "population": "6.9 milioni",
-    "area": "88.361 km²",
-    "flag": "assets/flags/rs.png",
-    "fact": "Nikola Tesla, uno dei più grandi inventori della storia, era serbo."
+    "facts": [
+      "Il Palazzo del Parlamento è l'edificio amministrativo più pesante al mondo.",
+      "È la patria della leggenda di Dracula (Vlad l'Impalatore).",
+      "Calea Victoriei è stata la prima strada asfaltata in Romania.",
+      "Ha una delle velocità 4G più alte in Europa.",
+      "Ha la più grande popolazione di orsi bruni in Europa (esclusa la Russia).",
+      "Timișoara fu la prima città europea con illuminazione stradale elettrica.",
+      "Il famoso scultore Constantin Brâncuși era rumeno.",
+      "Il Delta del Danubio è una riserva della biosfera UNESCO.",
+      "Il rumeno è una lingua romanza, simile all'italiano.",
+      "Il Cimitero Allegro di Săpânța è famoso per le sue croci colorate."
+    ]
   },
   {
     "id": "703",
@@ -339,7 +466,18 @@
     "population": "5.4 milioni",
     "area": "49.035 km²",
     "flag": "assets/flags/sk.png",
-    "fact": "La Slovacchia ha più di 6.000 grotte, di cui 18 aperte al pubblico."
+    "facts": [
+      "Ha il più alto numero di castelli pro capite al mondo.",
+      "Ha più di 6.000 grotte.",
+      "Bratislava è l'unica capitale che confina con due stati (Austria, Ungheria).",
+      "Il centro geografico dell'Europa si trova qui (secondo una misurazione).",
+      "Vlkolínec è un villaggio patrimonio UNESCO di architettura popolare.",
+      "Produce il maggior numero di auto pro capite al mondo.",
+      "I Monti Tatra sono le montagne alpine più piccole d'Europa.",
+      "Il piatto nazionale è gnocchi di patate con formaggio di pecora.",
+      "L'auto volante (AeroMobil) è stata sviluppata qui.",
+      "La sua bandiera è molto simile a quelle di Slovenia e Russia."
+    ]
   },
   {
     "id": "705",
@@ -348,7 +486,18 @@
     "population": "2.1 milioni",
     "area": "20.273 km²",
     "flag": "assets/flags/si.png",
-    "fact": "La Slovenia è uno dei paesi più verdi del mondo, con oltre il 60% del territorio coperto da foreste."
+    "facts": [
+      "È uno dei paesi più verdi del mondo (60% foreste).",
+      "L'apicoltura è una tradizione enorme (Giornata Mondiale delle Api).",
+      "Le Grotte di Postumia ospitano il 'proteo', un anfibio simile a un drago.",
+      "La prima coppia sposata a scalare l'Everest era slovena.",
+      "C'è un vigneto ogni 70 abitanti.",
+      "Il monte Triglav è il simbolo nazionale sulla bandiera.",
+      "Ha una delle più grandi popolazioni di orsi in Europa.",
+      "Il Lago di Bled con la sua isola è un'icona mondiale.",
+      "Melania Trump è originaria di qui.",
+      "Lo sci è lo sport nazionale."
+    ]
   },
   {
     "id": "724",
@@ -357,7 +506,18 @@
     "population": "47 milioni",
     "area": "505.990 km²",
     "flag": "assets/flags/es.png",
-    "fact": "La Spagna ha più bar per abitante di qualsiasi altro paese dell'Unione Europea."
+    "facts": [
+      "Ha più bar per abitante di qualsiasi altro paese UE.",
+      "È stato il primo impero globale su cui 'non tramontava mai il sole'.",
+      "Produce il 43% dell'olio d'oliva mondiale.",
+      "La Sagrada Familia è in costruzione dal 1882.",
+      "Lo spagnolo è la seconda lingua madre più parlata al mondo.",
+      "È l'unico paese europeo a produrre banane (Canarie).",
+      "Famosa per la corsa dei tori a Pamplona.",
+      "Ospita il ristorante più antico del mondo (Botín, 1725).",
+      "Il mocio (spazzolone lavapavimenti) è un'invenzione spagnola.",
+      "È leader mondiale nella donazione di organi."
+    ]
   },
   {
     "id": "752",
@@ -366,42 +526,17 @@
     "population": "10.4 milioni",
     "area": "450.295 km²",
     "flag": "assets/flags/se.png",
-    "fact": "La Svezia non è stata in guerra per oltre 200 anni, dal 1814."
-  },
-  {
-    "id": "756",
-    "name": "Svizzera",
-    "capital": "Berna",
-    "population": "8.7 milioni",
-    "area": "41.285 km²",
-    "flag": "assets/flags/ch.png",
-    "fact": "La Svizzera ha 4 lingue ufficiali: tedesco, francese, italiano e romancio."
-  },
-  {
-    "id": "804",
-    "name": "Ucraina",
-    "capital": "Kiev",
-    "population": "41 milioni",
-    "area": "603.550 km²",
-    "flag": "assets/flags/ua.png",
-    "fact": "L'Ucraina è il paese più grande interamente in Europa per superficie."
-  },
-  {
-    "id": "826",
-    "name": "Regno Unito",
-    "capital": "Londra",
-    "population": "67 milioni",
-    "area": "242.495 km²",
-    "flag": "assets/flags/gb.png",
-    "fact": "Il Big Ben non è la torre, ma la campana all'interno che pesa 13.7 tonnellate."
-  },
-  {
-    "id": "336",
-    "name": "Città del Vaticano",
-    "capital": "Città del Vaticano",
-    "population": "800",
-    "area": "0.44 km²",
-    "flag": "assets/flags/va.png",
-    "fact": "Il Vaticano è lo stato più piccolo del mondo e ha il tasso di criminalità più alto pro capite (dovuto ai turisti)."
+    "facts": [
+      "Non è stata in guerra per oltre 200 anni (dal 1814).",
+      "Importa rifiuti da altri paesi per alimentare i suoi inceneritori.",
+      "Il gruppo pop ABBA proviene da qui.",
+      "È la patria di IKEA, Volvo e H&M.",
+      "Ha dato i natali a Spotify e Skype (co-fondato).",
+      "Gli incidenti con le alci sono un pericolo reale sulle strade.",
+      "I premi Nobel vengono assegnati qui (tranne quello per la Pace).",
+      "La Fika (pausa caffè) è un'istituzione sociale sacra.",
+      "Ha 267.570 isole, più di qualsiasi altro paese.",
+      "Ricicla il 99% dei rifiuti domestici."
+    ]
   }
 ]

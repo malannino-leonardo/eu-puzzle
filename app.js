@@ -1,8 +1,8 @@
 /**
  * =====================================================
- * PUZZLE EUROPA - MAIN APPLICATION
+ * PUZZLE UNIONE EUROPEA - MAIN APPLICATION
  * =====================================================
- * Un puzzle interattivo per ricostruire l'Europa
+ * Un puzzle interattivo per ricostruire l'Unione Europea
  * con paesi che si agganciano ai confini reali.
  * =====================================================
  */
@@ -37,53 +37,33 @@
         
         // European country ISO codes (ISO 3166-1 numeric)
         EUROPEAN_COUNTRIES: [
-            '008', // Albania
-            '020', // Andorra
-            '040', // Austria
-            '056', // Belgium
-            '070', // Bosnia and Herzegovina
-            '100', // Bulgaria
-            '112', // Belarus
-            '191', // Croatia
-            '196', // Cyprus
-            '203', // Czech Republic
-            '208', // Denmark
-            '233', // Estonia
-            '246', // Finland
-            '250', // France
-            '276', // Germany
-            '300', // Greece
-            '348', // Hungary
-            '352', // Iceland
-            '372', // Ireland
-            '380', // Italy
-            '428', // Latvia
-            '438', // Liechtenstein
-            '440', // Lithuania
-            '442', // Luxembourg
-            '807', // North Macedonia
-            '470', // Malta
-            '498', // Moldova
-            '492', // Monaco
-            '499', // Montenegro
-            '528', // Netherlands
-            '578', // Norway
-            '616', // Poland
-            '620', // Portugal
-            '642', // Romania
-            '643', // Russia
-            '674', // San Marino
-            '688', // Serbia
-            '703', // Slovakia
-            '705', // Slovenia
-            '724', // Spain
-            '752', // Sweden
-            '756', // Switzerland
-            '804', // Ukraine
-            '826', // United Kingdom
-            '336', // Vatican City (Holy See)
-            // Kosovo (not always in datasets, but we'll try)
-            '-99'  // Kosovo placeholder
+            '040',
+            '056',
+            '100',
+            '191',
+            '196',
+            '203',
+            '208',
+            '233',
+            '246',
+            '250',
+            '276',
+            '300',
+            '348',
+            '372',
+            '380',
+            '428',
+            '440',
+            '442',
+            '470',
+            '528',
+            '616',
+            '620',
+            '642',
+            '703',
+            '705',
+            '724',
+            '752'
         ]
     };
 
@@ -170,7 +150,7 @@
             
             showLoading(false);
             
-            console.log('[Puzzle Europa] Initialized!');
+            console.log('[Puzzle UE] Initialized!');
             console.log(`[Info] Loaded ${state.countries.size} countries`);
             
         } catch (error) {
@@ -285,14 +265,7 @@
         
         // Check by name (fallback)
         const europeanNames = [
-            'albania', 'andorra', 'austria', 'belarus', 'belgium', 'bosnia', 
-            'bulgaria', 'croatia', 'cyprus', 'czech', 'denmark', 'estonia',
-            'finland', 'france', 'germany', 'greece', 'hungary', 'iceland',
-            'ireland', 'italy', 'kosovo', 'latvia', 'liechtenstein', 'lithuania',
-            'luxembourg', 'macedonia', 'malta', 'moldova', 'monaco', 'montenegro',
-            'netherlands', 'norway', 'poland', 'portugal', 'romania', 'russia',
-            'san marino', 'serbia', 'slovakia', 'slovenia', 'spain', 'sweden',
-            'switzerland', 'ukraine', 'united kingdom', 'vatican', 'uk', 'britain'
+            'austria', 'belgium', 'bulgaria', 'croatia', 'cyprus', 'czech', 'denmark', 'estonia', 'finland', 'france', 'germany', 'greece', 'hungary', 'ireland', 'italy', 'latvia', 'lithuania', 'luxembourg', 'malta', 'netherlands', 'poland', 'portugal', 'romania', 'slovakia', 'slovenia', 'spain', 'sweden'
         ];
         
         const nameLower = name.toLowerCase();
@@ -1217,7 +1190,14 @@
         document.getElementById('info-capital').textContent = info.capital || 'N/D';
         document.getElementById('info-population').textContent = info.population || 'N/D';
         document.getElementById('info-area').textContent = info.area || 'N/D';
-        document.getElementById('info-fact').textContent = info.fact || 'Informazioni non disponibili.';
+        
+        // Show random fact
+        if (info.facts && info.facts.length > 0) {
+            const randomFact = info.facts[Math.floor(Math.random() * info.facts.length)];
+            document.getElementById('info-fact').textContent = randomFact;
+        } else {
+            document.getElementById('info-fact').textContent = info.fact || 'Informazioni non disponibili.';
+        }
         
         // Flag - use SVG from assets/flags folder
         const flagContainer = document.getElementById('info-flag');
