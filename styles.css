@@ -6,7 +6,7 @@
 :root {
     --primary-color: #2563eb;
     --primary-dark: #1d4ed8;
-    --success-color: #22c55e;
+    --success-color: #fbbf24;
     --error-color: #ef4444;
     --warning-color: #f59e0b;
     --bg-color: #0f172a;
@@ -19,11 +19,11 @@
     
     /* Board colors */
     --board-bg: #1a365d;
-    --country-fill: #3b82f6;
+    --country-fill: #22c55e;
     --country-stroke: #1e40af;
-    --country-hover: #60a5fa;
+    --country-hover: #fbbf24;
     --country-selected: #fbbf24;
-    --country-snapped: #22c55e;
+    --country-snapped: #fbbf24;
 }
 
 /* Reset */
@@ -246,6 +246,10 @@ body {
 .country-path.dragging {
     cursor: grabbing;
     filter: url(#drop-shadow);
+    fill-opacity: 0.9;
+    stroke: var(--text-color);
+    stroke-width: 2px;
+    z-index: 1000;
 }
 
 .country-path.snap-preview {
@@ -260,7 +264,7 @@ body {
 }
 
 .country-path.snapped {
-    fill: #4f8fea;
+    fill: #22c55e;
 }
 
 /* Cluster group */

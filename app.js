@@ -290,10 +290,12 @@
         const cx = (minX + maxX) / 2;
         const cy = (minY + maxY) / 2;
         
-        const europeMinX = -500;
-        const europeMaxX = 1500;
+        // Tight bounds to exclude overseas territories (French Guiana, Caribbean, etc.)
+        // Board is approx 1000x700
+        const europeMinX = -200;
+        const europeMaxX = 1200;
         const europeMinY = -200;
-        const europeMaxY = 1200;
+        const europeMaxY = 900;
         
         return cx >= europeMinX && cx <= europeMaxX && cy >= europeMinY && cy <= europeMaxY;
     }
@@ -612,6 +614,15 @@
                             targetClusterId: otherClusterId,
                             requiredTransform
                         };
+                        
+                        // Highlight adjacent country
+                        const adjacentEl = document.getElementById(otherCountryId);
+                        if (adjacentEl) {
+                             adjacentEl.classList.add('adjacent-hint');
+                             // Remove class after a short delay so it doesn't get stuck
+                             // or handle removal in snap logic
+                             setTimeout(() => adjacentEl.classList.remove('adjacent-hint'), 500);
+                        }
                     }
                 });
             });
@@ -1287,7 +1298,7 @@
             }
         });
         
-        state.connectedCountries = maxClusterSize;
+        state.connectedCountries = maxClusterSize > 1 ? maxClusterSize : 0;
         
         // Update UI
         const progressText = document.getElementById('progress-text');
