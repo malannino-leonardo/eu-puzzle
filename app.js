@@ -223,6 +223,34 @@
             // Check if in our European list or by name matching
             return isEuropeanCountry(id, name);
         });
+
+        // MERGE CYPRUS (SOUTH & NORTH) TO KEEP TOGETHER
+        const cyprusIdx = europeanFeatures.findIndex(f => String(f.id || f.properties?.iso_n3) === '196' || f.properties?.name?.toLowerCase() === 'cyprus');
+        const nCyprusIdx = europeanFeatures.findIndex(f => f.properties?.name?.toLowerCase().includes('northern cyprus'));
+
+        if (cyprusIdx !== -1 && nCyprusIdx !== -1) {
+            const cyprusFeature = europeanFeatures[cyprusIdx];
+            const nCyprusFeature = europeanFeatures[nCyprusIdx];
+            
+            const getPolygons = (feat) => {
+                if (feat.geometry.type === 'Polygon') return [feat.geometry.coordinates];
+                if (feat.geometry.type === 'MultiPolygon') return feat.geometry.coordinates;
+                return [];
+            };
+
+            // Merge into MultiPolygon
+            cyprusFeature.geometry = {
+                type: 'MultiPolygon',
+                coordinates: [...getPolygons(cyprusFeature), ...getPolygons(nCyprusFeature)]
+            };
+
+            // Ensure ID is correct (196)
+            cyprusFeature.id = '196';
+            if (cyprusFeature.properties) cyprusFeature.properties.iso_n3 = '196';
+
+            // Remove Northern Cyprus entry
+            europeanFeatures.splice(nCyprusIdx, 1);
+        }
         
         // Process each country
         europeanFeatures.forEach(feature => {
