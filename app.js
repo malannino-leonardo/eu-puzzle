@@ -205,7 +205,43 @@
         
         // Get the countries feature collection
         const countriesKey = Object.keys(topology.objects)[0];
+
+        // --- MERGE CYPRUS (SOUTH & NORTH) AT TOPOLOGY LEVEL ---
+        // This removes the internal border line by merging geometries
+        const rawGeometries = topology.objects[countriesKey].geometries;
+        const cyprusGeo = rawGeometries.find(g => String(g.id || '') === '196');
+        const nCyprusGeo = rawGeometries.find(g => g.properties?.name === 'N. Cyprus');
+        
+        let mergedCyprusGeoJSON = null;
+        if (cyprusGeo && nCyprusGeo) {
+             // topojson.merge returns the merged GeoJSON geometry (MultiPolygon)
+             // This effectively dissolves the shared border
+             mergedCyprusGeoJSON = topojson.merge(topology, [cyprusGeo, nCyprusGeo]);
+        }
+        // ------------------------------------------------------
+
         const geojson = topojson.feature(topology, topology.objects[countriesKey]);
+        
+        // --- APPLY MERGED GEOMETRY ---
+        if (mergedCyprusGeoJSON) {
+            // Find indices in the generated GeoJSON
+            const cIdx = geojson.features.findIndex(f => String(f.id || '') === '196');
+            const nIdx = geojson.features.findIndex(f => f.properties?.name === 'N. Cyprus');
+            
+            if (cIdx !== -1) {
+                // Remove N. Cyprus first (if nIdx > cIdx, cIdx stays valid)
+                // If nIdx < cIdx, cIdx shifts. Safest to remove N. Cyprus then find Cyprus again or handle indices.
+                
+                // Update Cyprus geometry
+                geojson.features[cIdx].geometry = mergedCyprusGeoJSON;
+                
+                // Remove N. Cyprus
+                if (nIdx !== -1) {
+                    geojson.features.splice(nIdx, 1);
+                }
+            }
+       }
+       // -----------------------------
         
         // Setup projection centered on Europe
         state.projection = d3.geoMercator()
@@ -224,34 +260,6 @@
             return isEuropeanCountry(id, name);
         });
 
-        // MERGE CYPRUS (SOUTH & NORTH) TO KEEP TOGETHER
-        const cyprusIdx = europeanFeatures.findIndex(f => String(f.id || f.properties?.iso_n3) === '196' || f.properties?.name?.toLowerCase() === 'cyprus');
-        const nCyprusIdx = europeanFeatures.findIndex(f => f.properties?.name?.toLowerCase().includes('northern cyprus'));
-
-        if (cyprusIdx !== -1 && nCyprusIdx !== -1) {
-            const cyprusFeature = europeanFeatures[cyprusIdx];
-            const nCyprusFeature = europeanFeatures[nCyprusIdx];
-            
-            const getPolygons = (feat) => {
-                if (feat.geometry.type === 'Polygon') return [feat.geometry.coordinates];
-                if (feat.geometry.type === 'MultiPolygon') return feat.geometry.coordinates;
-                return [];
-            };
-
-            // Merge into MultiPolygon
-            cyprusFeature.geometry = {
-                type: 'MultiPolygon',
-                coordinates: [...getPolygons(cyprusFeature), ...getPolygons(nCyprusFeature)]
-            };
-
-            // Ensure ID is correct (196)
-            cyprusFeature.id = '196';
-            if (cyprusFeature.properties) cyprusFeature.properties.iso_n3 = '196';
-
-            // Remove Northern Cyprus entry
-            europeanFeatures.splice(nCyprusIdx, 1);
-        }
-        
         // Process each country
         europeanFeatures.forEach(feature => {
             const id = String(feature.id || feature.properties?.iso_n3 || Math.random());
