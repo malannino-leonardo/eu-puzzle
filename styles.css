@@ -810,7 +810,9 @@ body {
 }
 
 .country-marker:hover .marker-pin {
-    transform: translate(-18px, -36px) scale(1.8);
+    /* Adjust translate to keep the tip (12,24) fixed at (0,0) relative to parent */
+    /* Target scale 1.8. tx = -12*1.8 = -21.6, ty = -24*1.8 = -43.2 */
+    transform: translate(-21.6px, -43.2px) scale(1.8);
 }
 
 .anchored-popup {
@@ -826,36 +828,93 @@ body {
     width: auto;
     max-width: 90vw;
     pointer-events: auto;
-    /* animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); */
-    transform: translate(-50%, -100%);
-    margin-top: -20px;
+    /* animation handled by specific orientation classes */
     overflow: hidden;
     font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
-@keyframes popIn {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -80%) scale(0.8);
-    }
-    100% {
-        opacity: 1;
-        transform: translate(-50%, -100%) scale(1);
-    }
+/* Orientation: TOP (Default) */
+.anchored-popup.orientation-top {
+    transform: translate(-50%, -100%);
+    margin-top: -20px;
+    animation: popInTop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.anchored-popup.orientation-top::after {
+    bottom: -8px;
+    left: calc(50% + var(--arrow-offset, 0px));
+    transform: translateX(-50%) rotate(45deg);
+}
+
+/* Orientation: RIGHT */
+.anchored-popup.orientation-right {
+    transform: translate(0, -50%);
+    margin-left: 20px;
+    animation: popInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.anchored-popup.orientation-right::after {
+    left: -8px;
+    top: calc(50% + var(--arrow-offset, 0px));
+    transform: translateY(-50%) rotate(45deg);
+}
+
+/* Orientation: LEFT */
+.anchored-popup.orientation-left {
+    transform: translate(-100%, -50%);
+    margin-left: -20px;
+    animation: popInLeft 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.anchored-popup.orientation-left::after {
+    right: -8px;
+    top: calc(50% + var(--arrow-offset, 0px));
+    transform: translateY(-50%) rotate(45deg);
+}
+
+/* Orientation: BOTTOM */
+.anchored-popup.orientation-bottom {
+    transform: translate(-50%, 0);
+    margin-top: 20px;
+    animation: popInBottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.anchored-popup.orientation-bottom::after {
+    top: -8px;
+    left: calc(50% + var(--arrow-offset, 0px));
+    transform: translateX(-50%) rotate(45deg);
+}
+
+
+.anchored-popup.closing {
+    animation: fadeOut 0.2s ease forwards !important; /* Simple fade out for all */
+}
+
+@keyframes popInTop {
+    0% { opacity: 0; transform: translate(-50%, -80%) scale(0.8); }
+    100% { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+}
+@keyframes popInRight {
+    0% { opacity: 0; transform: translate(-20%, -50%) scale(0.8); }
+    100% { opacity: 1; transform: translate(0, -50%) scale(1); }
+}
+@keyframes popInLeft {
+    0% { opacity: 0; transform: translate(-80%, -50%) scale(0.8); }
+    100% { opacity: 1; transform: translate(-100%, -50%) scale(1); }
+}
+@keyframes popInBottom {
+    0% { opacity: 0; transform: translate(-50%, 20%) scale(0.8); }
+    100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+@keyframes fadeOut {
+    to { opacity: 0; }
 }
 
 .anchored-popup::after {
     content: '';
     position: absolute;
-    bottom: -8px;
-    left: calc(50% + var(--arrow-offset, 0px)); /* Dynamic arrow positioning */
-    transform: translateX(-50%) rotate(45deg);
     width: 16px;
     height: 16px;
     background: #ffffff;
     border: none;
-    box-shadow: 4px 4px 8px rgba(0,0,0,0.1); /* Soft shadow to match */
-    z-index: -1; /* Put behind to blend seamlessly */
+    box-shadow: 4px 4px 8px rgba(0,0,0,0.1); /* Soft shadow */
+    z-index: -1; 
 }
 
 .anchored-popup h3 {
@@ -896,7 +955,7 @@ body {
 .popup-row strong {
     color: #1d4ed8 !important;
     font-weight: 700;
-    min-width: 100px;
+    min-width: 130px; /* Increased from 100px */
     display: block;
     font-size: 0.85rem;
     text-transform: uppercase;

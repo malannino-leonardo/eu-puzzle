@@ -924,7 +924,11 @@
         closeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
-            popup.remove();
+            
+            popup.classList.add('closing');
+            popup.addEventListener('animationend', () => {
+                popup.remove();
+            }, { once: true }); 
         });
     }
 
@@ -936,49 +940,130 @@
         // If marker is not visible or layout not ready, retry or abort
         if (rect.width === 0 && rect.height === 0) return;
 
-        // Position relative to viewport (fixed)
-        // Center horizontally on marker, place above marker
-        const originalLeft = rect.left + (rect.width / 2);
-        let left = originalLeft;
-        let top = rect.top; // transform translate -100% in CSS moves it up
-        
-        // Boundary checks
+        // Marker center point
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+
         const popupRect = popup.getBoundingClientRect();
         // Use rendered dimensions or defaults if not yet rendered
         const width = popupRect.width || 360; 
         const height = popupRect.height || 200;
+        
+        // Environment bounds
+        const header = document.querySelector('.game-header');
+        const headerHeight = header ? header.getBoundingClientRect().height : 0;
         const padding = 15;
+        const margin = 20; // The margin applied by CSS for the arrow space
         
-        // Horizontal clamping
-        if (left - width / 2 < padding) {
-            left = padding + width / 2;
-        } else if (left + width / 2 > window.innerWidth - padding) {
-            left = window.innerWidth - padding - width / 2;
+        // Calculate available space in each direction
+        // Safe buffer below header = headerHeight + padding
+        const topLimit = headerHeight + padding;
+        const viewportWidth = document.documentElement.clientWidth;
+        const viewportHeight = document.documentElement.clientHeight;
+        
+        const spaceTop = rect.top - margin - height - topLimit;
+        const spaceRight = viewportWidth - (rect.right + margin + width + padding);
+        const spaceLeft = rect.left - margin - width - padding;
+        const spaceBottom = viewportHeight - (rect.bottom + margin + height + padding);
+
+        // Determine ideal orientation with hysteresis
+        // Check current orientation first to prevent flickering
+        const currentOrientation = Array.from(popup.classList).find(c => c.startsWith('orientation-'))?.replace('orientation-', '') || 'top';
+        let orientation = currentOrientation;
+        
+        // Hysteresis buffer - keep current orientation if it's "close enough" to valid
+        // or if switching would be too sensitive
+        const hysteresis = 20; 
+        
+        let isCurrentValid = false;
+        if (currentOrientation === 'top' && spaceTop >= -hysteresis) isCurrentValid = true;
+        else if (currentOrientation === 'right' && spaceRight >= -hysteresis) isCurrentValid = true;
+        else if (currentOrientation === 'left' && spaceLeft >= -hysteresis) isCurrentValid = true;
+        else if (currentOrientation === 'bottom' && spaceBottom >= -hysteresis) isCurrentValid = true;
+        
+        // If current is definitely invalid (e.g. went way off screen), or if we weren't valid to begin with
+        if (!isCurrentValid) {
+            if (spaceTop >= 0) {
+                orientation = 'top';
+            } else if (spaceRight >= 0) {
+                orientation = 'right';
+            } else if (spaceLeft >= 0) {
+                orientation = 'left';
+            } else if (spaceBottom >= 0) {
+                orientation = 'bottom';
+            } else {
+                 // If no perfect fit, pick dimension with max available space
+                const max = Math.max(spaceTop, spaceRight, spaceLeft, spaceBottom);
+                if (max === spaceTop) orientation = 'top';
+                else if (max === spaceRight) orientation = 'right';
+                else if (max === spaceLeft) orientation = 'left';
+                else orientation = 'bottom';
+            }
         }
         
-        // Vertical clamping (top)
-        // Visual top is (top - height) because of TranslateY(-100%)
-        if (top - height < padding) {
-            top = Math.max(top, padding + height);
+        // Only update class if changed to avoid re-triggering animations if CSS uses them on class change
+        if (orientation !== currentOrientation) {
+            popup.classList.remove('orientation-top', 'orientation-right', 'orientation-left', 'orientation-bottom');
+            popup.classList.add(`orientation-${orientation}`);
         }
-        // Vertical clamping (bottom)
-        if (top > window.innerHeight - padding) {
-            top = window.innerHeight - padding;
+
+        // Calculate Position & Arrow Offset
+        let left, top, arrowOffset, maxOffset;
+        
+        if (orientation === 'top') {
+            left = cx;
+            top = rect.top; // CSS handles translateY(-100%) and margin-top
+            
+            // Clamp Horizontal
+            const minX = padding + width/2;
+            const maxX = viewportWidth - padding - width/2;
+            const originalLeft = left;
+            left = Math.max(minX, Math.min(left, maxX));
+            arrowOffset = originalLeft - left;
+            maxOffset = (width/2) - 24;
+
+        } else if (orientation === 'bottom') {
+            left = cx;
+            top = rect.bottom; // CSS handles translateY(0) and margin-top
+            
+            const minX = padding + width/2;
+            const maxX = viewportWidth - padding - width/2;
+            const originalLeft = left;
+            left = Math.max(minX, Math.min(left, maxX));
+            arrowOffset = originalLeft - left;
+            maxOffset = (width/2) - 24;
+
+        } else if (orientation === 'right') {
+            left = rect.right; // CSS handles margin-left
+            top = cy; // CSS handles translateY(-50%)
+            
+            // Clamp Vertical
+            // Top edge is at (top - height/2). Must be >= topLimit
+            const minY = topLimit + height/2;
+            const maxY = viewportHeight - padding - height/2;
+            const originalTop = top;
+            top = Math.max(minY, Math.min(top, maxY));
+            arrowOffset = originalTop - top;
+            maxOffset = (height/2) - 24;
+
+        } else if (orientation === 'left') {
+            left = rect.left; // CSS handles translateX(-100%) and margin-left
+            top = cy; 
+            
+            const minY = topLimit + height/2;
+            const maxY = viewportHeight - padding - height/2;
+            const originalTop = top;
+            top = Math.max(minY, Math.min(top, maxY));
+            arrowOffset = originalTop - top;
+            maxOffset = (height/2) - 24;
         }
 
         popup.style.left = `${left}px`;
         popup.style.top = `${top}px`;
-        popup.style.position = 'fixed';
+        popup.style.position = 'fixed'; // Ensure fixed mapping
         
-        // Adjust arrow position to point to marker
-        // The arrow is originally at 50% of the popup width.
-        // We calculate how much the popup center deviated from the marker center.
-        const offset = originalLeft - left;
-        
-        // Limit arrow offset so it doesn't detach from popup (keep within border radius)
-        const maxOffset = (width / 2) - 20; // 20px buffer for border radius
-        const clampedOffset = Math.max(-maxOffset, Math.min(maxOffset, offset));
-        
+        // Validate and apply offset
+        const clampedOffset = Math.max(-maxOffset, Math.min(maxOffset, arrowOffset));
         popup.style.setProperty('--arrow-offset', `${clampedOffset}px`);
     }
 
