@@ -263,7 +263,13 @@
         // Process each country
         europeanFeatures.forEach(feature => {
             const id = String(feature.id || feature.properties?.iso_n3 || Math.random());
-            const name = feature.properties?.name || 'Unknown';
+            let name = feature.properties?.name || 'Unknown';
+            
+            // Override with Italian name from countryInfo if available
+            const countryInfo = state.countryInfo.get(id);
+            if (countryInfo && countryInfo.name) {
+                name = countryInfo.name;
+            }
             
             const filteredFeature = filterFeatureToEurope(feature, state.pathGenerator);
             if (!filteredFeature) {
@@ -571,8 +577,8 @@
             a.members.add(countryId);
             state.countryToCluster.set(countryId, clusterA);
         });
-        
-        // Move paths from B to A
+
+        // 1. Move paths from B to A first (so they are "below" future markers)
         b.members.forEach(countryId => {
             const country = state.countries.get(countryId);
             if (!country) return;
@@ -584,6 +590,17 @@
             path.setAttribute('aria-label', country.name);
             
             a.element.appendChild(path);
+        });
+
+        // 2. Move markers from B to A
+        b.element.querySelectorAll('.country-marker').forEach(marker => {
+            a.element.appendChild(marker);
+        });
+
+        // 3. CRITICAL: Bring ALL A's existing markers to front
+        // so they are not covered by the newly added paths from B.
+        a.element.querySelectorAll('.country-marker').forEach(marker => {
+            a.element.appendChild(marker); // Moves to end of children list (top)
         });
         
         // Remove cluster B
@@ -665,14 +682,266 @@
         });
         
         if (bestSnap) {
+            // Determine popup candidate based on cluster sizes
+            const targetCluster = state.clusters.get(bestSnap.targetClusterId);
+            let popupCountryId = null;
+            
+            if (targetCluster) {
+                const draggedSize = draggedCluster.members.size;
+                const targetSize = targetCluster.members.size;
+                
+                // "Only when two countries that weren't connected to anything previously, don't show anchored popup; 
+                // in any other case, show the popup of the new single country connected to the others"
+                if (draggedSize === 1 && targetSize === 1) {
+                    // Start of a new cluster -> No popup, but add markers to both countries
+                    popupCountryId = null; 
+                } else if (draggedSize === 1) {
+                    // Single country connecting to existing cluster -> Show popup
+                    popupCountryId = Array.from(draggedCluster.members)[0];
+                } else if (targetSize === 1) {
+                    // Single country (target) being connected to -> Show popup
+                    popupCountryId = Array.from(targetCluster.members)[0];
+                }
+            }
+
             // Animate snap
             animateSnap(draggedCluster, bestSnap.requiredTransform, () => {
                 mergeClusters(bestSnap.targetClusterId, draggedClusterId);
+                
+                // Add markers to both countries involved in the snap
+                draggedCluster.members.forEach(id => addCountryMarker(id));
+                const targetCluster = state.clusters.get(bestSnap.targetClusterId);
+                if (targetCluster) {
+                    targetCluster.members.forEach(id => addCountryMarker(id));
+                }
+                
+                if (popupCountryId) {
+                    showAnchoredPopup(popupCountryId);
+                }
             });
             return true;
         }
         
         return false;
+    }
+
+    function showAnchoredPopup(countryId) {
+        const country = state.countries.get(countryId);
+        if (!country) return;
+
+        // Add visual marker
+        addCountryMarker(countryId);
+
+        // Show popup with a slight delay to ensure marker is rendered
+        setTimeout(() => {
+            createAnchoredPopup(countryId);
+        }, 50);
+    }
+
+    function addCountryMarker(countryId) {
+        const clusterId = state.countryToCluster.get(countryId);
+        if (clusterId === undefined) return;
+        
+        const cluster = state.clusters.get(clusterId);
+        if (!cluster) return;
+        
+        if (cluster.element.querySelector(`.country-marker[data-for="${countryId}"]`)) return;
+
+        const country = state.countries.get(countryId);
+        
+        const markerGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        markerGroup.setAttribute('class', 'country-marker');
+        markerGroup.setAttribute('data-for', countryId);
+        markerGroup.setAttribute('role', 'button');
+        markerGroup.setAttribute('aria-label', `Info ${country.name}`);
+        
+        // Position at centroid
+        const cx = country.centroid[0];
+        const cy = country.centroid[1];
+        
+        markerGroup.setAttribute('transform', `translate(${cx}, ${cy})`);
+        
+        const pinGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        // Center the pin tip (12, 24) at the centroid (0,0 local). Scaled 1.5x (18, 36)
+        pinGroup.setAttribute('transform', 'translate(-18, -36) scale(1.5)'); 
+        
+        // Solid Pin Shape
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z');
+        path.setAttribute('fill', 'var(--success-color)');
+        path.setAttribute('stroke', '#fff'); 
+        path.setAttribute('stroke-width', '1.5');
+        
+        // White Dot in center
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', '12');
+        dot.setAttribute('cy', '9');
+        dot.setAttribute('r', '3.5');
+        dot.setAttribute('fill', '#fff');
+        
+        pinGroup.appendChild(path);
+        pinGroup.appendChild(dot);
+        markerGroup.appendChild(pinGroup);
+        
+        markerGroup.addEventListener('click', (e) => {
+            e.stopPropagation();
+            createAnchoredPopup(countryId);
+        });
+        
+        markerGroup.addEventListener('pointerdown', (e) => e.stopPropagation());
+
+        cluster.element.appendChild(markerGroup);
+    }
+
+    function createAnchoredPopup(countryId) {
+        const existing = document.querySelector('.anchored-popup');
+        if (existing) existing.remove();
+        
+        const country = state.countries.get(countryId);
+        const info = state.countryInfo.get(countryId) || { capital: '?', population: '?', area: '?', facts: [] };
+        
+        const popup = document.createElement('div');
+        popup.className = 'anchored-popup';
+        // Inline styles to ensure overriding
+        popup.style.background = '#ffffff';
+        popup.style.color = '#000000';
+        popup.style.border = 'none'; // Clear border to let shadow shine
+        popup.style.borderRadius = '16px'; // Modern radius
+        popup.style.boxShadow = '0 10px 30px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)'; // Deep shade
+        popup.style.overflow = 'hidden'; // Clip content to radius
+        // Animation handled by CSS class .anchored-popup
+        
+        // Handle facts (array) - Random fact selection
+        let factText = '';
+        if (info.facts && Array.isArray(info.facts) && info.facts.length > 0) {
+            const randomIndex = Math.floor(Math.random() * info.facts.length);
+            factText = info.facts[randomIndex]; 
+        } else if (info.fact) {
+            factText = info.fact;
+        }
+
+        // Header
+        const h3 = document.createElement('h3');
+        h3.textContent = country.name;
+        h3.style.color = '#ffffff';
+        h3.style.background = 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
+        h3.style.padding = '18px 20px 14px 20px'; // Increased padding
+        h3.style.margin = '0';
+        h3.style.fontSize = '1.4rem';
+        h3.style.fontWeight = '700';
+        h3.style.textTransform = 'uppercase';
+        h3.style.letterSpacing = '0.5px';
+        h3.style.borderBottom = '4px solid #fbbf24'; // Thicker accent
+
+        // Close Button
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'popup-close';
+        closeBtn.textContent = '×';
+        closeBtn.setAttribute('aria-label', 'Chiudi');
+        closeBtn.style.position = 'absolute';
+        closeBtn.style.top = '12px';
+        closeBtn.style.right = '12px';
+        closeBtn.style.background = 'rgba(255,255,255,0.2)';
+        closeBtn.style.border = 'none';
+        closeBtn.style.color = '#ffffff';
+        closeBtn.style.width = '32px'; // Bigger touch target
+        closeBtn.style.height = '32px';
+        closeBtn.style.borderRadius = '50%';
+        closeBtn.style.cursor = 'pointer';
+        closeBtn.style.zIndex = '10';
+        closeBtn.style.fontSize = '1.5rem';
+        closeBtn.style.display = 'flex';
+        closeBtn.style.alignItems = 'center';
+        closeBtn.style.justifyContent = 'center';
+
+        // Details Container
+        const detailsContainer = document.createElement('div');
+        detailsContainer.className = 'popup-details';
+        detailsContainer.style.padding = '20px'; // More breathing room
+        detailsContainer.style.background = '#ffffff';
+        detailsContainer.style.color = '#000000';
+
+        const addRow = (label, value) => {
+            if (!value) return;
+            const row = document.createElement('div');
+            row.className = 'popup-row';
+            row.style.marginBottom = '12px';
+            row.style.color = '#000000';
+            row.style.paddingBottom = '10px';
+            row.style.borderBottom = '1px solid #f0f0f0';
+            
+            row.innerHTML = `<strong style="color: #1d4ed8; display:block; margin-bottom:4px; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">${label}</strong><div class="popup-row-value" style="color: #333333; font-weight:600; font-size:1.1rem;">${value}</div>`;
+            detailsContainer.appendChild(row);
+        };
+
+        addRow('Capitale', info.capital);
+        addRow('Popolazione', info.population);
+        addRow('Superficie', info.area);
+
+        // Fact
+        const factDiv = document.createElement('div');
+        if (factText) {
+            factDiv.className = 'popup-fact';
+            factDiv.style.backgroundColor = '#f0f4ff';
+            factDiv.style.padding = '18px 20px'; 
+            factDiv.style.color = '#333333';
+            factDiv.style.borderTop = '1px solid #e5ecff';
+            // Bigger font for fact
+            factDiv.innerHTML = `<strong style="color: #1d4ed8; display:block; margin-bottom:8px; font-weight:700; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.5px;">Curiosità</strong><span style="font-size: 1.05rem; line-height: 1.6;">${factText}</span>`;
+        }
+
+        popup.appendChild(h3);
+        popup.appendChild(closeBtn);
+        popup.appendChild(detailsContainer);
+        if (factText) popup.appendChild(factDiv);
+
+        
+        const clusterId = state.countryToCluster.get(countryId);
+        const cluster = state.clusters.get(clusterId);
+        if (!cluster) return;
+
+        const marker = cluster.element.querySelector(`.country-marker[data-for="${countryId}"]`);
+        if (!marker) return;
+
+        document.body.appendChild(popup);
+        
+        popup._markerElement = marker;
+        popup._countryId = countryId;
+        
+        updatePopupPosition(popup, marker);
+        requestAnimationFrame(() => updatePopupPosition(popup, marker));
+        
+        const updateOnEvent = () => {
+            if (popup.parentElement) {
+                updatePopupPosition(popup, marker);
+            }
+        };
+        
+        state.svg.addEventListener('wheel', updateOnEvent, true);
+        
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            state.svg.removeEventListener('wheel', updateOnEvent, true);
+            popup.remove();
+        });
+    }
+
+    function updatePopupPosition(popup, marker) {
+        if (!popup || !marker) return;
+        
+        const rect = marker.getBoundingClientRect();
+        
+        // If marker is not visible or layout not ready, retry or abort
+        if (rect.width === 0 && rect.height === 0) return;
+
+        // Position relative to viewport (fixed)
+        // Center horizontally on marker, place above marker
+        const left = rect.left + (rect.width / 2);
+        const top = rect.top; // transform translate -100% in CSS moves it up
+        
+        popup.style.left = `${left}px`;
+        popup.style.top = `${top}px`;
+        popup.style.position = 'fixed';
     }
 
     function calculateRequiredTransform(draggedCountry, draggedTransform, targetCountry, targetTransform) {
@@ -801,6 +1070,12 @@
     }
 
     function onPointerDown(e) {
+        // If clicking outside popup, close it
+        // Check if target is inside an existing popup or is a marker
+        if (!e.target.closest('.anchored-popup') && !e.target.closest('.country-marker')) {
+            document.querySelector('.anchored-popup')?.remove();
+        }
+
         const clusterElement = e.target.closest('.cluster-group');
         if (!clusterElement) return;
         
@@ -968,6 +1243,7 @@
         // Right mouse button (button === 2) for panning
         if (e.button === 2) {
             e.preventDefault();
+            document.querySelector('.anchored-popup')?.remove();
             state.isPanning = true;
             state.panStart = { x: e.clientX, y: e.clientY };
             state.viewBoxStart = { x: state.viewBox.x, y: state.viewBox.y };
