@@ -762,6 +762,7 @@
         markerGroup.setAttribute('transform', `translate(${cx}, ${cy})`);
         
         const pinGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        pinGroup.setAttribute('class', 'marker-pin');
         // Center the pin tip (12, 24) at the centroid (0,0 local). Scaled 1.5x (18, 36)
         pinGroup.setAttribute('transform', 'translate(-18, -36) scale(1.5)'); 
         
@@ -909,19 +910,20 @@
         popup._countryId = countryId;
         
         updatePopupPosition(popup, marker);
-        requestAnimationFrame(() => updatePopupPosition(popup, marker));
         
-        const updateOnEvent = () => {
+        // Use a continuous loop to keep popup synced with marker during pan/zoom
+        let animationFrameId;
+        const updateLoop = () => {
             if (popup.parentElement) {
                 updatePopupPosition(popup, marker);
+                animationFrameId = requestAnimationFrame(updateLoop);
             }
         };
-        
-        state.svg.addEventListener('wheel', updateOnEvent, true);
+        animationFrameId = requestAnimationFrame(updateLoop);
         
         closeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            state.svg.removeEventListener('wheel', updateOnEvent, true);
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
             popup.remove();
         });
     }
@@ -936,12 +938,48 @@
 
         // Position relative to viewport (fixed)
         // Center horizontally on marker, place above marker
-        const left = rect.left + (rect.width / 2);
-        const top = rect.top; // transform translate -100% in CSS moves it up
+        const originalLeft = rect.left + (rect.width / 2);
+        let left = originalLeft;
+        let top = rect.top; // transform translate -100% in CSS moves it up
         
+        // Boundary checks
+        const popupRect = popup.getBoundingClientRect();
+        // Use rendered dimensions or defaults if not yet rendered
+        const width = popupRect.width || 360; 
+        const height = popupRect.height || 200;
+        const padding = 15;
+        
+        // Horizontal clamping
+        if (left - width / 2 < padding) {
+            left = padding + width / 2;
+        } else if (left + width / 2 > window.innerWidth - padding) {
+            left = window.innerWidth - padding - width / 2;
+        }
+        
+        // Vertical clamping (top)
+        // Visual top is (top - height) because of TranslateY(-100%)
+        if (top - height < padding) {
+            top = Math.max(top, padding + height);
+        }
+        // Vertical clamping (bottom)
+        if (top > window.innerHeight - padding) {
+            top = window.innerHeight - padding;
+        }
+
         popup.style.left = `${left}px`;
         popup.style.top = `${top}px`;
         popup.style.position = 'fixed';
+        
+        // Adjust arrow position to point to marker
+        // The arrow is originally at 50% of the popup width.
+        // We calculate how much the popup center deviated from the marker center.
+        const offset = originalLeft - left;
+        
+        // Limit arrow offset so it doesn't detach from popup (keep within border radius)
+        const maxOffset = (width / 2) - 20; // 20px buffer for border radius
+        const clampedOffset = Math.max(-maxOffset, Math.min(maxOffset, offset));
+        
+        popup.style.setProperty('--arrow-offset', `${clampedOffset}px`);
     }
 
     function calculateRequiredTransform(draggedCountry, draggedTransform, targetCountry, targetTransform) {

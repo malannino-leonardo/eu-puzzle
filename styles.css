@@ -795,12 +795,22 @@ body {
    ===================================================== */
 .country-marker {
     cursor: pointer;
-    transition: transform 0.2s;
+    /* transition removed to avoid conflict */
     filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
 }
 
-.country-marker:hover {
-    transform: scale(1.2);
+/* Apply hover effect to inner element to avoid layout thrashing */
+.marker-pin {
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* Initial state matches JS setAttribute but CSS overrides it, so we must define it here */
+    transform: translate(-18px, -36px) scale(1.5); 
+    transform-origin: 0 0; /* Fallback */
+    transform-box: fill-box; /* Relative to element bounding box if needed, but here we use explicit translate */
+    /* Actually for consistency with existing JS transform logic, we just use the transform string */
+}
+
+.country-marker:hover .marker-pin {
+    transform: translate(-18px, -36px) scale(1.8);
 }
 
 .anchored-popup {
@@ -812,7 +822,9 @@ body {
     padding: 0;
     box-shadow: 0 10px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.05); /* Deep shade */
     z-index: 2000;
-    width: 320px;
+    min-width: 360px; /* Slightly larger min-width */
+    width: auto;
+    max-width: 90vw;
     pointer-events: auto;
     /* animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); */
     transform: translate(-50%, -100%);
@@ -836,7 +848,7 @@ body {
     content: '';
     position: absolute;
     bottom: -8px;
-    left: 50%;
+    left: calc(50% + var(--arrow-offset, 0px)); /* Dynamic arrow positioning */
     transform: translateX(-50%) rotate(45deg);
     width: 16px;
     height: 16px;
