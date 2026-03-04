@@ -150,6 +150,11 @@
             
             showLoading(false);
             
+            // Show welcome modal only if user hasn't dismissed it before
+            if (!getCookie('tutorialSeen')) {
+                showWelcomeModal();
+            }
+            
             console.log('[Puzzle UE] Initialized!');
             console.log(`[Info] Loaded ${state.countries.size} countries`);
             
@@ -565,8 +570,10 @@
         if (!a || !b) return;
         
         // Clear all snap preview classes from both clusters before merging
+        // Also mark all of A's existing paths as snapped (they are confirmed in position)
         a.element.querySelectorAll('.country-path').forEach(path => {
             path.classList.remove('snap-preview', 'snap-error');
+            path.classList.add('snapped');
         });
         b.element.querySelectorAll('.country-path').forEach(path => {
             path.classList.remove('snap-preview', 'snap-error');
@@ -613,6 +620,24 @@
         // Remove focus from the merged cluster to prevent it from staying focused
         if (document.activeElement === a.element) {
             a.element.blur();
+        }
+        
+        // Flash newly snapped countries
+        b.members.forEach(countryId => {
+            const pathEl = a.element.querySelector(`[data-country-id="${countryId}"]`);
+            if (pathEl) {
+                pathEl.classList.add('snap-connect');
+                setTimeout(() => pathEl.classList.remove('snap-connect'), 550);
+            }
+        });
+        
+        // Pulse progress bar
+        const progressFill = document.getElementById('progress-fill');
+        if (progressFill) {
+            progressFill.classList.remove('pulse');
+            void progressFill.offsetWidth; // reflow
+            progressFill.classList.add('pulse');
+            setTimeout(() => progressFill.classList.remove('pulse'), 700);
         }
         
         // Update progress
@@ -706,6 +731,9 @@
 
             // Animate snap
             animateSnap(draggedCluster, bestSnap.requiredTransform, () => {
+                // Snap burst visual effect
+                createSnapRipple(draggedCluster.element);
+                
                 mergeClusters(bestSnap.targetClusterId, draggedClusterId);
                 
                 // Add markers to both countries involved in the snap
@@ -770,7 +798,7 @@
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z');
         path.setAttribute('fill', 'var(--success-color)');
-        path.setAttribute('stroke', '#fff'); 
+        path.setAttribute('stroke', '#fff');
         path.setAttribute('stroke-width', '1.5');
         
         // White Dot in center
@@ -825,7 +853,7 @@
         const h3 = document.createElement('h3');
         h3.textContent = country.name;
         h3.style.color = '#ffffff';
-        h3.style.background = 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
+        h3.style.background = 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)';
         h3.style.padding = '18px 20px 14px 20px'; // Increased padding
         h3.style.margin = '0';
         h3.style.fontSize = '1.4rem';
@@ -871,7 +899,7 @@
             row.style.paddingBottom = '10px';
             row.style.borderBottom = '1px solid #f0f0f0';
             
-            row.innerHTML = `<strong style="color: #1d4ed8; display:block; margin-bottom:4px; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">${label}</strong><div class="popup-row-value" style="color: #333333; font-weight:600; font-size:1.1rem;">${value}</div>`;
+            row.innerHTML = `<strong style="color: #6366f1; display:block; margin-bottom:4px; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">${label}</strong><div class="popup-row-value" style="color: #333333; font-weight:600; font-size:1.1rem;">${value}</div>`;
             detailsContainer.appendChild(row);
         };
 
@@ -888,7 +916,7 @@
             factDiv.style.color = '#333333';
             factDiv.style.borderTop = '1px solid #e5ecff';
             // Bigger font for fact
-            factDiv.innerHTML = `<strong style="color: #1d4ed8; display:block; margin-bottom:8px; font-weight:700; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.5px;">Curiosità</strong><span style="font-size: 1.05rem; line-height: 1.6;">${factText}</span>`;
+            factDiv.innerHTML = `<strong style="color: #6366f1; display:block; margin-bottom:8px; font-weight:700; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.5px;">Curiosità</strong><span style="font-size: 1.05rem; line-height: 1.6;">${factText}</span>`;
         }
 
         popup.appendChild(h3);
@@ -1177,6 +1205,7 @@
         // UI buttons
         document.getElementById('btn-reset').addEventListener('click', resetGame);
         document.getElementById('btn-hint').addEventListener('click', showHint);
+        document.getElementById('btn-open-tutorial').addEventListener('click', showWelcomeModal);
         document.getElementById('btn-close-panel').addEventListener('click', closeInfoPanel);
         document.getElementById('btn-restart').addEventListener('click', resetGame);
         
@@ -1911,6 +1940,366 @@
             clearTimeout(timeout);
             timeout = setTimeout(() => func.apply(this, args), wait);
         };
+    }
+
+    // =====================================================
+    // COOKIE HELPERS
+    // =====================================================
+
+    function setCookie(name, value, days) {
+        const expires = new Date(Date.now() + days * 864e5).toUTCString();
+        document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+    }
+
+    function getCookie(name) {
+        return document.cookie
+            .split('; ')
+            .find(row => row.startsWith(name + '='))
+            ?.split('=')[1]
+            ? decodeURIComponent(document.cookie.split('; ').find(row => row.startsWith(name + '='))?.split('=')[1] || '')
+            : null;
+    }
+
+    function deleteCookie(name) {
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax`;
+    }
+
+    // =====================================================
+    // SNAP RIPPLE BURST ANIMATION
+    // =====================================================
+
+    function createSnapRipple(clusterElement) {
+        if (!clusterElement) return;
+
+        const rect = clusterElement.getBoundingClientRect();
+        if (!rect.width && !rect.height) return;
+
+        const screenX = rect.left + rect.width / 2;
+        const screenY = rect.top + rect.height / 2;
+
+        const pt = state.svg.createSVGPoint();
+        pt.x = screenX;
+        pt.y = screenY;
+        const svgPoint = pt.matrixTransform(state.svg.getScreenCTM().inverse());
+
+        const startTime = performance.now();
+        const duration = 620;
+
+        // Ring ripple
+        const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        ring.setAttribute('cx', svgPoint.x);
+        ring.setAttribute('cy', svgPoint.y);
+        ring.setAttribute('r', '0');
+        ring.setAttribute('fill', 'none');
+        ring.setAttribute('stroke', '#10b981');
+        ring.setAttribute('stroke-width', '5');
+        state.svg.appendChild(ring);
+
+        // Second ring (delayed)
+        const ring2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        ring2.setAttribute('cx', svgPoint.x);
+        ring2.setAttribute('cy', svgPoint.y);
+        ring2.setAttribute('r', '0');
+        ring2.setAttribute('fill', 'none');
+        ring2.setAttribute('stroke', '#818cf8');
+        ring2.setAttribute('stroke-width', '3');
+        state.svg.appendChild(ring2);
+
+        // Burst particles
+        const particles = [];
+        const numParticles = 8;
+        const colors = ['#10b981', '#34d399', '#818cf8', '#fbbf24', '#6ee7b7', '#a78bfa', '#10b981', '#34d399'];
+
+        for (let i = 0; i < numParticles; i++) {
+            const angle = (i / numParticles) * Math.PI * 2 + Math.random() * 0.3;
+            const speed = 30 + Math.random() * 30;
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', svgPoint.x);
+            circle.setAttribute('cy', svgPoint.y);
+            circle.setAttribute('r', 2.5 + Math.random() * 2);
+            circle.setAttribute('fill', colors[i]);
+            state.svg.appendChild(circle);
+            particles.push({ el: circle, angle, speed, delay: Math.random() * 60 });
+        }
+
+        function animateBurst(now) {
+            const elapsed = now - startTime;
+            const t = Math.min(elapsed / duration, 1);
+            const ease = 1 - Math.pow(1 - t, 2.5);
+
+            // Ring 1
+            ring.setAttribute('r', ease * 55);
+            ring.setAttribute('stroke-opacity', (1 - t) * 0.85);
+            ring.setAttribute('stroke-width', (1 - t * 0.7) * 5);
+
+            // Ring 2 (slight delay)
+            const t2 = Math.min(Math.max((elapsed - 100) / duration, 0), 1);
+            const ease2 = 1 - Math.pow(1 - t2, 2.5);
+            ring2.setAttribute('r', ease2 * 40);
+            ring2.setAttribute('stroke-opacity', (1 - t2) * 0.6);
+
+            // Particles
+            particles.forEach(p => {
+                const pe = Math.max(0, elapsed - p.delay);
+                const pt_ = Math.min(pe / (duration * 0.75), 1);
+                const pe_ = 1 - Math.pow(1 - pt_, 2);
+                const dx = Math.cos(p.angle) * p.speed * pe_;
+                const dy = Math.sin(p.angle) * p.speed * pe_;
+                p.el.setAttribute('cx', svgPoint.x + dx);
+                p.el.setAttribute('cy', svgPoint.y + dy);
+                p.el.setAttribute('opacity', 1 - pt_);
+            });
+
+            if (t < 1) {
+                requestAnimationFrame(animateBurst);
+            } else {
+                ring.remove();
+                ring2.remove();
+                particles.forEach(p => p.el.remove());
+            }
+        }
+
+        requestAnimationFrame(animateBurst);
+    }
+
+    // =====================================================
+    // WELCOME MODAL
+    // =====================================================
+
+    function showWelcomeModal() {
+        const modal = document.getElementById('welcome-modal');
+        if (!modal) return;
+
+        // Reveal the modal with animation
+        modal.classList.remove('hidden');
+        modal.style.opacity = '0';
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                modal.style.transition = 'opacity 0.3s ease';
+                modal.style.opacity = '1';
+            });
+        });
+
+        // Use { once: true } to prevent listener stacking on repeated opens
+        document.getElementById('btn-skip-tutorial').addEventListener('click', () => {
+            setCookie('tutorialSeen', 'true', 365);
+            hideWelcomeModal();
+        }, { once: true });
+
+        document.getElementById('btn-start-tutorial').addEventListener('click', () => {
+            setCookie('tutorialSeen', 'true', 365);
+            hideWelcomeModal();
+            setTimeout(startTutorial, 400);
+        }, { once: true });
+    }
+
+    function hideWelcomeModal() {
+        const modal = document.getElementById('welcome-modal');
+        if (!modal) return;
+        modal.style.transition = 'opacity 0.25s ease';
+        modal.style.opacity = '0';
+        setTimeout(() => modal.classList.add('hidden'), 280);
+    }
+
+    // =====================================================
+    // TUTORIAL SYSTEM
+    // =====================================================
+
+    const TUTORIAL_STEPS = [
+        {
+            selector: null,
+            title: '👋 Benvenuto!',
+            text: 'Sei qui per ricostruire la mappa dell\'Unione Europea. I 27 paesi sono sparsi ai bordi — il tuo obiettivo è rimetterli al loro posto!'
+        },
+        {
+            selector: '#board-container',
+            title: '🗺️ La Mappa',
+            text: 'Questa è l\'area di gioco. I pezzi del puzzle sono sparpagliati intorno ai bordi. Trascina un pezzo verso il centro per iniziare a comporre la mappa!'
+        },
+        {
+            selector: '#board-container',
+            title: '🔗 Aggancia i Confini',
+            text: 'Avvicina due paesi che condividono un confine: si agganceranno automaticamente con un\'animazione! Inizia con paesi grandi come Germania, Francia o Spagna.'
+        },
+        {
+            selector: '#btn-hint',
+            title: '💡 Suggerimento',
+            text: 'Sei bloccato? Questo pulsante evidenzia il paese più piccolo ancora non collegato. Usalo con parsimonia per non perdere il gusto della sfida!'
+        },
+        {
+            selector: '.progress-container',
+            title: '📊 Progresso',
+            text: 'Qui vedi quanti paesi hai già collegato al gruppo principale. L\'obiettivo è portare il contatore a 27!'
+        },
+        {
+            selector: '#btn-reset',
+            title: '🔄 Ricomincia',
+            text: 'Se vuoi ricominciare da capo, usa il pulsante Reset. Mescola tutti i pezzi e dà una nuova occasione!'
+        },
+        {
+            selector: null,
+            title: '🎉 Sei pronto!',
+            text: 'Ora sai tutto quello che ti serve. Buona fortuna nel ricostruire l\'Unione Europea! Puoi farcela! 🇪🇺'
+        }
+    ];
+
+    const tutorialState = {
+        active: false,
+        step: 0,
+        highlightedElement: null
+    };
+
+    function startTutorial() {
+        tutorialState.active = true;
+        tutorialState.step = 0;
+
+        const overlay = document.getElementById('tutorial-overlay');
+        overlay.classList.remove('hidden');
+
+        // Render progress dots
+        const dotsEl = document.getElementById('tutorial-dots');
+        dotsEl.innerHTML = '';
+        TUTORIAL_STEPS.forEach((_, i) => {
+            const dot = document.createElement('span');
+            dot.className = 'tutorial-dot';
+            dot.dataset.step = i;
+            dotsEl.appendChild(dot);
+        });
+
+        // Bind navigation buttons
+        document.getElementById('btn-next-tutorial').addEventListener('click', nextTutorialStep);
+        document.getElementById('btn-close-tutorial').addEventListener('click', closeTutorial);
+
+        // Pressing Escape closes tutorial
+        document.addEventListener('keydown', onTutorialEscape);
+
+        // Clicking overlay background also advances
+        document.getElementById('tutorial-overlay').addEventListener('click', nextTutorialStep);
+
+        showTutorialStep(0);
+    }
+
+    function onTutorialEscape(e) {
+        if (e.key === 'Escape') closeTutorial();
+    }
+
+    function showTutorialStep(index) {
+        const step = TUTORIAL_STEPS[index];
+        if (!step) { closeTutorial(); return; }
+
+        const tooltip = document.getElementById('tutorial-tooltip');
+        const spotlight = document.getElementById('tutorial-spotlight');
+        const total = TUTORIAL_STEPS.length;
+
+        // Update text
+        document.getElementById('tutorial-step-num').textContent = index + 1;
+        document.getElementById('tutorial-step-total').textContent = total;
+        document.getElementById('tutorial-step-title').textContent = step.title;
+        document.getElementById('tutorial-step-text').textContent = step.text;
+
+        // Last step: change "Avanti" to "Inizia"
+        const nextBtn = document.getElementById('btn-next-tutorial');
+        nextBtn.textContent = index === total - 1 ? '🎮 Inizia!' : 'Avanti →';
+
+        // Update progress dots
+        document.querySelectorAll('.tutorial-dot').forEach((dot, i) => {
+            dot.classList.remove('active', 'done');
+            if (i < index) dot.classList.add('done');
+            else if (i === index) dot.classList.add('active');
+        });
+
+        // Spotlight handling
+        if (step.selector) {
+            const target = document.querySelector(step.selector);
+            if (target) {
+                const rect = target.getBoundingClientRect();
+                const padding = 8;
+                spotlight.style.top    = `${rect.top - padding}px`;
+                spotlight.style.left   = `${rect.left - padding}px`;
+                spotlight.style.width  = `${rect.width + padding * 2}px`;
+                spotlight.style.height = `${rect.height + padding * 2}px`;
+                spotlight.classList.remove('hidden');
+
+                // Position tooltip relative to the target
+                tooltip.classList.remove('hidden');
+                tooltip.classList.remove('animating');
+                void tooltip.offsetWidth; // reflow
+                tooltip.classList.add('animating');
+                positionTutorialTooltip(target, tooltip);
+            } else {
+                spotlight.classList.add('hidden');
+                centerTutorialTooltip(tooltip);
+            }
+        } else {
+            spotlight.classList.add('hidden');
+            tooltip.classList.remove('hidden');
+            tooltip.classList.remove('animating');
+            void tooltip.offsetWidth;
+            tooltip.classList.add('animating');
+            centerTutorialTooltip(tooltip);
+        }
+
+        tutorialState.step = index;
+    }
+
+    function positionTutorialTooltip(targetEl, tooltip) {
+        const targetRect = targetEl.getBoundingClientRect();
+        const padding = 16;
+        const tooltipW = tooltip.offsetWidth || 320;
+        const tooltipH = tooltip.offsetHeight || 180;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        // Try below target first, then above, then center
+        let top, left;
+
+        const spaceBelow = vh - (targetRect.bottom + padding + tooltipH);
+        const spaceAbove = targetRect.top - padding - tooltipH;
+
+        if (spaceBelow >= 0) {
+            top = targetRect.bottom + padding;
+        } else if (spaceAbove >= 0) {
+            top = targetRect.top - padding - tooltipH;
+        } else {
+            top = Math.max(padding, Math.min(vh - tooltipH - padding, targetRect.bottom + padding));
+        }
+
+        // Horizontally center on target
+        left = targetRect.left + targetRect.width / 2 - tooltipW / 2;
+        left = Math.max(padding, Math.min(vw - tooltipW - padding, left));
+
+        tooltip.style.top  = `${top}px`;
+        tooltip.style.left = `${left}px`;
+        tooltip.style.transform = '';
+    }
+
+    function centerTutorialTooltip(tooltip) {
+        tooltip.style.top       = '50%';
+        tooltip.style.left      = '50%';
+        tooltip.style.transform = 'translate(-50%, -50%)';
+    }
+
+    function nextTutorialStep() {
+        const next = tutorialState.step + 1;
+        if (next >= TUTORIAL_STEPS.length) {
+            closeTutorial();
+        } else {
+            showTutorialStep(next);
+        }
+    }
+
+    function closeTutorial() {
+        tutorialState.active = false;
+
+        const overlay  = document.getElementById('tutorial-overlay');
+        const tooltip  = document.getElementById('tutorial-tooltip');
+        const spotlight = document.getElementById('tutorial-spotlight');
+
+        overlay.classList.add('hidden');
+        tooltip.classList.add('hidden');
+        spotlight.classList.add('hidden');
+
+        document.removeEventListener('keydown', onTutorialEscape);
     }
 
     // =====================================================
