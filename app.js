@@ -1672,6 +1672,14 @@
             
             // Merge
             mergeClusters(clusterAId, clusterBId);
+
+            // Add markers for all members of the merged cluster so they appear
+            // when the user switches back to normal mode
+            const mergedCluster = state.clusters.get(clusterAId);
+            if (mergedCluster) {
+                mergedCluster.members.forEach(id => addCountryMarker(id));
+            }
+
             return true;
         }
         
