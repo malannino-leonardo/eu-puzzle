@@ -2107,46 +2107,82 @@
 
     const TUTORIAL_STEPS = [
         {
+            icon: '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/>',
             selector: null,
-            title: '👋 Benvenuto!',
-            text: 'Sei qui per ricostruire la mappa dell\'Unione Europea. I 27 paesi sono sparsi ai bordi — il tuo obiettivo è rimetterli al loro posto!'
+            title: 'Benvenuto!',
+            text: 'Sei qui per ricostruire la mappa dell\'Unione Europea. I 27 paesi sono sparsi ed il tuo obiettivo è rimetterli al loro posto! Questo tutorial ti guiderà passo dopo passo.',
+            isMapStep: false
         },
         {
+            icon: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 8h10M7 12h6"/>',
             selector: '#board-container',
-            title: '🗺️ La Mappa',
-            text: 'Questa è l\'area di gioco. I pezzi del puzzle sono sparpagliati intorno ai bordi. Trascina un pezzo verso il centro per iniziare a comporre la mappa!'
+            title: 'L\'Area di Gioco',
+            text: 'Questa è l\'area di gioco. I pezzi del puzzle sono sparpagliati qui intorno. Trascina un paese verso il centro per iniziare a comporre la mappa dell\'Unione Europea!',
+            isMapStep: true
         },
         {
+            icon: '<circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="18" cy="12" r="2" fill="currentColor"/><path d="M8 12h8"/><rect x="3" y="4" width="6" height="5" rx="1"/><rect x="15" y="15" width="6" height="5" rx="1"/>',
             selector: '#board-container',
-            title: '🔗 Aggancia i Confini',
-            text: 'Avvicina due paesi che condividono un confine: si agganceranno automaticamente con un\'animazione! Inizia con paesi grandi come Germania, Francia o Spagna.'
+            title: 'Significato dei Colori',
+            text: 'I colori dei paesi indicano il loro stato attuale:',
+            colorList: [
+                { swatch: '#3b7dd8', shadow: '#3b7dd888', label: 'Blu', desc: 'Paese ancora da posizionare' },
+                { swatch: '#f59e0b', shadow: '#f59e0b88', label: 'Oro', desc: 'Paese selezionato o in movimento' },
+                { swatch: '#10b981', shadow: '#10b98188', label: 'Verde', desc: 'Paese correttamente collegato' },
+                { swatch: '#8b5cf6', shadow: '#8b5cf688', label: 'Viola', desc: 'Evidenziato (hover o suggerimento)' }
+            ],
+            isMapStep: true
         },
         {
+            icon: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+            selector: '#board-container',
+            title: 'Aggancia i Confini',
+            text: 'Avvicina Francia e Germania finché si agganciano automaticamente! Le frecce sul campo mostrano i due paesi e la zona di aggancio. Trascina un paese verso l\'altro!',
+            isMapStep: true,
+            isSnapDemo: true
+        },
+        {
+            icon: '<line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/>',
             selector: '#btn-hint',
-            title: '💡 Suggerimento',
-            text: 'Sei bloccato? Questo pulsante evidenzia il paese più piccolo ancora non collegato. Usalo con parsimonia per non perdere il gusto della sfida!'
+            title: 'Suggerimento',
+            text: 'Sei bloccato? Questo pulsante evidenzia il paese più piccolo ancora non collegato. Usalo con parsimonia per non perdere il gusto della sfida!',
+            isMapStep: false
         },
         {
+            icon: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
             selector: '.progress-container',
-            title: '📊 Progresso',
-            text: 'Qui vedi quanti paesi hai già collegato al gruppo principale. L\'obiettivo è portare il contatore a 27!'
+            title: 'Barra di Progresso',
+            text: 'Qui vedi quanti paesi hai già collegato al gruppo principale. L\'obiettivo è portare il contatore a 27 su 27!',
+            isMapStep: false
         },
         {
+            icon: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
             selector: '#btn-reset',
-            title: '🔄 Ricomincia',
-            text: 'Se vuoi ricominciare da capo, usa il pulsante Reset. Mescola tutti i pezzi e dà una nuova occasione!'
+            title: 'Ricomincia',
+            text: 'Se vuoi ricominciare da capo, usa il pulsante Reset. Tutti i pezzi vengono rimescolati e puoi provare di nuovo a tuo piacimento!',
+            isMapStep: false
         },
         {
+            icon: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+            selector: '#btn-open-tutorial',
+            title: 'Riapri il Tutorial',
+            text: 'Hai dubbi durante il gioco? Premi il pulsante "Tutorial" in cima alla pagina per riaprire questa guida in qualsiasi momento!',
+            isMapStep: false
+        },
+        {
+            icon: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
             selector: null,
-            title: '🎉 Sei pronto!',
-            text: 'Ora sai tutto quello che ti serve. Buona fortuna nel ricostruire l\'Unione Europea! Puoi farcela! 🇪🇺'
+            title: 'Sei Pronto!',
+            text: 'Ora sai tutto quello che ti serve. Buona fortuna nel ricostruire l\'Unione Europea! Ricorda: puoi sempre riaprire questo tutorial dal pulsante in alto. Puoi farcela!',
+            isMapStep: false
         }
     ];
 
     const tutorialState = {
         active: false,
         step: 0,
-        highlightedElement: null
+        highlightedElement: null,
+        savedViewBox: null
     };
 
     function startTutorial() {
@@ -2168,6 +2204,7 @@
 
         // Bind navigation buttons
         document.getElementById('btn-next-tutorial').addEventListener('click', nextTutorialStep);
+        document.getElementById('btn-prev-tutorial').addEventListener('click', prevTutorialStep);
         document.getElementById('btn-close-tutorial').addEventListener('click', closeTutorial);
 
         // Pressing Escape closes tutorial
@@ -2191,11 +2228,72 @@
         const spotlight = document.getElementById('tutorial-spotlight');
         const total = TUTORIAL_STEPS.length;
 
-        // Update text
+        // Update step indicator
         document.getElementById('tutorial-step-num').textContent = index + 1;
         document.getElementById('tutorial-step-total').textContent = total;
+
+        // Render icon
+        const iconEl = document.getElementById('tutorial-step-icon');
+        if (iconEl) {
+            if (step.icon) {
+                iconEl.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="28" height="28">${step.icon}</svg>`;
+                iconEl.style.display = 'flex';
+            } else {
+                iconEl.style.display = 'none';
+            }
+        }
+
+        // Update text content
         document.getElementById('tutorial-step-title').textContent = step.title;
         document.getElementById('tutorial-step-text').textContent = step.text;
+
+        // Color list (step 3)
+        const listEl = document.getElementById('tutorial-step-list');
+        if (listEl) {
+            if (step.colorList && step.colorList.length) {
+                listEl.innerHTML = step.colorList.map(c =>
+                    `<li class="tutorial-color-item">
+                        <span class="tutorial-color-swatch" style="background:${c.swatch};box-shadow:0 0 6px ${c.shadow}"></span>
+                        <span class="tutorial-color-label"><strong>${c.label}</strong></span>
+                        <span class="tutorial-color-desc">${c.desc}</span>
+                    </li>`
+                ).join('');
+                listEl.hidden = false;
+            } else {
+                listEl.hidden = true;
+                listEl.innerHTML = '';
+            }
+        }
+
+        // Show/hide Back button
+        const prevBtn = document.getElementById('btn-prev-tutorial');
+        if (prevBtn) prevBtn.style.display = index === 0 ? 'none' : '';
+
+        // On last step: hide Close button, show only Inizia
+        const closeBtn = document.getElementById('btn-close-tutorial');
+        const isLast = index === total - 1;
+        if (closeBtn) closeBtn.style.display = isLast ? 'none' : '';
+
+        // Snap demo (step 4)
+        if (step.isSnapDemo) {
+            activateTutorialSnapDemo();
+        } else {
+            deactivateTutorialSnapDemo();
+        }
+
+        // During snap demo: let the user actually interact with the map
+        const overlayEl = document.getElementById('tutorial-overlay');
+        if (overlayEl) overlayEl.style.pointerEvents = step.isSnapDemo ? 'none' : '';
+
+        // Pulsing glow on the map during map steps
+        const boardContainer = document.getElementById('board-container');
+        if (boardContainer) {
+            if (step.isMapStep) {
+                boardContainer.classList.add('tutorial-map-glow');
+            } else {
+                boardContainer.classList.remove('tutorial-map-glow');
+            }
+        }
 
         // Last step: change "Avanti" to "Inizia"
         const nextBtn = document.getElementById('btn-next-tutorial');
@@ -2226,6 +2324,13 @@
                 void tooltip.offsetWidth; // reflow
                 tooltip.classList.add('animating');
                 positionTutorialTooltip(target, tooltip);
+                // Snap demo: pin tooltip to bottom-right corner so the countries are fully visible
+                if (step.isSnapDemo) {
+                    tooltip.style.top    = '';
+                    tooltip.style.left   = '';
+                    tooltip.style.bottom = '1.5rem';
+                    tooltip.style.right  = '1.5rem';
+                }
             } else {
                 spotlight.classList.add('hidden');
                 centerTutorialTooltip(tooltip);
@@ -2243,6 +2348,9 @@
     }
 
     function positionTutorialTooltip(targetEl, tooltip) {
+        // Clear any corner-pinned values from snap demo step
+        tooltip.style.bottom = '';
+        tooltip.style.right  = '';
         const targetRect = targetEl.getBoundingClientRect();
         const padding = 16;
         const tooltipW = tooltip.offsetWidth || 320;
@@ -2274,6 +2382,8 @@
     }
 
     function centerTutorialTooltip(tooltip) {
+        tooltip.style.bottom = '';
+        tooltip.style.right  = '';
         tooltip.style.top       = '50%';
         tooltip.style.left      = '50%';
         tooltip.style.transform = 'translate(-50%, -50%)';
@@ -2288,6 +2398,11 @@
         }
     }
 
+    function prevTutorialStep() {
+        const prev = tutorialState.step - 1;
+        if (prev >= 0) showTutorialStep(prev);
+    }
+
     function closeTutorial() {
         tutorialState.active = false;
 
@@ -2299,7 +2414,137 @@
         tooltip.classList.add('hidden');
         spotlight.classList.add('hidden');
 
+        // Remove map glow
+        const boardContainer = document.getElementById('board-container');
+        if (boardContainer) boardContainer.classList.remove('tutorial-map-glow');
+
+        // Clean up snap demo
+        deactivateTutorialSnapDemo();
+
         document.removeEventListener('keydown', onTutorialEscape);
+    }
+
+    function activateTutorialSnapDemo() {
+        // France = '250', Germany = '276'
+        const frId = '250', deId = '276';
+        const frCountry = state.countries.get(frId);
+        const deCountry = state.countries.get(deId);
+        if (!frCountry || !deCountry) return;
+        // If already active, don't re-render
+        if (document.getElementById('tutorial-snap-demo')) return;
+
+        const frCluster = state.clusters.get(state.countryToCluster.get(frId));
+        const deCluster = state.clusters.get(state.countryToCluster.get(deId));
+        if (!frCluster || !deCluster) return;
+
+        // Actual SVG positions = natural centroid + cluster translate
+        const frPos = [
+            frCountry.centroid[0] + (frCluster.transform.x || 0),
+            frCountry.centroid[1] + (frCluster.transform.y || 0)
+        ];
+        const dePos = [
+            deCountry.centroid[0] + (deCluster.transform.x || 0),
+            deCountry.centroid[1] + (deCluster.transform.y || 0)
+        ];
+        const midX = (frPos[0] + dePos[0]) / 2;
+        const midY = (frPos[1] + dePos[1]) / 2;
+
+        // Save current viewBox, then zoom to show both countries
+        tutorialState.savedViewBox = { ...state.viewBox };
+        const margin = 170;
+        state.viewBox.x = Math.min(frPos[0], dePos[0]) - margin;
+        state.viewBox.y = Math.min(frPos[1], dePos[1]) - margin;
+        state.viewBox.w = Math.abs(frPos[0] - dePos[0]) + margin * 2;
+        state.viewBox.h = Math.abs(frPos[1] - dePos[1]) + margin * 2;
+        // Ensure minimum viewport area so map isn't over-zoomed
+        if (state.viewBox.w < 300) { const extra = (300 - state.viewBox.w) / 2; state.viewBox.x -= extra; state.viewBox.w = 300; }
+        if (state.viewBox.h < 220) { const extra = (220 - state.viewBox.h) / 2; state.viewBox.y -= extra; state.viewBox.h = 220; }
+        updateViewBox();
+
+        // Glow borders on France and Germany
+        [frId, deId].forEach(id => {
+            const pathEl = document.querySelector(`[data-country-id="${id}"]`);
+            if (pathEl) pathEl.classList.add('tutorial-snap-highlight');
+        });
+
+        // SVG overlay group with arrows + dots
+        const ns = 'http://www.w3.org/2000/svg';
+        const g = document.createElementNS(ns, 'g');
+        g.setAttribute('id', 'tutorial-snap-demo');
+        g.setAttribute('pointer-events', 'none');
+
+        // Arrowhead marker
+        const defs = document.createElementNS(ns, 'defs');
+        const marker = document.createElementNS(ns, 'marker');
+        marker.setAttribute('id', 'tut-snap-arrow');
+        marker.setAttribute('markerWidth', '8');
+        marker.setAttribute('markerHeight', '8');
+        marker.setAttribute('refX', '7');
+        marker.setAttribute('refY', '3');
+        marker.setAttribute('orient', 'auto');
+        const arrowPath = document.createElementNS(ns, 'path');
+        arrowPath.setAttribute('d', 'M0,0 L0,6 L8,3 z');
+        arrowPath.setAttribute('fill', '#f59e0b');
+        marker.appendChild(arrowPath);
+        defs.appendChild(marker);
+        g.appendChild(defs);
+
+        const makeArrow = (x1, y1, x2, y2) => {
+            const dx = x2 - x1, dy = y2 - y1;
+            const len = Math.sqrt(dx * dx + dy * dy) || 1;
+            // Shorten end so arrowhead lands before midpoint dot
+            const ex = x2 - (dx / len) * 14;
+            const ey = y2 - (dy / len) * 14;
+            const line = document.createElementNS(ns, 'line');
+            line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+            line.setAttribute('x2', ex); line.setAttribute('y2', ey);
+            line.setAttribute('stroke', '#f59e0b');
+            line.setAttribute('stroke-width', '4');
+            line.setAttribute('stroke-dasharray', '12 6');
+            line.setAttribute('stroke-dashoffset', '0');
+            line.setAttribute('marker-end', 'url(#tut-snap-arrow)');
+            line.setAttribute('class', 'tutorial-snap-arrow');
+            return line;
+        };
+        g.appendChild(makeArrow(frPos[0], frPos[1], midX, midY));
+        g.appendChild(makeArrow(dePos[0], dePos[1], midX, midY));
+
+        // Centroid dots on France and Germany
+        [frPos, dePos].forEach(pos => {
+            const c = document.createElementNS(ns, 'circle');
+            c.setAttribute('cx', pos[0]); c.setAttribute('cy', pos[1]);
+            c.setAttribute('r', '7');
+            c.setAttribute('fill', '#f59e0b');
+            c.setAttribute('class', 'tutorial-snap-dot');
+            g.appendChild(c);
+        });
+
+        // Target ring at midpoint
+        const ring = document.createElementNS(ns, 'circle');
+        ring.setAttribute('cx', midX); ring.setAttribute('cy', midY);
+        ring.setAttribute('r', '12');
+        ring.setAttribute('fill', 'none');
+        ring.setAttribute('stroke', '#f59e0b');
+        ring.setAttribute('stroke-width', '3');
+        ring.setAttribute('class', 'tutorial-snap-target');
+        g.appendChild(ring);
+
+        state.clustersContainer.appendChild(g);
+    }
+
+    function deactivateTutorialSnapDemo() {
+        const g = document.getElementById('tutorial-snap-demo');
+        if (g) g.remove();
+
+        document.querySelectorAll('.tutorial-snap-highlight').forEach(el =>
+            el.classList.remove('tutorial-snap-highlight')
+        );
+
+        if (tutorialState.savedViewBox) {
+            Object.assign(state.viewBox, tutorialState.savedViewBox);
+            tutorialState.savedViewBox = null;
+            updateViewBox();
+        }
     }
 
     // =====================================================

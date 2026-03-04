@@ -1178,14 +1178,18 @@ body {
 
 .welcome-content {
     background: linear-gradient(145deg, #1c2340 0%, #14192e 60%, #1a1435 100%);
-    border: 1px solid rgba(99, 102, 241, 0.4);
+    border: 1px solid rgba(245, 158, 11, 0.4);
     border-radius: 1.5rem;
-    padding: 2.5rem 2rem 2rem;
-    max-width: 540px;
+    padding: 2.5rem 2.25rem 2rem;
+    max-width: 1040px;
     width: 100%;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(99, 102, 241, 0.15), inset 0 1px 0 rgba(255,255,255,0.06);
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(245, 158, 11, 0.12), inset 0 1px 0 rgba(255,255,255,0.06);
     animation: welcomeSlideIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     text-align: center;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(245, 158, 11, 0.4) transparent;
 }
 
 @keyframes welcomeSlideIn {
@@ -1207,9 +1211,9 @@ body {
 }
 
 .welcome-title {
-    font-size: 1.75rem;
+    font-size: 2rem;
     font-weight: 900;
-    background: linear-gradient(135deg, #818cf8, #c084fc, #f0abfc);
+    background: linear-gradient(135deg, #fbbf24 0%, #f97316 50%, #fbbf24 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -1219,62 +1223,172 @@ body {
 
 .welcome-subtitle {
     color: var(--text-muted);
-    font-size: 0.95rem;
-    margin-bottom: 1.75rem;
-    line-height: 1.6;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.7;
+}
+
+.welcome-lvl-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    color: var(--success-color);
+    opacity: 0.85;
+    margin-top: 0.25rem;
+}
+
+.welcome-section-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #f59e0b;
+    margin-bottom: 0.75rem;
+    opacity: 0.85;
+}
+
+.welcome-section-label svg {
+    width: 13px;
+    height: 13px;
+    stroke: #f59e0b;
+    flex-shrink: 0;
 }
 
 .welcome-controls-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.65rem;
+    margin-bottom: 1.5rem;
     text-align: left;
 }
 
 .control-card {
     background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    border: 1px solid rgba(245, 158, 11, 0.2);
     border-radius: 0.875rem;
-    padding: 1rem 0.875rem;
+    padding: 0.875rem 0.875rem;
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 0.3rem;
     transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .control-card:hover {
-    border-color: rgba(99, 102, 241, 0.5);
-    background: rgba(99, 102, 241, 0.07);
+    border-color: rgba(245, 158, 11, 0.5);
+    background: rgba(245, 158, 11, 0.07);
 }
 
 .control-icon-wrap {
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(139, 92, 246, 0.15));
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(251, 191, 36, 0.15));
     border-radius: 0.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 0.25rem;
+    flex-shrink: 0;
 }
 
 .control-icon-wrap svg {
     width: 18px;
     height: 18px;
-    stroke: var(--primary-light);
+    stroke: #f59e0b;
 }
 
 .control-card strong {
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     font-weight: 700;
     color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.control-card strong svg {
+    stroke: #f59e0b;
+    flex-shrink: 0;
 }
 
 .control-card span {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.control-card span em {
+    color: #f59e0b;
+    font-style: normal;
+    font-weight: 600;
+}
+
+kbd {
+    display: inline-block;
+    padding: 0.1em 0.35em;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 0.25rem;
+    font-size: 0.75em;
+    font-family: monospace;
+    color: var(--text-color);
     line-height: 1.4;
+}
+
+/* Color Legend */
+.welcome-color-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem;
+    margin-bottom: 1.75rem;
+    text-align: left;
+}
+
+.color-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.625rem;
+    padding: 0.6rem 0.75rem;
+}
+
+.color-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.color-legend-item div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.color-legend-item strong {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.color-legend-item strong svg {
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+.color-legend-item span {
+    font-size: 0.73rem;
+    color: var(--text-muted);
+    line-height: 1.3;
 }
 
 .welcome-actions {
@@ -1307,9 +1421,9 @@ body {
     /* The giant box-shadow creates the dimming effect */
     box-shadow:
         0 0 0 9999px rgba(0, 0, 0, 0.72),
-        0 0 0 3px var(--primary-color),
-        0 0 20px rgba(99, 102, 241, 0.5),
-        0 0 60px rgba(99, 102, 241, 0.2);
+        0 0 0 3px #f59e0b,
+        0 0 20px rgba(245, 158, 11, 0.55),
+        0 0 60px rgba(245, 158, 11, 0.22);
     transition: top 0.35s cubic-bezier(0.4, 0, 0.2, 1),
                 left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
                 width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
@@ -1336,12 +1450,12 @@ body {
     position: fixed;
     z-index: 7100;
     background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
-    border: 1px solid rgba(99, 102, 241, 0.5);
+    border: 1px solid rgba(245, 158, 11, 0.5);
     border-radius: 1rem;
     padding: 1.5rem;
     max-width: 320px;
     width: calc(100vw - 2rem);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 30px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 30px rgba(245, 158, 11, 0.18);
     pointer-events: auto;
 }
 
@@ -1361,26 +1475,48 @@ body {
 .tutorial-step-indicator {
     font-size: 0.7rem;
     font-weight: 700;
-    color: var(--primary-light);
+    color: #f59e0b;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    margin-bottom: 0.5rem;
-    opacity: 0.8;
+    margin-bottom: 0.75rem;
+    opacity: 0.9;
+}
+
+.tutorial-step-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+}
+
+.tutorial-step-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(251, 191, 36, 0.15));
+    border: 1px solid rgba(245, 158, 11, 0.45);
+    border-radius: 0.75rem;
+    color: #f59e0b;
 }
 
 .tutorial-step-title {
     font-size: 1.1rem;
     font-weight: 800;
     color: var(--text-color);
-    margin-bottom: 0.6rem;
     letter-spacing: -0.02em;
+    line-height: 1.3;
+    margin: 0;
 }
 
 .tutorial-step-text {
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     color: var(--text-secondary);
-    line-height: 1.7;
+    line-height: 1.75;
     margin-bottom: 1.25rem;
+    margin-top: 0.5rem;
 }
 
 .tutorial-actions {
@@ -1388,6 +1524,61 @@ body {
     gap: 0.5rem;
     justify-content: flex-end;
     align-items: center;
+}
+
+.tutorial-btn-back {
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--text-muted);
+}
+
+.tutorial-btn-back:hover {
+    color: var(--text-color);
+}
+
+/* Tutorial color list (step 3) */
+.tutorial-color-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.25rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.tutorial-color-item {
+    display: grid;
+    grid-template-columns: 16px auto 1fr;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 0.65rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 0.5rem;
+    font-size: 0.82rem;
+}
+
+.tutorial-color-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.tutorial-color-label {
+    color: var(--text-color);
+    white-space: nowrap;
+}
+
+.tutorial-color-label strong {
+    font-weight: 700;
+}
+
+.tutorial-color-desc {
+    color: var(--text-muted);
+    font-size: 0.78rem;
 }
 
 .tutorial-progress-dots {
@@ -1406,7 +1597,7 @@ body {
 }
 
 .tutorial-dot.active {
-    background: var(--primary-color);
+    background: #f59e0b;
     transform: scale(1.3);
 }
 
@@ -1428,17 +1619,81 @@ body {
     100% { transform: scale(1); }
 }
 
+/* =====================================================
+   TUTORIAL MAP GLOW
+   Pulsing glow applied to the board-container
+   during map-related tutorial steps
+   ===================================================== */
+@keyframes tutorialMapPulse {
+    0%, 100% {
+        box-shadow:
+            inset 0 0 0 3px rgba(245, 158, 11, 0),
+            0 0 0 0 rgba(245, 158, 11, 0);
+    }
+    50% {
+        box-shadow:
+            inset 0 0 50px 12px rgba(245, 158, 11, 0.2),
+            0 0 60px 10px rgba(245, 158, 11, 0.15);
+    }
+}
+
+/* Tutorial step 4: snap demo country glow */
+.tutorial-snap-highlight {
+    stroke: #f59e0b !important;
+    stroke-width: 2.5px !important;
+    animation: tutorialSnapGlow 1.4s ease-in-out infinite;
+}
+
+@keyframes tutorialSnapGlow {
+    0%, 100% { filter: drop-shadow(0 0 3px rgba(245,158,11,0.2)); }
+    50%       { filter: drop-shadow(0 0 12px rgba(245,158,11,0.9)); }
+}
+
+.tutorial-snap-arrow {
+    animation: tutorialArrowMarch 0.9s linear infinite;
+}
+
+@keyframes tutorialArrowMarch {
+    to { stroke-dashoffset: -30; }
+}
+
+.tutorial-snap-dot {
+    animation: tutorialSnapDotPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes tutorialSnapDotPulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.5; }
+}
+
+.tutorial-snap-target {
+    animation: tutorialSnapTargetPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes tutorialSnapTargetPulse {
+    0%, 100% { opacity: 0.9; stroke-width: 3; }
+    50%       { opacity: 0.3; stroke-width: 6; }
+}
+
+.tutorial-map-glow {
+    animation: tutorialMapPulse 2.2s ease-in-out infinite;
+}
+
 @media (max-width: 480px) {
     .welcome-controls-grid {
         grid-template-columns: 1fr;
     }
+
+    .welcome-color-legend {
+        grid-template-columns: 1fr;
+    }
     
     .welcome-content {
-        padding: 2rem 1.5rem 1.75rem;
+        padding: 1.75rem 1.25rem 1.5rem;
     }
     
     .welcome-title {
-        font-size: 1.4rem;
+        font-size: 1.5rem;
     }
     
     .tutorial-tooltip {
