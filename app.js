@@ -515,14 +515,11 @@
     }
 
     function scatterPieces() {
-        const padding = CONFIG.SCATTER_PADDING;
         const width = CONFIG.BOARD_WIDTH;
         const height = CONFIG.BOARD_HEIGHT;
         
-        // Calculate the center area to avoid (where Europe will be assembled)
         const centerX = width / 2;
         const centerY = height / 2;
-        const avoidRadius = Math.min(width, height) * 0.15;
         
         // Define scatter zones around the edges of the board
         const margin = 80;
@@ -540,24 +537,55 @@
             { x: width - margin - scatterWidth, y: margin + scatterHeight, w: scatterWidth, h: height - 2 * margin - 2 * scatterHeight }
         ];
         
+        // Shuffle cluster order so distribution is random each game
         const clustersArray = Array.from(state.clusters.values());
-        
+        for (let i = clustersArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [clustersArray[i], clustersArray[j]] = [clustersArray[j], clustersArray[i]];
+        }
+
+        // Track placed bounding boxes (in absolute SVG space) for overlap prevention
+        const placedBoxes = [];
+        const BOX_PADDING = 8;
+        const MAX_ATTEMPTS = 50;
+
+        function getTranslatedBounds(cluster, tx, ty) {
+            const countryId = Array.from(cluster.members)[0];
+            const country = state.countries.get(countryId);
+            if (!country || !country.bounds) return null;
+            const [[minX, minY], [maxX, maxY]] = country.bounds;
+            return {
+                minX: minX + tx - BOX_PADDING,
+                minY: minY + ty - BOX_PADDING,
+                maxX: maxX + tx + BOX_PADDING,
+                maxY: maxY + ty + BOX_PADDING
+            };
+        }
+
+        function overlapsAny(box) {
+            return placedBoxes.some(p =>
+                box.maxX > p.minX && box.minX < p.maxX &&
+                box.maxY > p.minY && box.minY < p.maxY
+            );
+        }
+
         clustersArray.forEach((cluster, index) => {
-            // Distribute clusters across zones
             const zone = zones[index % zones.length];
-            
-            // Random position within the zone, then offset to keep pieces visible
-            const localX = zone.x + Math.random() * zone.w;
-            const localY = zone.y + Math.random() * zone.h;
-            
-            // Convert to transform offset from center (since paths are in map space centered)
-            const x = localX - centerX;
-            const y = localY - centerY;
-            
-            // No rotation - keep countries properly oriented as they appear on the map
-            const rotation = 0;
-            
-            cluster.transform = { x, y, rotation };
+            let x, y, box;
+            let attempts = 0;
+
+            do {
+                const localX = zone.x + Math.random() * zone.w;
+                const localY = zone.y + Math.random() * zone.h;
+                x = localX - centerX;
+                y = localY - centerY;
+                box = getTranslatedBounds(cluster, x, y);
+                attempts++;
+            } while (box && overlapsAny(box) && attempts < MAX_ATTEMPTS);
+
+            if (box) placedBoxes.push(box);
+
+            cluster.transform = { x, y, rotation: 0 };
             updateClusterTransform(cluster.element, cluster.transform);
         });
     }
@@ -645,6 +673,7 @@
         
         // Check for completion
         checkCompletion();
+
     }
 
     // =====================================================
@@ -1563,10 +1592,13 @@
     function toggleClickMode(e) {
         state.clickMode = e.target.checked;
         state.selectedForAttach = null;
-        
+
         document.querySelectorAll('.country-path.selected').forEach(el => {
             el.classList.remove('selected');
         });
+
+        // In accessibility mode hide all pin markers; when disabled, reveal them all
+        document.body.classList.toggle('accessibility-mode', state.clickMode);
     }
 
     function handleClickModeSelect(clusterId) {
@@ -2182,7 +2214,8 @@
         active: false,
         step: 0,
         highlightedElement: null,
-        savedViewBox: null
+        savedViewBox: null,
+        snapDemoRafId: null
     };
 
     function startTutorial() {
@@ -2433,41 +2466,31 @@
         // If already active, don't re-render
         if (document.getElementById('tutorial-snap-demo')) return;
 
-        const frCluster = state.clusters.get(state.countryToCluster.get(frId));
-        const deCluster = state.clusters.get(state.countryToCluster.get(deId));
-        if (!frCluster || !deCluster) return;
+        // Helper: get current SVG position of a country centroid (centroid + cluster translate)
+        const getPos = (country, id) => {
+            const cluster = state.clusters.get(state.countryToCluster.get(id));
+            return [
+                country.centroid[0] + (cluster ? cluster.transform.x || 0 : 0),
+                country.centroid[1] + (cluster ? cluster.transform.y || 0 : 0)
+            ];
+        };
 
-        // Actual SVG positions = natural centroid + cluster translate
-        const frPos = [
-            frCountry.centroid[0] + (frCluster.transform.x || 0),
-            frCountry.centroid[1] + (frCluster.transform.y || 0)
-        ];
-        const dePos = [
-            deCountry.centroid[0] + (deCluster.transform.x || 0),
-            deCountry.centroid[1] + (deCluster.transform.y || 0)
-        ];
-        const midX = (frPos[0] + dePos[0]) / 2;
-        const midY = (frPos[1] + dePos[1]) / 2;
+        // Initial positions for viewBox zoom
+        const frPos0 = getPos(frCountry, frId);
+        const dePos0 = getPos(deCountry, deId);
 
         // Save current viewBox, then zoom to show both countries
         tutorialState.savedViewBox = { ...state.viewBox };
         const margin = 170;
-        state.viewBox.x = Math.min(frPos[0], dePos[0]) - margin;
-        state.viewBox.y = Math.min(frPos[1], dePos[1]) - margin;
-        state.viewBox.w = Math.abs(frPos[0] - dePos[0]) + margin * 2;
-        state.viewBox.h = Math.abs(frPos[1] - dePos[1]) + margin * 2;
-        // Ensure minimum viewport area so map isn't over-zoomed
-        if (state.viewBox.w < 300) { const extra = (300 - state.viewBox.w) / 2; state.viewBox.x -= extra; state.viewBox.w = 300; }
-        if (state.viewBox.h < 220) { const extra = (220 - state.viewBox.h) / 2; state.viewBox.y -= extra; state.viewBox.h = 220; }
+        state.viewBox.x = Math.min(frPos0[0], dePos0[0]) - margin;
+        state.viewBox.y = Math.min(frPos0[1], dePos0[1]) - margin;
+        state.viewBox.w = Math.abs(frPos0[0] - dePos0[0]) + margin * 2;
+        state.viewBox.h = Math.abs(frPos0[1] - dePos0[1]) + margin * 2;
+        if (state.viewBox.w < 300) { const e = (300 - state.viewBox.w) / 2; state.viewBox.x -= e; state.viewBox.w = 300; }
+        if (state.viewBox.h < 220) { const e = (220 - state.viewBox.h) / 2; state.viewBox.y -= e; state.viewBox.h = 220; }
         updateViewBox();
 
-        // Glow borders on France and Germany
-        [frId, deId].forEach(id => {
-            const pathEl = document.querySelector(`[data-country-id="${id}"]`);
-            if (pathEl) pathEl.classList.add('tutorial-snap-highlight');
-        });
-
-        // SVG overlay group with arrows + dots
+        // Build SVG overlay group (static structure; positions updated in RAF loop below)
         const ns = 'http://www.w3.org/2000/svg';
         const g = document.createElementNS(ns, 'g');
         g.setAttribute('id', 'tutorial-snap-demo');
@@ -2477,10 +2500,8 @@
         const defs = document.createElementNS(ns, 'defs');
         const marker = document.createElementNS(ns, 'marker');
         marker.setAttribute('id', 'tut-snap-arrow');
-        marker.setAttribute('markerWidth', '8');
-        marker.setAttribute('markerHeight', '8');
-        marker.setAttribute('refX', '7');
-        marker.setAttribute('refY', '3');
+        marker.setAttribute('markerWidth', '8'); marker.setAttribute('markerHeight', '8');
+        marker.setAttribute('refX', '7'); marker.setAttribute('refY', '3');
         marker.setAttribute('orient', 'auto');
         const arrowPath = document.createElementNS(ns, 'path');
         arrowPath.setAttribute('d', 'M0,0 L0,6 L8,3 z');
@@ -2489,15 +2510,8 @@
         defs.appendChild(marker);
         g.appendChild(defs);
 
-        const makeArrow = (x1, y1, x2, y2) => {
-            const dx = x2 - x1, dy = y2 - y1;
-            const len = Math.sqrt(dx * dx + dy * dy) || 1;
-            // Shorten end so arrowhead lands before midpoint dot
-            const ex = x2 - (dx / len) * 14;
-            const ey = y2 - (dy / len) * 14;
+        const makeArrow = () => {
             const line = document.createElementNS(ns, 'line');
-            line.setAttribute('x1', x1); line.setAttribute('y1', y1);
-            line.setAttribute('x2', ex); line.setAttribute('y2', ey);
             line.setAttribute('stroke', '#f59e0b');
             line.setAttribute('stroke-width', '4');
             line.setAttribute('stroke-dasharray', '12 6');
@@ -2506,22 +2520,24 @@
             line.setAttribute('class', 'tutorial-snap-arrow');
             return line;
         };
-        g.appendChild(makeArrow(frPos[0], frPos[1], midX, midY));
-        g.appendChild(makeArrow(dePos[0], dePos[1], midX, midY));
+        const frArrow = makeArrow();
+        const deArrow = makeArrow();
+        g.appendChild(frArrow);
+        g.appendChild(deArrow);
 
-        // Centroid dots on France and Germany
-        [frPos, dePos].forEach(pos => {
+        const makeDot = () => {
             const c = document.createElementNS(ns, 'circle');
-            c.setAttribute('cx', pos[0]); c.setAttribute('cy', pos[1]);
             c.setAttribute('r', '7');
             c.setAttribute('fill', '#f59e0b');
             c.setAttribute('class', 'tutorial-snap-dot');
-            g.appendChild(c);
-        });
+            return c;
+        };
+        const frDot = makeDot();
+        const deDot = makeDot();
+        g.appendChild(frDot);
+        g.appendChild(deDot);
 
-        // Target ring at midpoint
         const ring = document.createElementNS(ns, 'circle');
-        ring.setAttribute('cx', midX); ring.setAttribute('cy', midY);
         ring.setAttribute('r', '12');
         ring.setAttribute('fill', 'none');
         ring.setAttribute('stroke', '#f59e0b');
@@ -2530,9 +2546,50 @@
         g.appendChild(ring);
 
         state.clustersContainer.appendChild(g);
+
+        // RAF loop: update all positions dynamically as countries move
+        const rafLoop = () => {
+            if (!document.getElementById('tutorial-snap-demo')) return; // was removed
+
+            const frPos = getPos(frCountry, frId);
+            const dePos = getPos(deCountry, deId);
+            const midX = (frPos[0] + dePos[0]) / 2;
+            const midY = (frPos[1] + dePos[1]) / 2;
+
+            const setArrow = (arrow, x1, y1, x2, y2) => {
+                const dx = x2 - x1, dy = y2 - y1;
+                const len = Math.sqrt(dx * dx + dy * dy) || 1;
+                arrow.setAttribute('x1', x1); arrow.setAttribute('y1', y1);
+                arrow.setAttribute('x2', x2 - (dx / len) * 14);
+                arrow.setAttribute('y2', y2 - (dy / len) * 14);
+            };
+            setArrow(frArrow, frPos[0], frPos[1], midX, midY);
+            setArrow(deArrow, dePos[0], dePos[1], midX, midY);
+
+            frDot.setAttribute('cx', frPos[0]); frDot.setAttribute('cy', frPos[1]);
+            deDot.setAttribute('cx', dePos[0]); deDot.setAttribute('cy', dePos[1]);
+            ring.setAttribute('cx', midX);      ring.setAttribute('cy', midY);
+
+            // Re-apply highlight to both countries in case DOM was rebuilt during snap/merge
+            [frId, deId].forEach(id => {
+                const pathEl = document.querySelector(`[data-country-id="${id}"]`);
+                if (pathEl && !pathEl.classList.contains('tutorial-snap-highlight')) {
+                    pathEl.classList.add('tutorial-snap-highlight');
+                }
+            });
+
+            tutorialState.snapDemoRafId = requestAnimationFrame(rafLoop);
+        };
+        tutorialState.snapDemoRafId = requestAnimationFrame(rafLoop);
     }
 
     function deactivateTutorialSnapDemo() {
+        // Stop the RAF update loop
+        if (tutorialState.snapDemoRafId) {
+            cancelAnimationFrame(tutorialState.snapDemoRafId);
+            tutorialState.snapDemoRafId = null;
+        }
+
         const g = document.getElementById('tutorial-snap-demo');
         if (g) g.remove();
 

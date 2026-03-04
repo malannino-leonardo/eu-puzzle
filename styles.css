@@ -44,6 +44,7 @@
     height: 1.25em;
     vertical-align: middle;
     flex-shrink: 0;
+    overflow: visible;
 }
 
 .icon.hidden {
@@ -892,6 +893,11 @@ body {
     filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
 }
 
+/* Hide pin markers in accessibility mode */
+body.accessibility-mode .country-marker {
+    display: none;
+}
+
 /* Apply hover effect to inner element to avoid layout thrashing */
 .marker-pin {
     transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -1271,10 +1277,13 @@ body {
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(245, 158, 11, 0.2);
     border-radius: 0.875rem;
-    padding: 0.875rem 0.875rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
+    padding: 0.875rem;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    grid-template-rows: auto 1fr;
+    column-gap: 0.75rem;
+    row-gap: 0.1rem;
+    align-items: start;
     transition: border-color 0.2s ease, background 0.2s ease;
 }
 
@@ -1291,8 +1300,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 0.25rem;
-    flex-shrink: 0;
+    grid-row: 1 / 3;
+    align-self: center;
 }
 
 .control-icon-wrap svg {
@@ -1305,14 +1314,7 @@ body {
     font-size: 0.9rem;
     font-weight: 700;
     color: var(--text-color);
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-}
-
-.control-card strong svg {
-    stroke: #f59e0b;
-    flex-shrink: 0;
+    align-self: end;
 }
 
 .control-card span {
@@ -1500,6 +1502,10 @@ kbd {
     border: 1px solid rgba(245, 158, 11, 0.45);
     border-radius: 0.75rem;
     color: #f59e0b;
+}
+
+.tutorial-step-icon-wrap svg {
+    overflow: visible;
 }
 
 .tutorial-step-title {
