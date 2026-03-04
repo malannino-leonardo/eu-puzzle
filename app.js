@@ -671,9 +671,23 @@
         // Update progress
         updateProgress();
         
-        // Check for completion
-        checkCompletion();
-
+        if (tutorialState.active) {
+            // Check if we just merged France and Germany
+            const step = TUTORIAL_STEPS[tutorialState.step];
+            if (step && step.isSnapDemo) {
+                const frId = '250', deId = '276';
+                const frCluster = state.countryToCluster.get(frId);
+                const deCluster = state.countryToCluster.get(deId);
+                if (frCluster === deCluster) {
+                    // Success! Advance tutorial
+                     setTimeout(() => {
+                        const nextBtn = document.getElementById('btn-next-tutorial');
+                        if (nextBtn) nextBtn.style.display = '';
+                        nextTutorialStep();
+                     }, 500); 
+                }
+            }
+        }
     }
 
     // =====================================================
@@ -2119,7 +2133,7 @@
         }, { once: true });
 
         document.getElementById('btn-start-tutorial').addEventListener('click', () => {
-            setCookie('tutorialSeen', 'true', 365);
+            // Do NOT set cookie here, so welcome modal shows again next time
             hideWelcomeModal();
             setTimeout(startTutorial, 400);
         }, { once: true });
@@ -2159,9 +2173,9 @@
             text: 'I colori dei paesi indicano il loro stato attuale:',
             colorList: [
                 { swatch: '#3b7dd8', shadow: '#3b7dd888', label: 'Blu', desc: 'Paese ancora da posizionare' },
-                { swatch: '#f59e0b', shadow: '#f59e0b88', label: 'Oro', desc: 'Paese selezionato o in movimento' },
+                { swatch: '#8b5cf6', shadow: '#8b5cf688', label: 'Viola', desc: 'Paese evidenziato (hover)' },
                 { swatch: '#10b981', shadow: '#10b98188', label: 'Verde', desc: 'Paese correttamente collegato' },
-                { swatch: '#8b5cf6', shadow: '#8b5cf688', label: 'Viola', desc: 'Evidenziato (hover o suggerimento)' }
+                { swatch: '#f59e0b', shadow: '#f59e0b88', label: 'Arancio / Oro', desc: 'Paese selezionato (solo in modalità accessibilità)' }
             ],
             isMapStep: true
         },
@@ -2169,12 +2183,20 @@
             icon: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
             selector: '#board-container',
             title: 'Aggancia i Confini',
-            text: 'Avvicina Francia e Germania finché si agganciano automaticamente! Le frecce sul campo mostrano i due paesi e la zona di aggancio. Trascina un paese verso l\'altro!',
+            text: 'Aggancia la Francia alla Germania. Avvicina i due paesi finché non si uniscono automaticamente. Frecce dorate ti mostreranno la direzione!',
             isMapStep: true,
             isSnapDemo: true
         },
         {
-            icon: '<line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/>',
+            icon: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>', // Info icon
+            selector: null, // Will handle manually
+            title: 'Le Info e le Curiosità',
+            text: 'Ora che hai collegato i paesi, clicca sul segnaposto per scoprire informazioni reali e curiosità! Nota bene: quando collegherai altri paesi a un gruppo già esistente, questa scheda si aprirà automaticamente!',
+            isMapStep: true,
+            isInfoDemo: true // New flag
+        },
+        {
+            icon: '<line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>',
             selector: '#btn-hint',
             title: 'Suggerimento',
             text: 'Sei bloccato? Questo pulsante evidenzia il paese più piccolo ancora non collegato. Usalo con parsimonia per non perdere il gusto della sfida!',
@@ -2195,7 +2217,7 @@
             isMapStep: false
         },
         {
-            icon: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+            icon: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
             selector: '#btn-open-tutorial',
             title: 'Riapri il Tutorial',
             text: 'Hai dubbi durante il gioco? Premi il pulsante "Tutorial" in cima alla pagina per riaprire questa guida in qualsiasi momento!',
@@ -2244,9 +2266,44 @@
         document.addEventListener('keydown', onTutorialEscape);
 
         // Clicking overlay background also advances
-        document.getElementById('tutorial-overlay').addEventListener('click', nextTutorialStep);
+        document.getElementById('tutorial-overlay').addEventListener('click', (e) => {
+            // Check if next button is disabled/hidden (like in Snap Demo)
+            const nextBtn = document.getElementById('btn-next-tutorial');
+            if (nextBtn.style.display !== 'none') {
+                nextTutorialStep();
+            }
+        });
+
+        // Arrange pieces for tutorial (France and Germany close)
+        arrangeTutorialPieces();
 
         showTutorialStep(0);
+    }
+
+    function arrangeTutorialPieces() {
+        // Reset all first
+        scatterPieces();
+        
+        const frId = '250'; // France
+        const deId = '276'; // Germany
+        
+        const frClusterId = state.countryToCluster.get(frId);
+        const deClusterId = state.countryToCluster.get(deId);
+        
+        // If already connected, no need to move
+        if (frClusterId === deClusterId) return;
+
+        const frCluster = state.clusters.get(frClusterId);
+        const deCluster = state.clusters.get(deClusterId);
+        
+        if (frCluster && deCluster) {
+            // Position near center
+            frCluster.transform = { x: -120, y: 0, rotation: 0 };
+            deCluster.transform = { x: 120, y: 0, rotation: 0 };
+            
+            updateClusterTransform(frCluster.element, frCluster.transform);
+            updateClusterTransform(deCluster.element, deCluster.transform);
+        }
     }
 
     function onTutorialEscape(e) {
@@ -2254,6 +2311,9 @@
     }
 
     function showTutorialStep(index) {
+        // Clean up any anchored popup that might be open from previous steps (e.g. from Info Demo)
+        document.querySelector('.anchored-popup')?.remove();
+
         const step = TUTORIAL_STEPS[index];
         if (!step) { closeTutorial(); return; }
 
@@ -2269,7 +2329,7 @@
         const iconEl = document.getElementById('tutorial-step-icon');
         if (iconEl) {
             if (step.icon) {
-                iconEl.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="28" height="28">${step.icon}</svg>`;
+                iconEl.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="28" height="28">${step.icon}</svg>`;
                 iconEl.style.display = 'flex';
             } else {
                 iconEl.style.display = 'none';
@@ -2300,23 +2360,86 @@
 
         // Show/hide Back button
         const prevBtn = document.getElementById('btn-prev-tutorial');
+        const nextBtn = document.getElementById('btn-next-tutorial');
         if (prevBtn) prevBtn.style.display = index === 0 ? 'none' : '';
+
+        // Default: Button visible and enabled
+        if (nextBtn) {
+            nextBtn.style.display = '';
+            nextBtn.style.opacity = '1';
+            nextBtn.style.pointerEvents = 'auto';
+            nextBtn.disabled = false;
+        }
+
+        // Handle phases 1 and 10 (index 0 and 9) initial positioning
+        // Use visibility hidden to prevent jump
+        tooltip.style.visibility = 'hidden';
+        tooltip.classList.remove('hidden');
+
+        if (index === 0 || index === TUTORIAL_STEPS.length - 1) {
+             centerTutorialTooltip(tooltip);
+             // Ensure it's not off-center before showing
+             tooltip.style.transform = 'translate(-50%, -50%)'; 
+        }
+
+        if (step.isSnapDemo) {
+            activateTutorialSnapDemo();
+            // User must connect them to proceed - disable button but keep visible
+            if (nextBtn) {
+                 nextBtn.style.opacity = '0.5';
+                 nextBtn.style.pointerEvents = 'none';
+                 nextBtn.disabled = true;
+            }
+
+            // Check if they are already connected, if so, allow passing
+            const frId = '250', deId = '276';
+            if (state.countryToCluster.get(frId) === state.countryToCluster.get(deId)) {
+                if (nextBtn) {
+                    nextBtn.style.opacity = '1';
+                    nextBtn.style.pointerEvents = 'auto';
+                    nextBtn.disabled = false;
+                }
+            }
+        } else if (step.isInfoDemo) {
+             // Keep the view from snap demo but remove arrows
+             const g = document.getElementById('tutorial-snap-demo');
+             if (g) g.remove();
+             if (tutorialState.snapDemoRafId) {
+                cancelAnimationFrame(tutorialState.snapDemoRafId);
+                tutorialState.snapDemoRafId = null;
+             }
+             
+             // Point to Germany
+             const deId = '276';
+             const deClusterId = state.countryToCluster.get(deId);
+             const deCluster = state.clusters.get(deClusterId);
+             
+             let targetEl;
+             // Try to find the marker first (if connected)
+             targetEl = deCluster?.element.querySelector(`.country-marker[data-for="${deId}"]`);
+             // Fallback to path
+             if (!targetEl) targetEl = document.querySelector(`[data-country-id="${deId}"]`);
+             
+             if (targetEl) {
+                // Remove spotlight for Info Demo (Phase 5)
+                spotlight.classList.add('hidden');
+
+                // Don't show generic tooltip first
+                // Wait for positioning
+             }
+             
+        } else {
+            deactivateTutorialSnapDemo();
+        }
 
         // On last step: hide Close button, show only Inizia
         const closeBtn = document.getElementById('btn-close-tutorial');
         const isLast = index === total - 1;
         if (closeBtn) closeBtn.style.display = isLast ? 'none' : '';
 
-        // Snap demo (step 4)
-        if (step.isSnapDemo) {
-            activateTutorialSnapDemo();
-        } else {
-            deactivateTutorialSnapDemo();
-        }
-
         // During snap demo: let the user actually interact with the map
         const overlayEl = document.getElementById('tutorial-overlay');
-        if (overlayEl) overlayEl.style.pointerEvents = step.isSnapDemo ? 'none' : '';
+        if (overlayEl) overlayEl.style.pointerEvents = (step.isSnapDemo || step.isInfoDemo) ? 'none' : '';
 
         // Pulsing glow on the map during map steps
         const boardContainer = document.getElementById('board-container');
@@ -2329,8 +2452,14 @@
         }
 
         // Last step: change "Avanti" to "Inizia"
-        const nextBtn = document.getElementById('btn-next-tutorial');
-        nextBtn.textContent = index === total - 1 ? '🎮 Inizia!' : 'Avanti →';
+        if (index === total - 1) {
+            nextBtn.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" style="margin-right: 6px;">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>Inizia!`;
+        } else {
+            nextBtn.textContent = 'Avanti →';
+        }
 
         // Update progress dots
         document.querySelectorAll('.tutorial-dot').forEach((dot, i) => {
@@ -2343,38 +2472,84 @@
         if (step.selector) {
             const target = document.querySelector(step.selector);
             if (target) {
-                const rect = target.getBoundingClientRect();
-                const padding = 8;
-                spotlight.style.top    = `${rect.top - padding}px`;
-                spotlight.style.left   = `${rect.left - padding}px`;
-                spotlight.style.width  = `${rect.width + padding * 2}px`;
-                spotlight.style.height = `${rect.height + padding * 2}px`;
-                spotlight.classList.remove('hidden');
+                // Phase 2 (index 1) and Phase 3 (index 2): Center-Bottom positioning
+                if ((index === 1 || index === 2) && step.selector === '#board-container') {
+                     // Hide spotlight for these broad steps
+                     spotlight.classList.add('hidden');
+                     
+                     // Position before animation
+                     tooltip.style.left = '50%';
+                     tooltip.style.top = '';
+                     tooltip.style.bottom = '10%'; // Center-bottom
+                     tooltip.style.right = '';
+                     tooltip.style.transform = 'translateX(-50%)';
 
-                // Position tooltip relative to the target
-                tooltip.classList.remove('hidden');
-                tooltip.classList.remove('animating');
-                void tooltip.offsetWidth; // reflow
-                tooltip.classList.add('animating');
-                positionTutorialTooltip(target, tooltip);
-                // Snap demo: pin tooltip to bottom-right corner so the countries are fully visible
-                if (step.isSnapDemo) {
-                    tooltip.style.top    = '';
-                    tooltip.style.left   = '';
-                    tooltip.style.bottom = '1.5rem';
-                    tooltip.style.right  = '1.5rem';
+                     tooltip.classList.remove('hidden');
+                     tooltip.style.visibility = 'visible'; // Reveal
+                     tooltip.classList.remove('animating', 'animating-x-centered', 'animating-centered');
+                     void tooltip.offsetWidth;
+                     tooltip.classList.add('animating-x-centered');
+
+                } else {
+                    const rect = target.getBoundingClientRect();
+                    const padding = 8;
+                    spotlight.style.top    = `${rect.top - padding}px`;
+                    spotlight.style.left   = `${rect.left - padding}px`;
+                    spotlight.style.width  = `${rect.width + padding * 2}px`;
+                    spotlight.style.height = `${rect.height + padding * 2}px`;
+                    spotlight.classList.remove('hidden');
+
+                    // Position tooltip relative to the target
+                    positionTutorialTooltip(target, tooltip);
+                    
+                    // Snap demo: pin tooltip to bottom-right corner so the countries are fully visible
+                    if (step.isSnapDemo) {
+                        tooltip.style.top    = '';
+                        tooltip.style.left   = '';
+                        tooltip.style.bottom = '1.5rem';
+                        tooltip.style.right  = '1.5rem';
+                        tooltip.style.transform = '';
+                    }
+
+                    tooltip.classList.remove('hidden');
+                    tooltip.style.visibility = 'visible'; // Reveal
+                    tooltip.classList.remove('animating', 'animating-x-centered', 'animating-centered');
+                    void tooltip.offsetWidth; // reflow
+                    tooltip.classList.add('animating');
                 }
             } else {
                 spotlight.classList.add('hidden');
                 centerTutorialTooltip(tooltip);
+                tooltip.classList.remove('hidden');
+                tooltip.style.visibility = 'visible'; // Reveal
+                tooltip.classList.remove('animating', 'animating-x-centered', 'animating-centered');
+                void tooltip.offsetWidth;
+                tooltip.classList.add('animating-centered');
             }
-        } else {
+        } else if (step.isInfoDemo) {
+            // Keep spotlight hidden (as requested per Phase 5 focus removal)
             spotlight.classList.add('hidden');
+            
+            tooltip.style.top    = '';
+            tooltip.style.left   = '';
+            tooltip.style.bottom = '1.5rem';
+            tooltip.style.right  = '1.5rem';
+            tooltip.style.transform = '';
+
             tooltip.classList.remove('hidden');
-            tooltip.classList.remove('animating');
+            tooltip.style.visibility = 'visible'; // Reveal
+            tooltip.classList.remove('animating', 'animating-x-centered', 'animating-centered');
             void tooltip.offsetWidth;
             tooltip.classList.add('animating');
+
+        } else {
+            spotlight.classList.add('hidden');
             centerTutorialTooltip(tooltip);
+            tooltip.classList.remove('hidden');
+            tooltip.style.visibility = 'visible'; // Reveal
+            tooltip.classList.remove('animating', 'animating-x-centered', 'animating-centered');
+            void tooltip.offsetWidth;
+            tooltip.classList.add('animating-centered');
         }
 
         tutorialState.step = index;
@@ -2391,23 +2566,19 @@
         const vw = window.innerWidth;
         const vh = window.innerHeight;
 
-        // Try below target first, then above, then center
-        let top, left;
+        let top = targetRect.bottom + padding;
+        let left = targetRect.left + (targetRect.width / 2) - (tooltipW / 2);
 
-        const spaceBelow = vh - (targetRect.bottom + padding + tooltipH);
-        const spaceAbove = targetRect.top - padding - tooltipH;
-
-        if (spaceBelow >= 0) {
-            top = targetRect.bottom + padding;
-        } else if (spaceAbove >= 0) {
-            top = targetRect.top - padding - tooltipH;
-        } else {
-            top = Math.max(padding, Math.min(vh - tooltipH - padding, targetRect.bottom + padding));
+        // Keep inside viewport
+        if (left < padding) left = padding;
+        if (left + tooltipW > vw - padding) left = vw - tooltipW - padding;
+        if (top + tooltipH > vh - padding) {
+             // Flip to top if no space below
+             top = targetRect.top - tooltipH - padding;
         }
 
-        // Horizontally center on target
-        left = targetRect.left + targetRect.width / 2 - tooltipW / 2;
-        left = Math.max(padding, Math.min(vw - tooltipW - padding, left));
+        // Ensure it doesn't go off-screen at the top
+        if (top < padding) top = padding;
 
         tooltip.style.top  = `${top}px`;
         tooltip.style.left = `${left}px`;
@@ -2437,6 +2608,7 @@
     }
 
     function closeTutorial() {
+        const wasActive = tutorialState.active;
         tutorialState.active = false;
 
         const overlay  = document.getElementById('tutorial-overlay');
@@ -2455,6 +2627,10 @@
         deactivateTutorialSnapDemo();
 
         document.removeEventListener('keydown', onTutorialEscape);
+
+        if (wasActive) {
+            setTimeout(resetGame, 300);
+        }
     }
 
     function activateTutorialSnapDemo() {
@@ -2571,12 +2747,12 @@
             ring.setAttribute('cx', midX);      ring.setAttribute('cy', midY);
 
             // Re-apply highlight to both countries in case DOM was rebuilt during snap/merge
-            [frId, deId].forEach(id => {
+            /* [frId, deId].forEach(id => {
                 const pathEl = document.querySelector(`[data-country-id="${id}"]`);
                 if (pathEl && !pathEl.classList.contains('tutorial-snap-highlight')) {
                     pathEl.classList.add('tutorial-snap-highlight');
                 }
-            });
+            }); */
 
             tutorialState.snapDemoRafId = requestAnimationFrame(rafLoop);
         };

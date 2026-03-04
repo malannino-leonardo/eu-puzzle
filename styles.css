@@ -1021,7 +1021,7 @@ body.accessibility-mode .country-marker {
     padding: 16px 16px 12px 16px;
     color: #ffffff !important;
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -1056,7 +1056,7 @@ body.accessibility-mode .country-marker {
     font-weight: 700;
     min-width: 130px;
     display: block;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     text-transform: uppercase;
     letter-spacing: 0.3px;
     margin-bottom: 4px;
@@ -1064,7 +1064,7 @@ body.accessibility-mode .country-marker {
 
 .popup-row-value {
     color: #333333 !important;
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 600;
 }
 
@@ -1217,7 +1217,7 @@ body.accessibility-mode .country-marker {
 }
 
 .welcome-title {
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: 900;
     background: linear-gradient(135deg, #fbbf24 0%, #f97316 50%, #fbbf24 100%);
     -webkit-background-clip: text;
@@ -1229,7 +1229,7 @@ body.accessibility-mode .country-marker {
 
 .welcome-subtitle {
     color: var(--text-muted);
-    font-size: 1rem;
+    font-size: 1.15rem;
     margin-bottom: 1.5rem;
     line-height: 1.7;
 }
@@ -1249,7 +1249,7 @@ body.accessibility-mode .country-marker {
     align-items: center;
     justify-content: center;
     gap: 0.45rem;
-    font-size: 0.75rem;
+    font-size: 1.15rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -1259,8 +1259,8 @@ body.accessibility-mode .country-marker {
 }
 
 .welcome-section-label svg {
-    width: 13px;
-    height: 13px;
+    width: 18px;
+    height: 18px;
     stroke: #f59e0b;
     flex-shrink: 0;
 }
@@ -1311,14 +1311,14 @@ body.accessibility-mode .country-marker {
 }
 
 .control-card strong {
-    font-size: 0.9rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: var(--text-color);
     align-self: end;
 }
 
 .control-card span {
-    font-size: 0.8rem;
+    font-size: 0.95rem;
     color: var(--text-muted);
     line-height: 1.5;
 }
@@ -1374,7 +1374,7 @@ kbd {
 }
 
 .color-legend-item strong {
-    font-size: 0.8rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: var(--text-color);
     display: flex;
@@ -1388,7 +1388,7 @@ kbd {
 }
 
 .color-legend-item span {
-    font-size: 0.73rem;
+    font-size: 0.88rem;
     color: var(--text-muted);
     line-height: 1.3;
 }
@@ -1400,16 +1400,16 @@ kbd {
 }
 
 .welcome-actions .btn-ghost {
-    padding: 0.65rem 1.25rem;
-    font-size: 0.875rem;
+    padding: 0.8rem 1.6rem;
+    font-size: 1.1rem;
 }
 
 .welcome-actions .btn-cta {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.65rem 1.5rem;
-    font-size: 0.9rem;
+    padding: 0.8rem 1.8rem;
+    font-size: 1.1rem;
 }
 
 /* =====================================================
@@ -1455,7 +1455,7 @@ kbd {
     border: 1px solid rgba(245, 158, 11, 0.5);
     border-radius: 1rem;
     padding: 1.5rem;
-    max-width: 320px;
+    max-width: 440px; /* Wider popup */
     width: calc(100vw - 2rem);
     box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 30px rgba(245, 158, 11, 0.18);
     pointer-events: auto;
@@ -1469,9 +1469,27 @@ kbd {
     animation: tutorialTooltipIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+.tutorial-tooltip.animating-centered {
+    animation: tutorialTooltipInCentered 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.tutorial-tooltip.animating-x-centered {
+    animation: tutorialTooltipInXCentered 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
 @keyframes tutorialTooltipIn {
     from { transform: scale(0.88) translateY(8px); opacity: 0; }
     to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes tutorialTooltipInCentered {
+    from { transform: translate(-50%, -50%) scale(0.88) translateY(8px); opacity: 0; }
+    to   { transform: translate(-50%, -50%) scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes tutorialTooltipInXCentered {
+    from { transform: translateX(-50%) scale(0.88) translateY(8px); opacity: 0; }
+    to   { transform: translateX(-50%) scale(1) translateY(0); opacity: 1; }
 }
 
 .tutorial-step-indicator {
@@ -1509,7 +1527,7 @@ kbd {
 }
 
 .tutorial-step-title {
-    font-size: 1.1rem;
+    font-size: 1.35rem;
     font-weight: 800;
     color: var(--text-color);
     letter-spacing: -0.02em;
@@ -1518,7 +1536,7 @@ kbd {
 }
 
 .tutorial-step-text {
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     color: var(--text-secondary);
     line-height: 1.75;
     margin-bottom: 1.25rem;
@@ -1527,12 +1545,18 @@ kbd {
 
 .tutorial-actions {
     display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
+    gap: 1rem;
+    justify-content: center;
     align-items: center;
+    width: 100%;
+    margin-top: 1rem;
 }
 
-.tutorial-btn-back {
+.tutorial-actions .btn {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+}
+orial-btn-back {
     margin-right: auto;
     display: flex;
     align-items: center;
@@ -1563,7 +1587,7 @@ kbd {
     background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.07);
     border-radius: 0.5rem;
-    font-size: 0.82rem;
+    font-size: 0.95rem;
 }
 
 .tutorial-color-swatch {
