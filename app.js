@@ -548,7 +548,7 @@
         // Track placed bounding boxes (in absolute SVG space) for overlap prevention
         const placedBoxes = [];
         const BOX_PADDING = 8;
-        const MAX_ATTEMPTS = 50;
+        const MAX_ATTEMPTS_PER_ZONE = 40;
 
         function getTranslatedBounds(cluster, tx, ty) {
             const countryId = Array.from(cluster.members)[0];
@@ -570,23 +570,47 @@
             );
         }
 
-        clustersArray.forEach((cluster, index) => {
-            const zone = zones[index % zones.length];
-            let x, y, box;
-            let attempts = 0;
-
-            do {
+        function tryPlaceInZone(cluster, zone) {
+            for (let attempt = 0; attempt < MAX_ATTEMPTS_PER_ZONE; attempt++) {
                 const localX = zone.x + Math.random() * zone.w;
                 const localY = zone.y + Math.random() * zone.h;
-                x = localX - centerX;
-                y = localY - centerY;
-                box = getTranslatedBounds(cluster, x, y);
-                attempts++;
-            } while (box && overlapsAny(box) && attempts < MAX_ATTEMPTS);
+                const x = localX - centerX;
+                const y = localY - centerY;
+                const box = getTranslatedBounds(cluster, x, y);
+                if (!box || !overlapsAny(box)) {
+                    return { x, y, box };
+                }
+            }
+            return null;
+        }
 
-            if (box) placedBoxes.push(box);
+        clustersArray.forEach((cluster, index) => {
+            // Try the assigned zone first, then fall through to the others in random order
+            const assignedIndex = index % zones.length;
+            const otherZones = zones.filter((_, i) => i !== assignedIndex)
+                .sort(() => Math.random() - 0.5);
+            const zoneOrder = [zones[assignedIndex], ...otherZones];
 
-            cluster.transform = { x, y, rotation: 0 };
+            let placed = null;
+            for (const zone of zoneOrder) {
+                placed = tryPlaceInZone(cluster, zone);
+                if (placed) break;
+            }
+
+            // Last-resort fallback: drop into the assigned zone without overlap check
+            if (!placed) {
+                const zone = zones[assignedIndex];
+                const localX = zone.x + Math.random() * zone.w;
+                const localY = zone.y + Math.random() * zone.h;
+                placed = {
+                    x: localX - centerX,
+                    y: localY - centerY,
+                    box: getTranslatedBounds(cluster, localX - centerX, localY - centerY)
+                };
+            }
+
+            if (placed.box) placedBoxes.push(placed.box);
+            cluster.transform = { x: placed.x, y: placed.y, rotation: 0 };
             updateClusterTransform(cluster.element, cluster.transform);
         });
     }
@@ -786,7 +810,7 @@
                     targetCluster.members.forEach(id => addCountryMarker(id));
                 }
                 
-                if (popupCountryId) {
+                if (popupCountryId && !state.gameComplete) {
                     showAnchoredPopup(popupCountryId);
                 }
             });
@@ -1248,11 +1272,35 @@
         state.svg.addEventListener('mouseleave', hideTooltip);
         
         // UI buttons
-        document.getElementById('btn-reset').addEventListener('click', resetGame);
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            if (state.connectedCountries >= 2) {
+                showConfirmModal(
+                    'Scartare i progressi?',
+                    `Hai già collegato ${state.connectedCountries} paesi. Sei sicuro di voler ricominciare?`,
+                    'Procedi e ricomincia',
+                    'Annulla',
+                    resetGame
+                );
+            } else {
+                resetGame();
+            }
+        });
         document.getElementById('btn-hint').addEventListener('click', showHint);
         document.getElementById('btn-open-tutorial').addEventListener('click', showWelcomeModal);
         document.getElementById('btn-close-panel').addEventListener('click', closeInfoPanel);
         document.getElementById('btn-restart').addEventListener('click', resetGame);
+        document.getElementById('btn-close-completion').addEventListener('click', () => {
+            document.getElementById('completion-overlay').classList.add('hidden');
+        });
+        document.getElementById('btn-play-again-header').addEventListener('click', resetGame);
+
+        // Warn before leaving page if progress has been made
+        window.addEventListener('beforeunload', (e) => {
+            if (state.connectedCountries >= 2 && !state.gameComplete) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
         
         // Zoom controls
         document.getElementById('btn-zoom-in').addEventListener('click', zoomIn);
@@ -1813,11 +1861,13 @@
 
     function showCompletionOverlay() {
         document.getElementById('completion-overlay').classList.remove('hidden');
+        document.getElementById('btn-play-again-header').classList.remove('hidden');
     }
 
     function resetGame() {
-        // Hide completion overlay
+        // Hide completion overlay and header play-again button
         document.getElementById('completion-overlay').classList.add('hidden');
+        document.getElementById('btn-play-again-header').classList.add('hidden');
         
         // Close info panel
         closeInfoPanel();
@@ -2118,11 +2168,26 @@
             hideWelcomeModal();
         }, { once: true });
 
-        document.getElementById('btn-start-tutorial').addEventListener('click', () => {
-            // Do NOT set cookie here, so welcome modal shows again next time
-            hideWelcomeModal();
-            setTimeout(startTutorial, 400);
-        }, { once: true });
+        // Clone the button to clear any listener from a previous modal open,
+        // then attach a fresh persistent listener so it keeps working after cancel.
+        const startBtn = document.getElementById('btn-start-tutorial');
+        const freshStartBtn = startBtn.cloneNode(true);
+        startBtn.parentNode.replaceChild(freshStartBtn, startBtn);
+
+        freshStartBtn.addEventListener('click', () => {
+            if (state.connectedCountries >= 2) {
+                showConfirmModal(
+                    'Scartare i progressi?',
+                    `Hai già collegato ${state.connectedCountries} paesi. Avviare il tutorial porterà al reset del gioco.`,
+                    'Procedi al tutorial',
+                    'Annulla',
+                    () => { hideWelcomeModal(); setTimeout(startTutorial, 400); }
+                );
+            } else {
+                hideWelcomeModal();
+                setTimeout(startTutorial, 400);
+            }
+        });
     }
 
     function hideWelcomeModal() {
@@ -2149,7 +2214,7 @@
             icon: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 8h10M7 12h6"/>',
             selector: '#board-container',
             title: 'L\'Area di Gioco',
-            text: 'Questa è l\'area di gioco. I pezzi del puzzle sono sparpagliati qui intorno. Trascina un paese verso il centro per iniziare a comporre la mappa dell\'Unione Europea!',
+            text: 'Questa è l\'area di gioco. I pezzi del puzzle sono sparpagliati qui intorno. Avvicina due paesi con un confine in comune: si agganceranno automaticamente per formare la mappa dell\'Unione Europea!',
             isMapStep: true
         },
         {
@@ -2267,8 +2332,8 @@
     }
 
     function arrangeTutorialPieces() {
-        // Reset all first
-        scatterPieces();
+        // Full reset so the tutorial always starts from a clean slate
+        resetGame();
         
         const frId = '250'; // France
         const deId = '276'; // Germany
@@ -2427,10 +2492,10 @@
         const overlayEl = document.getElementById('tutorial-overlay');
         if (overlayEl) overlayEl.style.pointerEvents = (step.isSnapDemo || step.isInfoDemo) ? 'none' : '';
 
-        // Pulsing glow on the map during map steps
+        // Pulsing glow on the map ONLY during step 2 (index 1 — L'Area di Gioco)
         const boardContainer = document.getElementById('board-container');
         if (boardContainer) {
-            if (step.isMapStep) {
+            if (index === 1) {
                 boardContainer.classList.add('tutorial-map-glow');
             } else {
                 boardContainer.classList.remove('tutorial-map-glow');
@@ -2770,6 +2835,53 @@
     // BOOTSTRAP
     // =====================================================
     
+    // =====================================================
+    // CONFIRM MODAL
+    // =====================================================
+
+    function showConfirmModal(title, message, confirmLabel, cancelLabel, onConfirm) {
+        const modal = document.getElementById('confirm-modal');
+        const titleEl = document.getElementById('confirm-modal-title');
+        const msgEl = document.getElementById('confirm-modal-message');
+        const proceedBtn = document.getElementById('confirm-proceed-btn');
+        const cancelBtn = document.getElementById('confirm-cancel-btn');
+
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+        proceedBtn.textContent = confirmLabel;
+        cancelBtn.textContent = cancelLabel;
+
+        modal.classList.remove('hidden');
+
+        function close() {
+            modal.classList.add('hidden');
+            proceedBtn.removeEventListener('click', onProceed);
+            cancelBtn.removeEventListener('click', onCancel);
+            modal.removeEventListener('click', onBackdrop);
+        }
+
+        function onProceed() {
+            close();
+            onConfirm();
+        }
+
+        function onCancel() {
+            close();
+        }
+
+        function onBackdrop(e) {
+            if (e.target === modal) close();
+        }
+
+        proceedBtn.addEventListener('click', onProceed, { once: true });
+        cancelBtn.addEventListener('click', onCancel, { once: true });
+        modal.addEventListener('click', onBackdrop);
+    }
+
+    // =====================================================
+    // BOOTSTRAP
+    // =====================================================
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {

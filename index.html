@@ -26,6 +26,10 @@
                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
                 <span>Tutorial</span>
             </button>
+            <button id="btn-play-again-header" class="btn btn-play-again hidden" aria-label="Gioca ancora">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span>Gioca ancora</span>
+            </button>
             <div class="progress-container">
                 <span id="progress-text">0 / 0</span>
                 <div class="progress-bar">
@@ -84,10 +88,16 @@
                     <svg class="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
                     <h2>COMPLETATO!</h2>
                     <p>Hai ricostruito l'Unione Europea!</p>
-                    <button id="btn-restart" class="btn btn-large">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                        <span>Gioca ancora</span>
-                    </button>
+                    <div class="completion-actions">
+                        <button id="btn-close-completion" class="btn btn-ghost btn-large">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <span>Esplora la mappa</span>
+                        </button>
+                        <button id="btn-restart" class="btn btn-large">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            <span>Gioca ancora</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -122,6 +132,21 @@
             <input type="checkbox" id="click-mode-toggle">
             <span>Modalità click (accessibilità)</span>
         </label>
+    </div>
+
+    <!-- Confirm / Warning Modal -->
+    <div id="confirm-modal" class="confirm-modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+        <div class="confirm-content">
+            <div class="confirm-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <h3 id="confirm-modal-title">Scartare i progressi?</h3>
+            <p id="confirm-modal-message"></p>
+            <div class="confirm-actions">
+                <button id="confirm-cancel-btn" class="btn btn-ghost">Annulla</button>
+                <button id="confirm-proceed-btn" class="btn btn-danger">Procedi</button>
+            </div>
+        </div>
     </div>
 
     <!-- Main Script -->
