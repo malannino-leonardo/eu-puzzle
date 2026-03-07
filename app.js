@@ -414,7 +414,13 @@
             // Merge with calculated adjacencies
             Object.entries(data).forEach(([countryId, neighbors]) => {
                 if (state.adjacencies.has(countryId)) {
-                    neighbors.forEach(n => state.adjacencies.get(countryId).add(n));
+                    neighbors.forEach(n => {
+                        state.adjacencies.get(countryId).add(n);
+                        // Ensure the reverse edge exists so either country can be dragged
+                        if (state.adjacencies.has(n)) {
+                            state.adjacencies.get(n).add(countryId);
+                        }
+                    });
                 }
             });
         } catch (error) {

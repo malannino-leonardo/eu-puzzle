@@ -922,7 +922,7 @@ body.accessibility-mode .country-marker {
     border-radius: 16px;
     padding: 0;
     box-shadow: 0 10px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.05); /* Deep shade */
-    z-index: 2000;
+    z-index: 7200;
     min-width: 360px; /* Slightly larger min-width */
     width: auto;
     max-width: 90vw;
