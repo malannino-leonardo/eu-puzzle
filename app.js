@@ -124,6 +124,13 @@
             // Setup DOM references
             setupDOMReferences();
             
+            // Initialize audio and settings
+            audioSystem.init();
+            settingsSystem.init();
+            
+            // Start background music
+            audioSystem.startMusic();
+            
             // Load country info data
             await loadCountryInfo();
             
@@ -693,6 +700,9 @@
             setTimeout(() => progressFill.classList.remove('pulse'), 700);
         }
         
+        // Play snap sound effect
+        audioSystem.playSnap();
+        
         // Update progress
         updateProgress();
         
@@ -1229,6 +1239,7 @@
     }
 
     function showSnapError(cluster) {
+        audioSystem.playWarning();
         cluster.element.querySelectorAll('.country-path').forEach(path => {
             path.classList.add('snap-error');
             setTimeout(() => path.classList.remove('snap-error'), 300);
@@ -1862,6 +1873,7 @@
     function showCompletionOverlay() {
         document.getElementById('completion-overlay').classList.remove('hidden');
         document.getElementById('btn-play-again-header').classList.remove('hidden');
+        audioSystem.playWin();
     }
 
     function resetGame() {
@@ -2852,6 +2864,7 @@
         cancelBtn.textContent = cancelLabel;
 
         modal.classList.remove('hidden');
+        audioSystem.playWarning();
 
         function close() {
             modal.classList.add('hidden');
@@ -2877,6 +2890,355 @@
         cancelBtn.addEventListener('click', onCancel, { once: true });
         modal.addEventListener('click', onBackdrop);
     }
+
+    // =====================================================
+    // AUDIO SYSTEM
+    // =====================================================
+
+    const audioSystem = {
+        settings: {
+            masterVolume: 0.8,
+            masterMuted: false,
+            sfxVolume: 1.0,
+            sfxMuted: false,
+            musicVolume: 0.4,
+            musicMuted: false,
+            musicEnabled: true
+        },
+
+        snapSounds: [],
+        warnSound: null,
+        winSound: null,
+
+        music: {
+            tracks: ['assets/soundtracks/soundtrack1.mp3', 'assets/soundtracks/soundtrack2.mp3', 'assets/soundtracks/soundtrack3.mp3', 'assets/soundtracks/soundtrack4.mp3'],
+            order: [],
+            index: 0,
+            current: null
+        },
+
+        _effectiveVolume(category) {
+            const s = this.settings;
+            if (s.masterMuted) return 0;
+            const master = s.masterVolume;
+            if (category === 'sfx')   return s.sfxMuted   ? 0 : master * s.sfxVolume;
+            if (category === 'music') return s.musicMuted ? 0 : master * s.musicVolume;
+            return master;
+        },
+
+        init() {
+            this._loadSettings();
+
+            // Preload snap sounds
+            for (let i = 1; i <= 9; i++) {
+                const a = new Audio(`assets/sound-effects/snap${i}.mp3`);
+                a.preload = 'auto';
+                this.snapSounds.push(a);
+            }
+
+            this.warnSound = new Audio('assets/sound-effects/warning.mp3');
+            this.warnSound.preload = 'auto';
+
+            this.winSound = new Audio('assets/sound-effects/win.mp3');
+            this.winSound.preload = 'auto';
+
+            this._shuffleTracks();
+            this._applyMusicVolume();
+        },
+
+        _shuffleTracks() {
+            const order = this.music.tracks.map((_, i) => i);
+            for (let i = order.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [order[i], order[j]] = [order[j], order[i]];
+            }
+            this.music.order = order;
+            this.music.index = 0;
+        },
+
+        playSnap() {
+            if (!this.snapSounds.length) return;
+            const vol = this._effectiveVolume('sfx');
+            if (vol === 0) return;
+            const idx = Math.floor(Math.random() * this.snapSounds.length);
+            const clone = this.snapSounds[idx].cloneNode();
+            clone.volume = vol;
+            clone.play().catch(() => {});
+        },
+
+        playWarning() {
+            if (!this.warnSound) return;
+            const vol = this._effectiveVolume('sfx');
+            if (vol === 0) return;
+            const clone = this.warnSound.cloneNode();
+            clone.volume = vol;
+            clone.play().catch(() => {});
+        },
+
+        playWin() {
+            if (!this.winSound) return;
+            const vol = this._effectiveVolume('sfx');
+            if (vol === 0) return;
+            const clone = this.winSound.cloneNode();
+            clone.volume = Math.min(vol * 1.2, 1);
+            clone.play().catch(() => {});
+        },
+
+        startMusic() {
+            if (!this.settings.musicEnabled) return;
+            this.stopMusic();
+            this._playNextTrack();
+        },
+
+        stopMusic() {
+            if (this.music.current) {
+                this.music.current.pause();
+                this.music.current.src = '';
+                this.music.current = null;
+            }
+        },
+
+        _playNextTrack() {
+            if (!this.settings.musicEnabled) return;
+
+            const { order, tracks } = this.music;
+            const trackPath = tracks[order[this.music.index]];
+
+            const audio = new Audio(trackPath);
+            audio.volume = this._effectiveVolume('music');
+            this.music.current = audio;
+
+            audio.addEventListener('ended', () => {
+                this.music.index = (this.music.index + 1) % order.length;
+                if (this.music.index === 0) this._shuffleTracks();
+                this._playNextTrack();
+            }, { once: true });
+
+            audio.play().catch(() => {
+                // Autoplay blocked — resume on first user interaction
+                const resume = () => {
+                    audio.play().catch(() => {});
+                    document.removeEventListener('pointerdown', resume);
+                    document.removeEventListener('keydown', resume);
+                };
+                document.addEventListener('pointerdown', resume, { once: true });
+                document.addEventListener('keydown', resume, { once: true });
+            });
+        },
+
+        _applyMusicVolume() {
+            if (this.music.current) {
+                this.music.current.volume = this._effectiveVolume('music');
+            }
+        },
+
+        setMasterVolume(v) {
+            this.settings.masterVolume = v;
+            this._applyMusicVolume();
+            this._saveSettings();
+        },
+
+        setSfxVolume(v) {
+            this.settings.sfxVolume = v;
+            this._saveSettings();
+        },
+
+        setMusicVolume(v) {
+            this.settings.musicVolume = v;
+            this._applyMusicVolume();
+            this._saveSettings();
+        },
+
+        setMasterMuted(muted) {
+            this.settings.masterMuted = muted;
+            this._applyMusicVolume();
+            this._saveSettings();
+        },
+
+        setSfxMuted(muted) {
+            this.settings.sfxMuted = muted;
+            this._saveSettings();
+        },
+
+        setMusicMuted(muted) {
+            this.settings.musicMuted = muted;
+            this._applyMusicVolume();
+            this._saveSettings();
+        },
+
+        setMusicEnabled(enabled) {
+            this.settings.musicEnabled = enabled;
+            if (enabled) {
+                this.startMusic();
+            } else {
+                this.stopMusic();
+            }
+            this._saveSettings();
+        },
+
+        _saveSettings() {
+            try {
+                localStorage.setItem('audioSettings', JSON.stringify(this.settings));
+            } catch (_) {}
+        },
+
+        _loadSettings() {
+            try {
+                const saved = localStorage.getItem('audioSettings');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    Object.assign(this.settings, parsed);
+                }
+            } catch (_) {}
+        }
+    };
+
+    // =====================================================
+    // SETTINGS SYSTEM
+    // =====================================================
+
+    const settingsSystem = {
+        fontSize: 'medium',
+
+        init() {
+            this._loadSettings();
+            this._applyFontSize();
+            this._setupUI();
+        },
+
+        _loadSettings() {
+            try {
+                const saved = localStorage.getItem('gameSettings');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.fontSize) this.fontSize = parsed.fontSize;
+                }
+            } catch (_) {}
+        },
+
+        _saveSettings() {
+            try {
+                localStorage.setItem('gameSettings', JSON.stringify({ fontSize: this.fontSize }));
+            } catch (_) {}
+        },
+
+        _applyFontSize() {
+            document.documentElement.setAttribute('data-font-size', this.fontSize);
+        },
+
+        _setupUI() {
+            const modal = document.getElementById('settings-modal');
+            const openBtn = document.getElementById('btn-settings');
+            const closeBtn = document.getElementById('btn-close-settings');
+
+            if (openBtn) openBtn.addEventListener('click', () => this._openModal());
+            if (closeBtn) closeBtn.addEventListener('click', () => this._closeModal());
+
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) this._closeModal();
+                });
+            }
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+                    this._closeModal();
+                }
+            });
+
+            // Font size buttons
+            document.querySelectorAll('.font-size-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.size === this.fontSize);
+                btn.addEventListener('click', () => {
+                    this.fontSize = btn.dataset.size;
+                    this._applyFontSize();
+                    this._saveSettings();
+                    document.querySelectorAll('.font-size-btn').forEach(b => {
+                        b.classList.toggle('active', b.dataset.size === this.fontSize);
+                    });
+                });
+            });
+
+            this._setupAudioUI();
+        },
+
+        _setupAudioUI() {
+            const s = audioSystem.settings;
+
+            const masterSlider = document.getElementById('slider-master-volume');
+            const sfxSlider    = document.getElementById('slider-sfx-volume');
+            const musicSlider  = document.getElementById('slider-music-volume');
+            const masterVal    = document.getElementById('val-master-volume');
+            const sfxVal       = document.getElementById('val-sfx-volume');
+            const musicVal     = document.getElementById('val-music-volume');
+            const toggleMusic  = document.getElementById('toggle-music');
+
+            if (masterSlider) {
+                masterSlider.value = Math.round(s.masterVolume * 100);
+                masterVal.textContent = masterSlider.value + '%';
+                masterSlider.addEventListener('input', () => {
+                    masterVal.textContent = masterSlider.value + '%';
+                    audioSystem.setMasterVolume(parseInt(masterSlider.value) / 100);
+                });
+            }
+
+            if (sfxSlider) {
+                sfxSlider.value = Math.round(s.sfxVolume * 100);
+                sfxVal.textContent = sfxSlider.value + '%';
+                sfxSlider.addEventListener('input', () => {
+                    sfxVal.textContent = sfxSlider.value + '%';
+                    audioSystem.setSfxVolume(parseInt(sfxSlider.value) / 100);
+                });
+            }
+
+            if (musicSlider) {
+                musicSlider.value = Math.round(s.musicVolume * 100);
+                musicVal.textContent = musicSlider.value + '%';
+                musicSlider.addEventListener('input', () => {
+                    musicVal.textContent = musicSlider.value + '%';
+                    audioSystem.setMusicVolume(parseInt(musicSlider.value) / 100);
+                });
+            }
+
+            if (toggleMusic) {
+                toggleMusic.checked = s.musicEnabled;
+                toggleMusic.addEventListener('change', () => {
+                    audioSystem.setMusicEnabled(toggleMusic.checked);
+                });
+            }
+
+            this._setupMuteBtn('btn-mute-master', s.masterMuted, (muted) => audioSystem.setMasterMuted(muted));
+            this._setupMuteBtn('btn-mute-sfx',    s.sfxMuted,    (muted) => audioSystem.setSfxMuted(muted));
+            this._setupMuteBtn('btn-mute-music',  s.musicMuted,  (muted) => audioSystem.setMusicMuted(muted));
+        },
+
+        _setupMuteBtn(id, initialMuted, onToggle) {
+            const btn = document.getElementById(id);
+            if (!btn) return;
+
+            const applyState = (muted) => {
+                btn.classList.toggle('muted', muted);
+                btn.setAttribute('aria-pressed', muted);
+            };
+
+            applyState(initialMuted);
+            btn.addEventListener('click', () => {
+                const nowMuted = !btn.classList.contains('muted');
+                applyState(nowMuted);
+                onToggle(nowMuted);
+            });
+        },
+
+        _openModal() {
+            const modal = document.getElementById('settings-modal');
+            if (modal) modal.classList.remove('hidden');
+        },
+
+        _closeModal() {
+            const modal = document.getElementById('settings-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+    };
 
     // =====================================================
     // BOOTSTRAP

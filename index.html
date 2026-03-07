@@ -30,6 +30,10 @@
                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
                 <span>Gioca ancora</span>
             </button>
+            <button id="btn-settings" class="btn" aria-label="Impostazioni">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Impostazioni</span>
+            </button>
             <div class="progress-container">
                 <span id="progress-text">0 / 0</span>
                 <div class="progress-bar">
@@ -145,6 +149,114 @@
             <div class="confirm-actions">
                 <button id="confirm-cancel-btn" class="btn btn-ghost">Annulla</button>
                 <button id="confirm-proceed-btn" class="btn btn-danger">Procedi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="settings-modal hidden" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h3 id="settings-modal-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Impostazioni
+                </h3>
+                <button id="btn-close-settings" class="btn-close" aria-label="Chiudi impostazioni">×</button>
+            </div>
+
+            <div class="settings-body">
+                <!-- Font Size Section -->
+                <section class="settings-section">
+                    <h4 class="settings-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                        Dimensione Testo
+                    </h4>
+                    <div class="font-size-options">
+                        <button class="font-size-btn" data-size="small" aria-label="Testo piccolo">
+                            <span class="font-size-preview" style="font-size:0.75rem">A</span>
+                            <span>Piccolo</span>
+                        </button>
+                        <button class="font-size-btn active" data-size="medium" aria-label="Testo medio">
+                            <span class="font-size-preview" style="font-size:1rem">A</span>
+                            <span>Medio</span>
+                        </button>
+                        <button class="font-size-btn" data-size="large" aria-label="Testo grande">
+                            <span class="font-size-preview" style="font-size:1.3rem">A</span>
+                            <span>Grande</span>
+                        </button>
+                        <button class="font-size-btn" data-size="xlarge" aria-label="Testo molto grande">
+                            <span class="font-size-preview" style="font-size:1.6rem">A</span>
+                            <span>XL</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Audio Section -->
+                <section class="settings-section">
+                    <h4 class="settings-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                        Audio
+                    </h4>
+
+                    <!-- Master Volume -->
+                    <div class="settings-row">
+                        <div class="settings-label">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                            <span>Volume Generale</span>
+                        </div>
+                        <div class="settings-control">
+                            <button class="mute-btn" id="btn-mute-master" aria-label="Silenzia tutto">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line class="mute-x" x1="23" y1="9" x2="17" y2="15"/><line class="mute-x" x1="17" y1="9" x2="23" y2="15"/><path class="mute-waves" d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                            </button>
+                            <input type="range" id="slider-master-volume" class="volume-slider" min="0" max="100" value="80" aria-label="Volume generale">
+                            <span class="volume-value" id="val-master-volume">80%</span>
+                        </div>
+                    </div>
+
+                    <!-- SFX Volume -->
+                    <div class="settings-row">
+                        <div class="settings-label">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                            <span>Effetti Sonori</span>
+                        </div>
+                        <div class="settings-control">
+                            <button class="mute-btn" id="btn-mute-sfx" aria-label="Silenzia effetti sonori">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line class="mute-x" x1="23" y1="9" x2="17" y2="15"/><line class="mute-x" x1="17" y1="9" x2="23" y2="15"/><path class="mute-waves" d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                            </button>
+                            <input type="range" id="slider-sfx-volume" class="volume-slider" min="0" max="100" value="100" aria-label="Volume effetti sonori">
+                            <span class="volume-value" id="val-sfx-volume">100%</span>
+                        </div>
+                    </div>
+
+                    <!-- Music Volume -->
+                    <div class="settings-row">
+                        <div class="settings-label">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+                            <span>Musica</span>
+                        </div>
+                        <div class="settings-control">
+                            <button class="mute-btn" id="btn-mute-music" aria-label="Silenzia musica">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line class="mute-x" x1="23" y1="9" x2="17" y2="15"/><line class="mute-x" x1="17" y1="9" x2="23" y2="15"/><path class="mute-waves" d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                            </button>
+                            <input type="range" id="slider-music-volume" class="volume-slider" min="0" max="100" value="40" aria-label="Volume musica">
+                            <span class="volume-value" id="val-music-volume">40%</span>
+                        </div>
+                    </div>
+
+                    <!-- Music toggle -->
+                    <div class="settings-row">
+                        <div class="settings-label">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                            <span>Riproduci Musica</span>
+                        </div>
+                        <div class="settings-control">
+                            <label class="toggle-switch" aria-label="Attiva musica di sottofondo">
+                                <input type="checkbox" id="toggle-music" checked>
+                                <span class="toggle-track"></span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
     </div>
