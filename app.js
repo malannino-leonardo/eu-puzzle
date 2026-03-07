@@ -1039,7 +1039,9 @@
 
         // Determine ideal orientation with hysteresis
         // Check current orientation first to prevent flickering
-        const currentOrientation = Array.from(popup.classList).find(c => c.startsWith('orientation-'))?.replace('orientation-', '') || 'top';
+        // Use null (not 'top') as the default so that on first render (no class yet)
+        // isCurrentValid is always false and the class gets explicitly set.
+        const currentOrientation = Array.from(popup.classList).find(c => c.startsWith('orientation-'))?.replace('orientation-', '') || null;
         let orientation = currentOrientation;
         
         // Hysteresis buffer - keep current orientation if it's "close enough" to valid
