@@ -319,11 +319,6 @@
         return europeanNames.some(n => nameLower.includes(n));
     }
     
-    // Check if geometry centroid is within European bounds (exclude overseas territories)
-    function isInEuropeanBounds(feature, pathGenerator) {
-        return isGeometryInEuropeanBounds(feature.geometry, pathGenerator);
-    }
-
     function isGeometryInEuropeanBounds(geometry, pathGenerator) {
         const tempFeature = { type: 'Feature', properties: {}, geometry };
         const bounds = pathGenerator.bounds(tempFeature);
@@ -781,7 +776,6 @@
                 
                 // Add markers to both countries involved in the snap
                 draggedCluster.members.forEach(id => addCountryMarker(id));
-                const targetCluster = state.clusters.get(bestSnap.targetClusterId);
                 if (targetCluster) {
                     targetCluster.members.forEach(id => addCountryMarker(id));
                 }
@@ -1486,14 +1480,12 @@
         }
     }
     
-    function zoomIn() {
-        const newZoom = state.zoomLevel * 1.2;
-        if (newZoom > state.maxZoom) return;
+    function zoomToCenter(factor) {
+        const newZoom = state.zoomLevel * factor;
+        if (newZoom < state.minZoom || newZoom > state.maxZoom) return;
         
-        // Zoom towards center
         const centerX = state.viewBox.x + state.viewBox.w / 2;
         const centerY = state.viewBox.y + state.viewBox.h / 2;
-        
         const newW = CONFIG.BOARD_WIDTH / newZoom;
         const newH = CONFIG.BOARD_HEIGHT / newZoom;
         
@@ -1507,26 +1499,8 @@
         updateZoomDisplay();
     }
     
-    function zoomOut() {
-        const newZoom = state.zoomLevel * 0.8;
-        if (newZoom < state.minZoom) return;
-        
-        // Zoom from center
-        const centerX = state.viewBox.x + state.viewBox.w / 2;
-        const centerY = state.viewBox.y + state.viewBox.h / 2;
-        
-        const newW = CONFIG.BOARD_WIDTH / newZoom;
-        const newH = CONFIG.BOARD_HEIGHT / newZoom;
-        
-        state.viewBox.x = centerX - newW / 2;
-        state.viewBox.y = centerY - newH / 2;
-        state.viewBox.w = newW;
-        state.viewBox.h = newH;
-        state.zoomLevel = newZoom;
-        
-        updateViewBox();
-        updateZoomDisplay();
-    }
+    function zoomIn()  { zoomToCenter(1.2); }
+    function zoomOut() { zoomToCenter(0.8); }
     
     function resetZoom() {
         state.zoomLevel = 1;
@@ -1654,15 +1628,9 @@
         if (!clusterA || !clusterB) return false;
         
         // Check if they share an adjacent country
-        let canAttach = false;
-        
-        clusterA.members.forEach(countryA => {
+        const canAttach = [...clusterA.members].some(countryA => {
             const neighbors = state.adjacencies.get(countryA) || new Set();
-            clusterB.members.forEach(countryB => {
-                if (neighbors.has(countryB)) {
-                    canAttach = true;
-                }
-            });
+            return [...clusterB.members].some(countryB => neighbors.has(countryB));
         });
         
         if (canAttach) {
@@ -1808,7 +1776,6 @@
     function updateProgress() {
         // Count how many countries are in the largest cluster
         let maxClusterSize = 0;
-        let totalClusters = state.clusters.size;
         
         state.clusters.forEach(cluster => {
             if (cluster.members.size > maxClusterSize) {
@@ -1824,6 +1791,8 @@
         
         progressText.textContent = `${state.connectedCountries} / ${state.totalCountries}`;
         progressFill.style.width = `${(state.connectedCountries / state.totalCountries) * 100}%`;
+        
+        checkCompletion();
     }
 
     function checkCompletion() {
@@ -1980,12 +1949,17 @@
         const container = document.getElementById('board-container');
         const rect = container.getBoundingClientRect();
         
-        // Update config
+        // Preserve the current view center across the resize
+        const centerX = state.viewBox.x + state.viewBox.w / 2;
+        const centerY = state.viewBox.y + state.viewBox.h / 2;
+        
         CONFIG.BOARD_WIDTH = rect.width;
         CONFIG.BOARD_HEIGHT = rect.height;
         
-        // Update SVG viewBox
-        state.svg.setAttribute('viewBox', `0 0 ${CONFIG.BOARD_WIDTH} ${CONFIG.BOARD_HEIGHT}`);
+        const newW = CONFIG.BOARD_WIDTH / state.zoomLevel;
+        const newH = CONFIG.BOARD_HEIGHT / state.zoomLevel;
+        state.viewBox = { x: centerX - newW / 2, y: centerY - newH / 2, w: newW, h: newH };
+        updateViewBox();
     }
 
     function debounce(func, wait) {
@@ -2006,12 +1980,8 @@
     }
 
     function getCookie(name) {
-        return document.cookie
-            .split('; ')
-            .find(row => row.startsWith(name + '='))
-            ?.split('=')[1]
-            ? decodeURIComponent(document.cookie.split('; ').find(row => row.startsWith(name + '='))?.split('=')[1] || '')
-            : null;
+        const pair = document.cookie.split('; ').find(row => row.startsWith(name + '='));
+        return pair ? decodeURIComponent(pair.split('=')[1]) : null;
     }
 
     function deleteCookie(name) {
