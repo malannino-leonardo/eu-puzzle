@@ -97,6 +97,18 @@ body {
     gap: 1rem;
     flex-wrap: wrap;
     z-index: 100;
+    position: relative;
+}
+
+#btn-play-again-header {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+}
+
+#btn-play-again-header.hidden {
+    display: none;
 }
 
 .game-header h1 {
@@ -106,10 +118,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: linear-gradient(135deg, #818cf8 0%, #c084fc 60%, #f0abfc 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #fbbf24;
     letter-spacing: -0.02em;
 }
 
@@ -2283,17 +2292,16 @@ body.menu-page {
     font-size: 2.5rem;
     font-weight: 900;
     letter-spacing: -0.04em;
-    background: linear-gradient(135deg, #818cf8 0%, #c084fc 55%, #f0abfc 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #fbbf24;
     line-height: 1;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85);
 }
 
 .menu-subtitle {
     font-size: 0.9375rem;
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.9);
     letter-spacing: 0.01em;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
 }
 
 .menu-nav {

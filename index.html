@@ -19,7 +19,6 @@
     <div class="menu-container">
         <div class="menu-card">
             <div class="menu-logo">
-                <img src="favicon.svg" class="menu-logo-icon" alt="" aria-hidden="true">
                 <h1 class="menu-title">Puzzle UE</h1>
                 <p class="menu-subtitle">Ricostruisci la mappa dell'Unione Europea</p>
             </div>
@@ -458,7 +457,7 @@
                     a.musicMuted = false;
                     saveAudio(a);
                     updateMenuAudio();
-                    tryPlayMenu();
+                    if (menuAudio.paused) menuAudio.play().catch(() => {});
                 });
             }
         });

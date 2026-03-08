@@ -2230,19 +2230,6 @@
             isMapStep: true
         },
         {
-            icon: '<circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="18" cy="12" r="2" fill="currentColor"/><path d="M8 12h8"/><rect x="3" y="4" width="6" height="5" rx="1"/><rect x="15" y="15" width="6" height="5" rx="1"/>',
-            selector: '#board-container',
-            title: 'Significato dei Colori',
-            text: 'I colori dei paesi indicano il loro stato attuale:',
-            colorList: [
-                { swatch: '#3b7dd8', shadow: '#3b7dd888', label: 'Blu', desc: 'Paese ancora da posizionare' },
-                { swatch: '#8b5cf6', shadow: '#8b5cf688', label: 'Viola', desc: 'Paese evidenziato (hover)' },
-                { swatch: '#10b981', shadow: '#10b98188', label: 'Verde', desc: 'Paese correttamente collegato' },
-                { swatch: '#f59e0b', shadow: '#f59e0b88', label: 'Arancio / Oro', desc: 'Paese selezionato (solo in modalità accessibilità)' }
-            ],
-            isMapStep: true
-        },
-        {
             icon: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
             selector: '#board-container',
             title: 'Aggancia i Confini',
@@ -2259,13 +2246,6 @@
             isInfoDemo: true // New flag
         },
         {
-            icon: '<line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>',
-            selector: '#btn-hint',
-            title: 'Suggerimento',
-            text: 'Sei bloccato? Questo pulsante evidenzia il paese più piccolo ancora non collegato. Usalo con parsimonia per non perdere il gusto della sfida!',
-            isMapStep: false
-        },
-        {
             icon: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
             selector: '.progress-container',
             title: 'Barra di Progresso',
@@ -2273,10 +2253,10 @@
             isMapStep: false
         },
         {
-            icon: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
-            selector: '#btn-reset',
-            title: 'Ricomincia',
-            text: 'Se vuoi ricominciare da capo, usa il pulsante Reset. Tutti i pezzi vengono rimescolati e puoi provare di nuovo a tuo piacimento!',
+            icon: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l-.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+            selector: '#btn-settings',
+            title: 'Impostazioni',
+            text: 'Dal pulsante Impostazioni puoi regolare il volume della musica e degli effetti sonori, e modificare la dimensione del testo per una migliore leggibilità.',
             isMapStep: false
         },
         {
@@ -2284,6 +2264,20 @@
             selector: '#btn-open-tutorial',
             title: 'Riapri il Tutorial',
             text: 'Hai dubbi durante il gioco? Premi il pulsante "Tutorial" in cima alla pagina per riaprire questa guida in qualsiasi momento!',
+            isMapStep: false
+        },
+        {
+            icon: '<line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>',
+            selector: '#btn-hint',
+            title: 'Suggerimento',
+            text: 'Sei bloccato? Questo pulsante evidenzia il paese più piccolo ancora non collegato. Usalo con parsimonia per non perdere il gusto della sfida!',
+            isMapStep: false
+        },
+        {
+            icon: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+            selector: '#btn-reset',
+            title: 'Ricomincia',
+            text: 'Se vuoi ricominciare da capo, usa il pulsante Reset. Tutti i pezzi vengono rimescolati e puoi provare di nuovo a tuo piacimento!',
             isMapStep: false
         },
         {
@@ -2535,9 +2529,9 @@
         if (step.selector) {
             const target = document.querySelector(step.selector);
             if (target) {
-                // Phase 2 (index 1) and Phase 3 (index 2): Center-Bottom positioning
-                if ((index === 1 || index === 2) && step.selector === '#board-container') {
-                     // Hide spotlight for these broad steps
+                // Phase 2 (index 1): Center-Bottom positioning
+                if (index === 1 && step.selector === '#board-container') {
+                     // Hide spotlight for this broad step
                      spotlight.classList.add('hidden');
                      
                      // Position before animation
@@ -2565,8 +2559,9 @@
                     // Position tooltip relative to the target
                     positionTutorialTooltip(target, tooltip);
                     
-                    // Snap demo: pin tooltip to bottom-right corner so the countries are fully visible
+                    // Snap demo: pin tooltip to bottom-right corner (same as phase 4) and hide spotlight
                     if (step.isSnapDemo) {
+                        spotlight.classList.add('hidden');
                         tooltip.style.top    = '';
                         tooltip.style.left   = '';
                         tooltip.style.bottom = '1.5rem';
