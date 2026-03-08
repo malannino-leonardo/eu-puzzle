@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Puzzle Unione Europea</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/topojson-client@3"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="game-header">
+        <h1><img src="favicon.svg" class="icon icon-puzzle" alt="" aria-hidden="true"> Puzzle UE <a href="index.html" class="btn btn-ghost btn-menu-inline" aria-label="Torna al menu principale"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg><span>Menu</span></a></h1>
+        <div class="header-controls">
+            <button id="btn-reset" class="btn" aria-label="Ricomincia il gioco">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span>Reset</span>
+            </button>
+            <button id="btn-hint" class="btn" aria-label="Mostra suggerimento">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+                <span>Suggerimento</span>
+            </button>
+            <button id="btn-open-tutorial" class="btn" aria-label="Apri tutorial">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                <span>Tutorial</span>
+            </button>
+            <button id="btn-play-again-header" class="btn btn-play-again hidden" aria-label="Gioca ancora">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span>Gioca ancora</span>
+            </button>
+            <button id="btn-settings" class="btn" aria-label="Impostazioni">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Impostazioni</span>
+            </button>
+            <div class="progress-container">
+                <span id="progress-text">0 / 0</span>
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="game-main">
+        <!-- SVG Board -->
+        <div class="board-container" id="board-container">
+            <svg id="game-board" class="game-board" aria-label="Tavola del puzzle Unione Europea">
+                <defs>
+                    <!-- Glow filters -->
+                    <filter id="glow-green" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                    <filter id="glow-red" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feColorMatrix type="matrix" values="1 0 0 0 0.8  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                    <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.3"/>
+                    </filter>
+                </defs>
+                <g id="clusters-container"></g>
+            </svg>
+            
+            <!-- Zoom Controls -->
+            <div class="zoom-controls">
+                <button id="btn-zoom-out" class="zoom-btn" aria-label="Zoom out">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+                <button id="btn-zoom-reset" class="zoom-btn zoom-level" aria-label="Reset zoom">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <span id="zoom-level-text">60%</span>
+                </button>
+                <button id="btn-zoom-in" class="zoom-btn" aria-label="Zoom in">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+            </div>
+
+            <!-- Overlay for completion -->
+            <div id="completion-overlay" class="completion-overlay hidden">
+                <div class="completion-content">
+                    <svg class="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                    <h2>COMPLETATO!</h2>
+                    <p>Hai ricostruito l'Unione Europea!</p>
+                    <div class="completion-actions">
+                        <button id="btn-close-completion" class="btn btn-ghost">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <span>Esplora la mappa</span>
+                        </button>
+                        <button id="btn-restart" class="btn btn-large">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            <span>Gioca ancora</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <aside id="info-panel" class="info-panel hidden" aria-live="polite">
+            <div class="info-header">
+                <h2 id="info-country-name">Seleziona un paese</h2>
+                <button id="btn-close-panel" class="btn-close" aria-label="Chiudi pannello">×</button>
+            </div>
+            <div class="info-body">
+                <div class="info-flag" id="info-flag">
+                    <!-- SVG flag will be loaded here -->
+                </div>
+                <div class="info-details">
+                    <p><strong>Capitale:</strong> <span id="info-capital">-</span></p>
+                    <p><strong>Popolazione:</strong> <span id="info-population">-</span></p>
+                    <p><strong>Superficie:</strong> <span id="info-area">-</span></p>
+                    <p><strong>Curiosità:</strong></p>
+                    <p id="info-fact" class="info-fact">-</p>
+                </div>
+                <div class="info-status" id="info-status">
+                    <!-- Status badge -->
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Accessibility: Click-to-select mode toggle -->
+    <div class="accessibility-bar">
+        <label class="toggle-label">
+            <input type="checkbox" id="click-mode-toggle">
+            <span>Modalità click (accessibilità)</span>
+        </label>
+    </div>
+
+    <!-- Confirm / Warning Modal -->
+    <div id="confirm-modal" class="confirm-modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+        <div class="confirm-content">
+            <div class="confirm-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <h3 id="confirm-modal-title">Scartare i progressi?</h3>
+            <p id="confirm-modal-message"></p>
+            <div class="confirm-actions">
+                <button id="confirm-cancel-btn" class="btn btn-ghost">Annulla</button>
+                <button id="confirm-proceed-btn" class="btn btn-danger">Procedi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="settings-modal hidden" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h3 id="settings-modal-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Impostazioni
+                </h3>
+                <button id="btn-close-settings" class="btn-close" aria-label="Chiudi impostazioni">×</button>
+            </div>
+
+            <div class="settings-body">
+                <!-- Font Size Section -->
+                <section class="settings-section">
+                    <h4 class="settings-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                        Dimensione Testo
+                    </h4>
+                    <div class="font-size-options">
+                        <button class="font-size-btn" data-size="small" aria-label="Testo piccolo">
+                            <span class="font-size-preview" style="font-size:0.75rem">A</span>
+                            <span>Piccolo</span>
+                        </button>
+                        <button class="font-size-btn active" data-size="medium" aria-label="Testo medio">
+                            <span class="font-size-preview" style="font-size:1rem">A</span>
+                            <span>Medio</span>
+                        </button>
+                        <button class="font-size-btn" data-size="large" aria-label="Testo grande">
+                            <span class="font-size-preview" style="font-size:1.3rem">A</span>
+                            <span>Grande</span>
+                        </button>
+                        <button class="font-size-btn" data-size="xlarge" aria-label="Testo molto grande">
+                            <span class="font-size-preview" style="font-size:1.6rem">A</span>
+                            <span>XL</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Audio Section -->
+                <section class="settings-section">
+                    <h4 class="settings-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                        Audio
+                    </h4>
+
+                    <!-- Master Volume -->
+                    <div class="settings-row">
+                        <div class="settings-label">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                            <span>Volume Generale</span>
+                        </div>
+                        <div class="settings-control">
+                            <button class="mute-btn" id="btn-mute-master" aria-label="Silenzia tutto">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line class="mute-x" x1="23" y1="9" x2="17" y2="15"/><line class="mute-x" x1="17" y1="9" x2="23" y2="15"/><path class="mute-waves" d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                            </button>
+                            <input type="range" id="slider-master-volume" class="volume-slider" min="0" max="100" value="80" aria-label="Volume generale">
+                            <span class="volume-value" id="val-master-volume">80%</span>
+                        </div>
+                    </div>
+
+                    <!-- SFX Volume -->
+                    <div class="settings-row">
+                        <div class="settings-label">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                            <span>Effetti Sonori</span>
+                        </div>
+                        <div class="settings-control">
+                            <button class="mute-btn" id="btn-mute-sfx" aria-label="Silenzia effetti sonori">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line class="mute-x" x1="23" y1="9" x2="17" y2="15"/><line class="mute-x" x1="17" y1="9" x2="23" y2="15"/><path class="mute-waves" d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                            </button>
+                            <input type="range" id="slider-sfx-volume" class="volume-slider" min="0" max="100" value="100" aria-label="Volume effetti sonori">
+                            <span class="volume-value" id="val-sfx-volume">100%</span>
+                        </div>
+                    </div>
+
+                    <!-- Music Volume -->
+                    <div class="settings-row">
+                        <div class="settings-label">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+                            <span>Musica</span>
+                        </div>
+                        <div class="settings-control">
+                            <button class="mute-btn" id="btn-mute-music" aria-label="Silenzia musica">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line class="mute-x" x1="23" y1="9" x2="17" y2="15"/><line class="mute-x" x1="17" y1="9" x2="23" y2="15"/><path class="mute-waves" d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                            </button>
+                            <input type="range" id="slider-music-volume" class="volume-slider" min="0" max="100" value="40" aria-label="Volume musica">
+                            <span class="volume-value" id="val-music-volume">40%</span>
+                        </div>
+                    </div>
+
+                    <!-- Music toggle -->
+                    <div class="settings-row">
+                        <div class="settings-label">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                            <span>Riproduci Musica</span>
+                        </div>
+                        <div class="settings-control">
+                            <label class="toggle-switch" aria-label="Attiva musica di sottofondo">
+                                <input type="checkbox" id="toggle-music" checked>
+                                <span class="toggle-track"></span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Script -->
+    <script src="app.js"></script>
+
+    <!-- Welcome Modal (shown after map loads) -->
+    <div id="welcome-modal" class="welcome-modal hidden" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+        <div class="welcome-content">
+            <h2 id="welcome-title" class="welcome-title">Puzzle Unione Europea</h2>
+            <p class="welcome-subtitle">
+                Ricostruisci la mappa dell'UE collegando tutti i 27 paesi membri!<br>
+            </p>
+
+            <div class="welcome-section-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Come si gioca
+            </div>
+
+            <div class="welcome-controls-grid">
+                <div class="control-card">
+                    <div class="control-icon-wrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/></svg>
+                    </div>
+                    <strong>Trascina i Pezzi</strong>
+                    <span>Clicca su un paese con <kbd>Tasto Sinistro</kbd> e trascinalo verso un'altro paese adiacente per collegarlo.</span>
+                </div>
+                <div class="control-card">
+                    <div class="control-icon-wrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                    </div>
+                    <strong>Zoom e Panoramica</strong>
+                    <span>Rotella del mouse o pulsanti +/- per ingrandire. <br>Trascina lo sfondo con <kbd>Tasto Destro</kbd> per spostarti.</span>
+                </div>
+                <div class="control-card">
+                    <div class="control-icon-wrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    </div>
+                    <strong>Aggancia i Confini</strong>
+                    <span>Avvicina paesi che condividono un confine: si uniranno automaticamente!</span>
+                </div>
+                <div class="control-card">
+                    <div class="control-icon-wrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M6 10h0M10 10h0M14 10h0M18 10h0M8 14h8"/></svg>
+                    </div>
+                    <strong>Tastiera</strong>
+                    <span>Usa <kbd>Tab</kbd> per selezionare un paese e <kbd>Invio</kbd> per spostarlo — nessun mouse necessario.</span>
+                </div>
+                <div class="control-card">
+                    <div class="control-icon-wrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                    <strong>Modalità Click (Accessibilità)</strong>
+                    <span>Se il trascinamento è difficoltoso, attiva la <em>Modalità click</em> in basso a sinistra dello schermo.</span>
+                </div>
+                <div class="control-card">
+                    <div class="control-icon-wrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+                    </div>
+                    <strong>Suggerimento</strong>
+                    <span>Il pulsante 💡 in alto evidenzia il paese successivo da collegare se sei bloccato</span>
+                </div>
+            </div>
+
+            <div class="welcome-section-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                Significato dei colori
+            </div>
+            <div class="welcome-color-legend">
+                <div class="color-legend-item">
+                    <span class="color-swatch" style="background:#3b7dd8;box-shadow:0 0 8px #3b7dd888"></span>
+                    <div>
+                        <strong>Blu</strong>
+                        <span>Paese ancora da posizionare</span>
+                    </div>
+                </div>
+                <div class="color-legend-item">
+                    <span class="color-swatch" style="background:#8b5cf6;box-shadow:0 0 8px #8b5cf688"></span>
+                    <div>
+                        <strong>Viola</strong>
+                        <span>Paese evidenziato (hover)</span>
+                    </div>
+                </div>
+                <div class="color-legend-item">
+                    <span class="color-swatch" style="background:#10b981;box-shadow:0 0 8px #10b98188"></span>
+                    <div>
+                        <strong>Verde</strong>
+                        <span>Paese correttamente collegato</span>
+                    </div>
+                </div>
+                <div class="color-legend-item">
+                    <span class="color-swatch" style="background:#f59e0b;box-shadow:0 0 8px #f59e0b88"></span>
+                    <div>
+                        <strong>Arancio / Oro</strong>
+                        <span>Paese selezionato (solo in modalità accessibilità)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="welcome-actions">
+                <button id="btn-skip-tutorial" class="btn btn-ghost">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    Salta
+                </button>
+                <button id="btn-start-tutorial" class="btn btn-cta">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Inizia Tutorial
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial: Spotlight + Tooltip -->
+    <div id="tutorial-spotlight" class="tutorial-spotlight hidden"></div>
+    <div id="tutorial-overlay" class="tutorial-overlay hidden"></div>
+    <div id="tutorial-tooltip" class="tutorial-tooltip hidden" role="dialog" aria-labelledby="tutorial-step-title">
+        <div class="tutorial-step-indicator">
+            Passo <span id="tutorial-step-num">1</span> di <span id="tutorial-step-total">9</span>
+        </div>
+        <div class="tutorial-step-header">
+            <div class="tutorial-step-icon-wrap" id="tutorial-step-icon" aria-hidden="true"></div>
+            <h3 id="tutorial-step-title" class="tutorial-step-title"></h3>
+        </div>
+        <p id="tutorial-step-text" class="tutorial-step-text"></p>
+        <ul id="tutorial-step-list" class="tutorial-color-list" aria-label="Legenda colori" hidden></ul>
+        <div class="tutorial-actions">
+            <button id="btn-close-tutorial" class="btn btn-ghost btn-sm">Fine</button>
+            <button id="btn-prev-tutorial" class="btn btn-ghost btn-sm tutorial-btn-back" aria-label="Torna al passo precedente">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><path d="M15 18l-6-6 6-6"/></svg>
+                Indietro
+            </button>
+            <button id="btn-next-tutorial" class="btn btn-cta btn-sm">Avanti →</button>
+        </div>
+        <div class="tutorial-progress-dots" id="tutorial-dots"></div>
+    </div>
+</body>
+</html>

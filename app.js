@@ -2899,9 +2899,9 @@
         settings: {
             masterVolume: 0.8,
             masterMuted: false,
-            sfxVolume: 1.0,
+            sfxVolume: 0.8,
             sfxMuted: false,
-            musicVolume: 0.4,
+            musicVolume: 0.3,
             musicMuted: false,
             musicEnabled: true
         },

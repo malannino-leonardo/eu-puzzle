@@ -1,159 +1,61 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Puzzle Unione Europea</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://unpkg.com/topojson-client@3"></script>
 </head>
-<body>
-    <!-- Header -->
-    <header class="game-header">
-        <h1><svg class="icon icon-puzzle" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7s2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z"/></svg> Puzzle UE</h1>
-        <div class="header-controls">
-            <button id="btn-reset" class="btn" aria-label="Ricomincia il gioco">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                <span>Reset</span>
-            </button>
-            <button id="btn-hint" class="btn" aria-label="Mostra suggerimento">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
-                <span>Suggerimento</span>
-            </button>
-            <button id="btn-open-tutorial" class="btn" aria-label="Apri tutorial">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
-                <span>Tutorial</span>
-            </button>
-            <button id="btn-play-again-header" class="btn btn-play-again hidden" aria-label="Gioca ancora">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                <span>Gioca ancora</span>
-            </button>
-            <button id="btn-settings" class="btn" aria-label="Impostazioni">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                <span>Impostazioni</span>
-            </button>
-            <div class="progress-container">
-                <span id="progress-text">0 / 0</span>
-                <div class="progress-bar">
-                    <div id="progress-fill" class="progress-fill"></div>
-                </div>
-            </div>
-        </div>
-    </header>
+<body class="menu-page">
 
-    <!-- Main Game Area -->
-    <main class="game-main">
-        <!-- SVG Board -->
-        <div class="board-container" id="board-container">
-            <svg id="game-board" class="game-board" aria-label="Tavola del puzzle Unione Europea">
-                <defs>
-                    <!-- Glow filters -->
-                    <filter id="glow-green" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                        <feMerge>
-                            <feMergeNode in="coloredBlur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                        </feMerge>
-                    </filter>
-                    <filter id="glow-red" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                        <feColorMatrix type="matrix" values="1 0 0 0 0.8  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
-                        <feMerge>
-                            <feMergeNode in="coloredBlur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                        </feMerge>
-                    </filter>
-                    <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
-                        <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.3"/>
-                    </filter>
-                </defs>
-                <g id="clusters-container"></g>
-            </svg>
-            
-            <!-- Zoom Controls -->
-            <div class="zoom-controls">
-                <button id="btn-zoom-out" class="zoom-btn" aria-label="Zoom out">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                </button>
-                <button id="btn-zoom-reset" class="zoom-btn zoom-level" aria-label="Reset zoom">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <span id="zoom-level-text">60%</span>
-                </button>
-                <button id="btn-zoom-in" class="zoom-btn" aria-label="Zoom in">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                </button>
-            </div>
-
-            <!-- Overlay for completion -->
-            <div id="completion-overlay" class="completion-overlay hidden">
-                <div class="completion-content">
-                    <svg class="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
-                    <h2>COMPLETATO!</h2>
-                    <p>Hai ricostruito l'Unione Europea!</p>
-                    <div class="completion-actions">
-                        <button id="btn-close-completion" class="btn btn-ghost btn-large">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                            <span>Esplora la mappa</span>
-                        </button>
-                        <button id="btn-restart" class="btn btn-large">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                            <span>Gioca ancora</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Info Panel -->
-        <aside id="info-panel" class="info-panel hidden" aria-live="polite">
-            <div class="info-header">
-                <h2 id="info-country-name">Seleziona un paese</h2>
-                <button id="btn-close-panel" class="btn-close" aria-label="Chiudi pannello">×</button>
-            </div>
-            <div class="info-body">
-                <div class="info-flag" id="info-flag">
-                    <!-- SVG flag will be loaded here -->
-                </div>
-                <div class="info-details">
-                    <p><strong>Capitale:</strong> <span id="info-capital">-</span></p>
-                    <p><strong>Popolazione:</strong> <span id="info-population">-</span></p>
-                    <p><strong>Superficie:</strong> <span id="info-area">-</span></p>
-                    <p><strong>Curiosità:</strong></p>
-                    <p id="info-fact" class="info-fact">-</p>
-                </div>
-                <div class="info-status" id="info-status">
-                    <!-- Status badge -->
-                </div>
-            </div>
-        </aside>
-    </main>
-
-    <!-- Accessibility: Click-to-select mode toggle -->
-    <div class="accessibility-bar">
-        <label class="toggle-label">
-            <input type="checkbox" id="click-mode-toggle">
-            <span>Modalità click (accessibilità)</span>
-        </label>
+    <!-- Background slideshow -->
+    <div class="menu-bg-wrap" aria-hidden="true">
+        <div class="menu-bg-layer menu-bg-a"></div>
+        <div class="menu-bg-layer menu-bg-b"></div>
     </div>
 
-    <!-- Confirm / Warning Modal -->
-    <div id="confirm-modal" class="confirm-modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
-        <div class="confirm-content">
-            <div class="confirm-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <!-- Main Menu -->
+    <div class="menu-container">
+        <div class="menu-card">
+            <div class="menu-logo">
+                <img src="favicon.svg" class="menu-logo-icon" alt="" aria-hidden="true">
+                <h1 class="menu-title">Puzzle UE</h1>
+                <p class="menu-subtitle">Ricostruisci la mappa dell'Unione Europea</p>
             </div>
-            <h3 id="confirm-modal-title">Scartare i progressi?</h3>
-            <p id="confirm-modal-message"></p>
-            <div class="confirm-actions">
-                <button id="confirm-cancel-btn" class="btn btn-ghost">Annulla</button>
-                <button id="confirm-proceed-btn" class="btn btn-danger">Procedi</button>
-            </div>
+
+            <nav class="menu-nav" aria-label="Menu principale">
+                <a href="game.html" class="menu-btn menu-btn-primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Gioca
+                </a>
+                <button class="menu-btn menu-btn-secondary" id="btn-open-settings" aria-haspopup="dialog">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    Impostazioni
+                </button>
+                <button class="menu-btn menu-btn-secondary" id="btn-open-credits" aria-haspopup="dialog">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Crediti
+                </button>
+            </nav>
+
+            <a href="https://github.com/malannino-leonardo/progetto-europa" class="menu-github-link" target="_blank" rel="noopener noreferrer" aria-label="Apri repository su GitHub">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                GitHub
+            </a>
         </div>
     </div>
 
-    <!-- Settings Modal -->
+    <!-- Volume Control -->
+    <div class="menu-volume-control" id="menu-volume-control" role="group" aria-label="Controllo volume">
+        <button class="menu-volume-btn" id="btn-menu-mute" aria-label="Silenzia musica" aria-pressed="false">
+            <svg class="icon-vol-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            <svg class="icon-vol-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </button>
+        <input type="range" class="menu-volume-slider" id="slider-menu-volume" min="0" max="100" value="30" aria-label="Volume musica">
+    </div>
+
+    <!-- Settings Modal (identical structure to game.html) -->
     <div id="settings-modal" class="settings-modal hidden" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
         <div class="settings-content">
             <div class="settings-header">
@@ -161,7 +63,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                     Impostazioni
                 </h3>
-                <button id="btn-close-settings" class="btn-close" aria-label="Chiudi impostazioni">×</button>
+                <button id="btn-close-settings" class="btn-close" aria-label="Chiudi impostazioni">&times;</button>
             </div>
 
             <div class="settings-body">
@@ -205,7 +107,7 @@
                             <span>Volume Generale</span>
                         </div>
                         <div class="settings-control">
-                            <button class="mute-btn" id="btn-mute-master" aria-label="Silenzia tutto">
+                            <button class="mute-btn" id="btn-mute-master" aria-label="Silenzia tutto" aria-pressed="false">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line class="mute-x" x1="23" y1="9" x2="17" y2="15"/><line class="mute-x" x1="17" y1="9" x2="23" y2="15"/><path class="mute-waves" d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                             </button>
                             <input type="range" id="slider-master-volume" class="volume-slider" min="0" max="100" value="80" aria-label="Volume generale">
@@ -220,11 +122,11 @@
                             <span>Effetti Sonori</span>
                         </div>
                         <div class="settings-control">
-                            <button class="mute-btn" id="btn-mute-sfx" aria-label="Silenzia effetti sonori">
+                            <button class="mute-btn" id="btn-mute-sfx" aria-label="Silenzia effetti sonori" aria-pressed="false">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line class="mute-x" x1="23" y1="9" x2="17" y2="15"/><line class="mute-x" x1="17" y1="9" x2="23" y2="15"/><path class="mute-waves" d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                             </button>
-                            <input type="range" id="slider-sfx-volume" class="volume-slider" min="0" max="100" value="100" aria-label="Volume effetti sonori">
-                            <span class="volume-value" id="val-sfx-volume">100%</span>
+                            <input type="range" id="slider-sfx-volume" class="volume-slider" min="0" max="100" value="80" aria-label="Volume effetti sonori">
+                            <span class="volume-value" id="val-sfx-volume">80%</span>
                         </div>
                     </div>
 
@@ -235,11 +137,11 @@
                             <span>Musica</span>
                         </div>
                         <div class="settings-control">
-                            <button class="mute-btn" id="btn-mute-music" aria-label="Silenzia musica">
+                            <button class="mute-btn" id="btn-mute-music" aria-label="Silenzia musica" aria-pressed="false">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line class="mute-x" x1="23" y1="9" x2="17" y2="15"/><line class="mute-x" x1="17" y1="9" x2="23" y2="15"/><path class="mute-waves" d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                             </button>
-                            <input type="range" id="slider-music-volume" class="volume-slider" min="0" max="100" value="40" aria-label="Volume musica">
-                            <span class="volume-value" id="val-music-volume">40%</span>
+                            <input type="range" id="slider-music-volume" class="volume-slider" min="0" max="100" value="30" aria-label="Volume musica">
+                            <span class="volume-value" id="val-music-volume">30%</span>
                         </div>
                     </div>
 
@@ -261,137 +163,307 @@
         </div>
     </div>
 
-    <!-- Main Script -->
-    <script src="app.js"></script>
-
-    <!-- Welcome Modal (shown after map loads) -->
-    <div id="welcome-modal" class="welcome-modal hidden" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
-        <div class="welcome-content">
-            <h2 id="welcome-title" class="welcome-title">Puzzle Unione Europea</h2>
-            <p class="welcome-subtitle">
-                Ricostruisci la mappa dell'UE collegando tutti i 27 paesi membri!<br>
-            </p>
-
-            <div class="welcome-section-label">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                Come si gioca
+    <!-- Credits Modal -->
+    <div id="credits-modal" class="settings-modal hidden" role="dialog" aria-modal="true" aria-labelledby="credits-modal-title">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h3 id="credits-modal-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Crediti
+                </h3>
+                <button id="btn-close-credits" class="btn-close" aria-label="Chiudi crediti">&times;</button>
             </div>
-
-            <div class="welcome-controls-grid">
-                <div class="control-card">
-                    <div class="control-icon-wrap">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/></svg>
+            <div class="settings-body">
+                <section class="settings-section">
+                    <h4 class="settings-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Sviluppo
+                    </h4>
+                    <div class="credits-entry">
+                        <p class="credits-name">Leonardo Malannino</p>
+                        <p class="credits-role">Design, Programmazione</p>
                     </div>
-                    <strong>Trascina i Pezzi</strong>
-                    <span>Clicca su un paese con <kbd>Tasto Sinistro</kbd> e trascinalo verso un'altro paese adiacente per collegarlo.</span>
-                </div>
-                <div class="control-card">
-                    <div class="control-icon-wrap">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                </section>
+                <section class="settings-section">
+                    <h4 class="settings-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Dati geografici
+                    </h4>
+                    <div class="credits-entry">
+                        <p class="credits-name">Natural Earth</p>
+                        <p class="credits-role">Dati cartografici (50m resolution)</p>
                     </div>
-                    <strong>Zoom e Panoramica</strong>
-                    <span>Rotella del mouse o pulsanti +/- per ingrandire. <br>Trascina lo sfondo con <kbd>Tasto Destro</kbd> per spostarti.</span>
-                </div>
-                <div class="control-card">
-                    <div class="control-icon-wrap">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <div class="credits-entry">
+                        <p class="credits-name">world-atlas</p>
+                        <p class="credits-role">TopoJSON via npm (Mike Bostock)</p>
                     </div>
-                    <strong>Aggancia i Confini</strong>
-                    <span>Avvicina paesi che condividono un confine: si uniranno automaticamente!</span>
-                </div>
-                <div class="control-card">
-                    <div class="control-icon-wrap">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M6 10h0M10 10h0M14 10h0M18 10h0M8 14h8"/></svg>
+                </section>
+                <section class="settings-section">
+                    <h4 class="settings-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                        Librerie
+                    </h4>
+                    <div class="credits-entry">
+                        <p class="credits-name">D3.js v7</p>
+                        <p class="credits-role">Visualizzazione dati e proiezioni geografiche</p>
                     </div>
-                    <strong>Tastiera</strong>
-                    <span>Usa <kbd>Tab</kbd> per selezionare un paese e <kbd>Invio</kbd> per spostarlo — nessun mouse necessario.</span>
-                </div>
-                <div class="control-card">
-                    <div class="control-icon-wrap">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <div class="credits-entry">
+                        <p class="credits-name">TopoJSON Client v3</p>
+                        <p class="credits-role">Elaborazione dati TopologicJSON</p>
                     </div>
-                    <strong>Modalità Click (Accessibilità)</strong>
-                    <span>Se il trascinamento è difficoltoso, attiva la <em>Modalità click</em> in basso a sinistra dello schermo.</span>
-                </div>
-                <div class="control-card">
-                    <div class="control-icon-wrap">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
-                    </div>
-                    <strong>Suggerimento</strong>
-                    <span>Il pulsante 💡 in alto evidenzia il paese successivo da collegare se sei bloccato</span>
-                </div>
-            </div>
-
-            <div class="welcome-section-label">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-                Significato dei colori
-            </div>
-            <div class="welcome-color-legend">
-                <div class="color-legend-item">
-                    <span class="color-swatch" style="background:#3b7dd8;box-shadow:0 0 8px #3b7dd888"></span>
-                    <div>
-                        <strong>Blu</strong>
-                        <span>Paese ancora da posizionare</span>
-                    </div>
-                </div>
-                <div class="color-legend-item">
-                    <span class="color-swatch" style="background:#8b5cf6;box-shadow:0 0 8px #8b5cf688"></span>
-                    <div>
-                        <strong>Viola</strong>
-                        <span>Paese evidenziato (hover)</span>
-                    </div>
-                </div>
-                <div class="color-legend-item">
-                    <span class="color-swatch" style="background:#10b981;box-shadow:0 0 8px #10b98188"></span>
-                    <div>
-                        <strong>Verde</strong>
-                        <span>Paese correttamente collegato</span>
-                    </div>
-                </div>
-                <div class="color-legend-item">
-                    <span class="color-swatch" style="background:#f59e0b;box-shadow:0 0 8px #f59e0b88"></span>
-                    <div>
-                        <strong>Arancio / Oro</strong>
-                        <span>Paese selezionato (solo in modalità accessibilità)</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="welcome-actions">
-                <button id="btn-skip-tutorial" class="btn btn-ghost">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    Salta
-                </button>
-                <button id="btn-start-tutorial" class="btn btn-cta">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                    Inizia Tutorial
-                </button>
+                </section>
             </div>
         </div>
     </div>
 
-    <!-- Tutorial: Spotlight + Tooltip -->
-    <div id="tutorial-spotlight" class="tutorial-spotlight hidden"></div>
-    <div id="tutorial-overlay" class="tutorial-overlay hidden"></div>
-    <div id="tutorial-tooltip" class="tutorial-tooltip hidden" role="dialog" aria-labelledby="tutorial-step-title">
-        <div class="tutorial-step-indicator">
-            Passo <span id="tutorial-step-num">1</span> di <span id="tutorial-step-total">9</span>
-        </div>
-        <div class="tutorial-step-header">
-            <div class="tutorial-step-icon-wrap" id="tutorial-step-icon" aria-hidden="true"></div>
-            <h3 id="tutorial-step-title" class="tutorial-step-title"></h3>
-        </div>
-        <p id="tutorial-step-text" class="tutorial-step-text"></p>
-        <ul id="tutorial-step-list" class="tutorial-color-list" aria-label="Legenda colori" hidden></ul>
-        <div class="tutorial-actions">
-            <button id="btn-close-tutorial" class="btn btn-ghost btn-sm">Fine</button>
-            <button id="btn-prev-tutorial" class="btn btn-ghost btn-sm tutorial-btn-back" aria-label="Torna al passo precedente">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><path d="M15 18l-6-6 6-6"/></svg>
-                Indietro
-            </button>
-            <button id="btn-next-tutorial" class="btn btn-cta btn-sm">Avanti →</button>
-        </div>
-        <div class="tutorial-progress-dots" id="tutorial-dots"></div>
-    </div>
+    <script>
+    (function () {
+        'use strict';
+
+        const DEFAULT_AUDIO = {
+            masterVolume: 0.8, masterMuted: false,
+            sfxVolume: 0.8,    sfxMuted: false,
+            musicVolume: 0.3,  musicMuted: false,
+            musicEnabled: true
+        };
+
+        function loadAudio() {
+            try {
+                const s = localStorage.getItem('audioSettings');
+                return s ? Object.assign({}, DEFAULT_AUDIO, JSON.parse(s)) : { ...DEFAULT_AUDIO };
+            } catch (_) { return { ...DEFAULT_AUDIO }; }
+        }
+
+        function saveAudio(a) {
+            try { localStorage.setItem('audioSettings', JSON.stringify(a)); } catch (_) {}
+        }
+
+        function loadFontSize() {
+            try {
+                const s = localStorage.getItem('gameSettings');
+                return s ? (JSON.parse(s).fontSize || 'medium') : 'medium';
+            } catch (_) { return 'medium'; }
+        }
+
+        function saveFontSize(size) {
+            try { localStorage.setItem('gameSettings', JSON.stringify({ fontSize: size })); } catch (_) {}
+        }
+
+        function applyFontSize(size) {
+            document.documentElement.setAttribute('data-font-size', size);
+        }
+
+        // Apply font size immediately on page load
+        applyFontSize(loadFontSize());
+
+        function populateSettingsUI() {
+            const a = loadAudio();
+            const fontSize = loadFontSize();
+
+            // Font size buttons
+            document.querySelectorAll('.font-size-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.size === fontSize);
+            });
+
+            // Audio sliders
+            const masterSlider = document.getElementById('slider-master-volume');
+            const sfxSlider    = document.getElementById('slider-sfx-volume');
+            const musicSlider  = document.getElementById('slider-music-volume');
+            if (masterSlider) { masterSlider.value = Math.round(a.masterVolume * 100); document.getElementById('val-master-volume').textContent = masterSlider.value + '%'; }
+            if (sfxSlider)    { sfxSlider.value    = Math.round(a.sfxVolume * 100);    document.getElementById('val-sfx-volume').textContent    = sfxSlider.value + '%'; }
+            if (musicSlider)  { musicSlider.value  = Math.round(a.musicVolume * 100);  document.getElementById('val-music-volume').textContent  = musicSlider.value + '%'; }
+
+            // Music toggle
+            const toggleMusic = document.getElementById('toggle-music');
+            if (toggleMusic) toggleMusic.checked = a.musicEnabled;
+
+            // Mute buttons
+            applyMuteState('btn-mute-master', a.masterMuted);
+            applyMuteState('btn-mute-sfx',    a.sfxMuted);
+            applyMuteState('btn-mute-music',   a.musicMuted);
+        }
+
+        function applyMuteState(id, muted) {
+            const btn = document.getElementById(id);
+            if (!btn) return;
+            btn.classList.toggle('muted', muted);
+            btn.setAttribute('aria-pressed', muted);
+        }
+
+        function setupSettingsListeners() {
+            // Font size buttons
+            document.querySelectorAll('.font-size-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const size = btn.dataset.size;
+                    saveFontSize(size);
+                    applyFontSize(size);
+                    document.querySelectorAll('.font-size-btn').forEach(b => {
+                        b.classList.toggle('active', b.dataset.size === size);
+                    });
+                });
+            });
+
+            // Volume sliders
+            function setupSlider(sliderId, valId, key) {
+                const slider = document.getElementById(sliderId);
+                const val    = document.getElementById(valId);
+                if (!slider) return;
+                slider.addEventListener('input', () => {
+                    val.textContent = slider.value + '%';
+                    const a = loadAudio();
+                    a[key] = parseInt(slider.value) / 100;
+                    saveAudio(a);
+                });
+            }
+            setupSlider('slider-master-volume', 'val-master-volume', 'masterVolume');
+            setupSlider('slider-sfx-volume',    'val-sfx-volume',    'sfxVolume');
+            setupSlider('slider-music-volume',  'val-music-volume',  'musicVolume');
+
+            // Music toggle
+            const toggleMusic = document.getElementById('toggle-music');
+            if (toggleMusic) {
+                toggleMusic.addEventListener('change', () => {
+                    const a = loadAudio();
+                    a.musicEnabled = toggleMusic.checked;
+                    saveAudio(a);
+                });
+            }
+
+            // Mute buttons
+            function setupMuteBtn(id, key) {
+                const btn = document.getElementById(id);
+                if (!btn) return;
+                btn.addEventListener('click', () => {
+                    const nowMuted = !btn.classList.contains('muted');
+                    applyMuteState(id, nowMuted);
+                    const a = loadAudio();
+                    a[key] = nowMuted;
+                    saveAudio(a);
+                });
+            }
+            setupMuteBtn('btn-mute-master', 'masterMuted');
+            setupMuteBtn('btn-mute-sfx',    'sfxMuted');
+            setupMuteBtn('btn-mute-music',  'musicMuted');
+        }
+
+        // Modal helpers
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupSettingsListeners();
+
+            // Settings modal
+            document.getElementById('btn-open-settings').addEventListener('click', () => {
+                populateSettingsUI();
+                openModal('settings-modal');
+            });
+            document.getElementById('btn-close-settings').addEventListener('click', () => closeModal('settings-modal'));
+            document.getElementById('settings-modal').addEventListener('click', e => {
+                if (e.target === e.currentTarget) closeModal('settings-modal');
+            });
+
+            // Credits modal
+            document.getElementById('btn-open-credits').addEventListener('click', () => openModal('credits-modal'));
+            document.getElementById('btn-close-credits').addEventListener('click', () => closeModal('credits-modal'));
+            document.getElementById('credits-modal').addEventListener('click', e => {
+                if (e.target === e.currentTarget) closeModal('credits-modal');
+            });
+
+            // Close modals on Escape
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') {
+                    closeModal('settings-modal');
+                    closeModal('credits-modal');
+                }
+            });
+
+            // Background slideshow
+            (function () {
+                const images = [
+                    'assets/backgrounds/bg1.jpg',
+                    'assets/backgrounds/bg2.jpeg',
+                    'assets/backgrounds/bg3.jpg'
+                ];
+                const layers = [
+                    document.querySelector('.menu-bg-a'),
+                    document.querySelector('.menu-bg-b')
+                ];
+                let current = 0;
+                let active = 0;
+                layers[0].style.backgroundImage = `url('${images[0]}')`;
+                layers[0].style.opacity = '1';
+                layers[1].style.opacity = '0';
+                setInterval(function () {
+                    current = (current + 1) % images.length;
+                    const next = 1 - active;
+                    layers[next].style.backgroundImage = `url('${images[current]}')`;
+                    layers[next].style.opacity = '1';
+                    layers[active].style.opacity = '0';
+                    active = next;
+                }, 15000);
+            })();
+
+            // Menu music
+            const menuAudio = document.getElementById('menu-music');
+            const btnMenuMute = document.getElementById('btn-menu-mute');
+            const sliderMenuVol = document.getElementById('slider-menu-volume');
+
+            function updateMenuAudio() {
+                const a = loadAudio();
+                const muted = a.musicMuted || a.masterMuted || !a.musicEnabled;
+                menuAudio.volume = muted ? 0 : a.musicVolume * a.masterVolume;
+                if (btnMenuMute) {
+                    btnMenuMute.classList.toggle('muted', muted);
+                    btnMenuMute.setAttribute('aria-pressed', String(muted));
+                }
+                if (sliderMenuVol) sliderMenuVol.value = Math.round(a.musicVolume * 100);
+            }
+
+            function tryPlayMenu() {
+                menuAudio.currentTime = 0;
+                const p = menuAudio.play();
+                if (p !== undefined) p.catch(() => {});
+            }
+
+            updateMenuAudio();
+            tryPlayMenu();
+
+            // Retry on first user interaction if autoplay was blocked
+            document.addEventListener('pointerdown', function onFirstInteraction() {
+                tryPlayMenu();
+            }, { once: true });
+
+            if (btnMenuMute) {
+                btnMenuMute.addEventListener('click', () => {
+                    const a = loadAudio();
+                    a.musicMuted = !a.musicMuted;
+                    saveAudio(a);
+                    updateMenuAudio();
+                    if (!a.musicMuted && a.musicEnabled) tryPlayMenu();
+                });
+            }
+
+            if (sliderMenuVol) {
+                sliderMenuVol.addEventListener('input', () => {
+                    const a = loadAudio();
+                    a.musicVolume = parseInt(sliderMenuVol.value) / 100;
+                    a.musicMuted = false;
+                    saveAudio(a);
+                    updateMenuAudio();
+                    tryPlayMenu();
+                });
+            }
+        });
+    })();
+    </script>
+    <audio id="menu-music" src="assets/soundtracks/main-menu.mp3" loop preload="auto"></audio>
 </body>
 </html>
