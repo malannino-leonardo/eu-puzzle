@@ -1668,6 +1668,11 @@
 
         // In accessibility mode hide all pin markers; when disabled, reveal them all
         document.body.classList.toggle('accessibility-mode', state.clickMode);
+        
+        // Close info panel when exiting accessibility mode
+        if (!state.clickMode) {
+            closeInfoPanel();
+        }
     }
 
     function handleClickModeSelect(clusterId) {
@@ -1946,6 +1951,7 @@
         const path = best.cluster.element.querySelector('.country-path');
 
         if (path) {
+            audioSystem.playHint();
             showHintCircle(path);
         }
     }
@@ -1975,7 +1981,7 @@
         
         // Enforce a minimum visibility size and add generous padding
         // "roughly the position" -> large circle
-        radius = Math.max(radius * 2, 50); 
+        radius = Math.max(radius * 2.5, 80); 
 
         // Create the circle element
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -2918,6 +2924,7 @@
 
         snapSounds: [],
         warnSound: null,
+        hintSound: null,
         winSound: null,
 
         music: {
@@ -2940,7 +2947,7 @@
             this._loadSettings();
 
             // Preload snap sounds
-            for (let i = 1; i <= 9; i++) {
+            for (let i = 1; i <= 7; i++) {
                 const a = new Audio(`assets/sound-effects/snap${i}.mp3`);
                 a.preload = 'auto';
                 this.snapSounds.push(a);
@@ -2948,6 +2955,9 @@
 
             this.warnSound = new Audio('assets/sound-effects/warning.mp3');
             this.warnSound.preload = 'auto';
+
+            this.hintSound = new Audio('assets/sound-effects/hint.mp3');
+            this.hintSound.preload = 'auto';
 
             this.winSound = new Audio('assets/sound-effects/win.mp3');
             this.winSound.preload = 'auto';
@@ -2972,7 +2982,9 @@
             if (vol === 0) return;
             const idx = Math.floor(Math.random() * this.snapSounds.length);
             const clone = this.snapSounds[idx].cloneNode();
-            clone.volume = vol;
+            // Higher volume for snap5, snap6, snap7 (indices 4, 5, 6)
+            const multiplier = (idx >= 4) ? 1.3 : 1;
+            clone.volume = Math.min(vol * multiplier, 1);
             clone.play().catch(() => {});
         },
 
@@ -2985,12 +2997,21 @@
             clone.play().catch(() => {});
         },
 
+        playHint() {
+            if (!this.hintSound) return;
+            const vol = this._effectiveVolume('sfx');
+            if (vol === 0) return;
+            const clone = this.hintSound.cloneNode();
+            clone.volume = vol * 0.5;
+            clone.play().catch(() => {});
+        },
+
         playWin() {
             if (!this.winSound) return;
             const vol = this._effectiveVolume('sfx');
             if (vol === 0) return;
             const clone = this.winSound.cloneNode();
-            clone.volume = Math.min(vol * 1.2, 1);
+            clone.volume = Math.min(vol * 0.6, 1);
             clone.play().catch(() => {});
         },
 
@@ -3015,6 +3036,7 @@
             const trackPath = tracks[order[this.music.index]];
 
             const audio = new Audio(trackPath);
+            audio.muted = true;  // Mute initially to allow autoplay
             audio.volume = this._effectiveVolume('music');
             this.music.current = audio;
 
@@ -3025,7 +3047,7 @@
             }, { once: true });
 
             audio.play().catch(() => {
-                // Autoplay blocked — resume on first user interaction
+                // Fallback: resume on first user interaction
                 const resume = () => {
                     audio.play().catch(() => {});
                     document.removeEventListener('pointerdown', resume);
@@ -3033,6 +3055,9 @@
                 };
                 document.addEventListener('pointerdown', resume, { once: true });
                 document.addEventListener('keydown', resume, { once: true });
+            }).then(() => {
+                // Unmute after successful playback start
+                audio.muted = false;
             });
         },
 
