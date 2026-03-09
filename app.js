@@ -1904,6 +1904,10 @@
         // Close info panel
         closeInfoPanel();
         
+        // Stop Ode to Joy if playing and resume regular music
+        audioSystem.stopOdeToJoy();
+        audioSystem.startMusic();
+        
         // Reset state
         state.clusters.clear();
         state.countryToCluster.clear();
@@ -2926,6 +2930,7 @@
         warnSound: null,
         hintSound: null,
         winSound: null,
+        odeToJoy: null,
 
         music: {
             tracks: ['assets/soundtracks/soundtrack1.mp3', 'assets/soundtracks/soundtrack2.mp3', 'assets/soundtracks/soundtrack3.mp3', 'assets/soundtracks/soundtrack4.mp3'],
@@ -2961,6 +2966,9 @@
 
             this.winSound = new Audio('assets/sound-effects/win.mp3');
             this.winSound.preload = 'auto';
+
+            this.odeToJoy = new Audio('assets/soundtracks/ode-to-joy.mp3');
+            this.odeToJoy.preload = 'auto';
 
             this._shuffleTracks();
             this._applyMusicVolume();
@@ -3007,12 +3015,40 @@
         },
 
         playWin() {
-            if (!this.winSound) return;
-            const vol = this._effectiveVolume('sfx');
+            // Stop regular background music and play Ode to Joy
+            this.stopMusic();
+            this.playOdeToJoy();
+        },
+
+        playOdeToJoy() {
+            if (!this.odeToJoy) return;
+            // Stop any current Ode to Joy playback
+            this.stopOdeToJoy();
+            
+            const vol = this._effectiveVolume('music');
             if (vol === 0) return;
-            const clone = this.winSound.cloneNode();
-            clone.volume = Math.min(vol * 0.6, 1);
-            clone.play().catch(() => {});
+            
+            this.odeToJoy.currentTime = 0;
+            this.odeToJoy.volume = vol;
+            this.odeToJoy.loop = true; // Keep playing
+            this.odeToJoy.play().catch(() => {
+                // Fallback: resume on first user interaction
+                const resume = () => {
+                    this.odeToJoy.play().catch(() => {});
+                    document.removeEventListener('pointerdown', resume);
+                    document.removeEventListener('keydown', resume);
+                };
+                document.addEventListener('pointerdown', resume, { once: true });
+                document.addEventListener('keydown', resume, { once: true });
+            });
+        },
+
+        stopOdeToJoy() {
+            if (this.odeToJoy) {
+                this.odeToJoy.pause();
+                this.odeToJoy.currentTime = 0;
+                this.odeToJoy.loop = false;
+            }
         },
 
         startMusic() {
