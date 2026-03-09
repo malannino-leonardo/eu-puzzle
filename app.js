@@ -2,8 +2,8 @@
  * =====================================================
  * PUZZLE UNIONE EUROPEA - MAIN APPLICATION
  * =====================================================
- * Un puzzle interattivo per ricostruire l'Unione Europea
- * con paesi che si agganciano ai confini reali.
+ * An interactive puzzle to reconstruct the European Union
+ * with countries that snap to real borders.
  * =====================================================
  */
 
@@ -118,6 +118,7 @@
     // =====================================================
     
     async function init() {
+        if (window.i18nReady) await window.i18nReady;
         showLoading(true);
         
         try {
@@ -167,7 +168,7 @@
             
         } catch (error) {
             console.error('Failed to initialize game:', error);
-            showError('Errore nel caricamento del gioco. Ricarica la pagina.');
+            showError(window.i18n ? window.i18n.t('error.loadGame') : 'Errore nel caricamento del gioco. Ricarica la pagina.');
         }
     }
 
@@ -512,7 +513,8 @@
             .slice(0, 3);
         
         if (cluster.members.size > 3) {
-            return `Cluster con ${names.join(', ')} e altri ${cluster.members.size - 3} paesi`;
+            const t = window.i18n ? window.i18n.t.bind(window.i18n) : (k) => k;
+            return t('cluster.label', { names: names.join(', '), count: cluster.members.size - 3 });
         }
         return names.join(', ');
     }
@@ -943,7 +945,7 @@
         const closeBtn = document.createElement('button');
         closeBtn.className = 'popup-close';
         closeBtn.textContent = '×';
-        closeBtn.setAttribute('aria-label', 'Chiudi');
+        closeBtn.setAttribute('aria-label', window.i18n ? window.i18n.t('popup.close') : 'Chiudi');
         closeBtn.style.position = 'absolute';
         closeBtn.style.top = '12px';
         closeBtn.style.right = '12px';
@@ -980,9 +982,10 @@
             detailsContainer.appendChild(row);
         };
 
-        addRow('Capitale', info.capital);
-        addRow('Popolazione', info.population);
-        addRow('Superficie', info.area);
+        const _t = (key, fallback) => window.i18n ? window.i18n.t(key) : fallback;
+        addRow(_t('popup.capital', 'Capitale'), info.capital);
+        addRow(_t('popup.population', 'Popolazione'), info.population);
+        addRow(_t('popup.area', 'Superficie'), info.area);
 
         // Fact
         const factDiv = document.createElement('div');
@@ -993,7 +996,7 @@
             factDiv.style.color = '#333333';
             factDiv.style.borderTop = '1px solid #e5ecff';
             // Bigger font for fact
-            factDiv.innerHTML = `<strong style="color: #6366f1; display:block; margin-bottom:8px; font-weight:700; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.5px;">Curiosità</strong><span style="font-size: 1.05rem; line-height: 1.6;">${factText}</span>`;
+            factDiv.innerHTML = `<strong style="color: #6366f1; display:block; margin-bottom:8px; font-weight:700; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.5px;">${window.i18n ? window.i18n.t('popup.fact') : 'Curiosit\u00e0'}</strong><span style="font-size: 1.05rem; line-height: 1.6;">${factText}</span>`;
         }
 
         popup.appendChild(h3);
@@ -1286,10 +1289,10 @@
         document.getElementById('btn-reset').addEventListener('click', () => {
             if (state.connectedCountries >= 2) {
                 showConfirmModal(
-                    'Scartare i progressi?',
-                    `Hai già collegato ${state.connectedCountries} paesi. Sei sicuro di voler ricominciare?`,
-                    'Procedi e ricomincia',
-                    'Annulla',
+                    window.i18n ? window.i18n.t('confirm.discardTitle') : 'Scartare i progressi?',
+                    window.i18n ? window.i18n.t('confirm.discardMsg', { count: state.connectedCountries }) : `Hai gi\u00e0 collegato ${state.connectedCountries} paesi. Sei sicuro di voler ricominciare?`,
+                    window.i18n ? window.i18n.t('confirm.proceed') : 'Procedi e ricomincia',
+                    window.i18n ? window.i18n.t('confirm.cancel') : 'Annulla',
                     resetGame
                 );
             } else {
@@ -1304,6 +1307,17 @@
             document.getElementById('completion-overlay').classList.add('hidden');
         });
         document.getElementById('btn-play-again-header').addEventListener('click', resetGame);
+
+        // Refresh dynamic i18n strings when language changes
+        document.addEventListener('languagechange', () => {
+            if (tutorialState.active) {
+                showTutorialStep(tutorialState.step);
+            }
+            const panel = document.getElementById('info-panel');
+            if (panel && panel.classList.contains('visible') && panel.dataset.countryId) {
+                showCountryInfo(panel.dataset.countryId);
+            }
+        });
 
         // Warn before leaving page if progress has been made
         window.addEventListener('beforeunload', (e) => {
@@ -1751,16 +1765,16 @@
         
         // Update content
         document.getElementById('info-country-name').textContent = info.name || country.name;
-        document.getElementById('info-capital').textContent = info.capital || 'N/D';
-        document.getElementById('info-population').textContent = info.population || 'N/D';
-        document.getElementById('info-area').textContent = info.area || 'N/D';
+        document.getElementById('info-capital').textContent = info.capital || (window.i18n ? window.i18n.t('info.na') : 'N/D');
+        document.getElementById('info-population').textContent = info.population || (window.i18n ? window.i18n.t('info.na') : 'N/D');
+        document.getElementById('info-area').textContent = info.area || (window.i18n ? window.i18n.t('info.na') : 'N/D');
         
         // Show random fact
         if (info.facts && info.facts.length > 0) {
             const randomFact = info.facts[Math.floor(Math.random() * info.facts.length)];
             document.getElementById('info-fact').textContent = randomFact;
         } else {
-            document.getElementById('info-fact').textContent = info.fact || 'Informazioni non disponibili.';
+            document.getElementById('info-fact').textContent = info.fact || (window.i18n ? window.i18n.t('info.notAvailable') : 'Informazioni non disponibili.');
         }
         
         // Flag - use SVG from assets/flags folder
@@ -1797,10 +1811,11 @@
         // Status
         const statusEl = document.getElementById('info-status');
         statusEl.innerHTML = isConnected
-            ? '<span class="status-badge connected"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Collegato</span>'
-            : '<span class="status-badge loose"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg> Non collegato</span>';
+            ? `<span class="status-badge connected"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> ${window.i18n ? window.i18n.t('info.connected') : 'Collegato'}</span>`
+            : `<span class="status-badge loose"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg> ${window.i18n ? window.i18n.t('info.notConnected') : 'Non collegato'}</span>`;
         
         // Show panel
+        panel.dataset.countryId = countryId;
         panel.classList.remove('hidden');
         panel.classList.add('visible');
     }
@@ -1994,7 +2009,7 @@
                 overlay.className = 'loading-overlay';
                 overlay.innerHTML = `
                     <div class="loading-spinner"></div>
-                    <p class="loading-text">Caricamento mappa...</p>
+                    <p class="loading-text">${window.i18n ? window.i18n.t('loading.map') : 'Caricamento mappa...'}</p>
                 `;
                 document.body.appendChild(overlay);
             }
@@ -2189,10 +2204,10 @@
         freshStartBtn.addEventListener('click', () => {
             if (state.connectedCountries >= 2) {
                 showConfirmModal(
-                    'Scartare i progressi?',
-                    `Hai già collegato ${state.connectedCountries} paesi. Avviare il tutorial porterà al reset del gioco.`,
-                    'Procedi al tutorial',
-                    'Annulla',
+                    window.i18n ? window.i18n.t('confirm.tutorialTitle') : 'Scartare i progressi?',
+                    window.i18n ? window.i18n.t('confirm.tutorialMsg', { count: state.connectedCountries }) : `Hai gi\u00e0 collegato ${state.connectedCountries} paesi. Avviare il tutorial porter\u00e0 al reset del gioco.`,
+                    window.i18n ? window.i18n.t('confirm.tutorialProceed') : 'Procedi al tutorial',
+                    window.i18n ? window.i18n.t('confirm.cancel') : 'Annulla',
                     () => { hideWelcomeModal(); setTimeout(startTutorial, 400); }
                 );
             } else {
@@ -2394,8 +2409,8 @@
         }
 
         // Update text content
-        document.getElementById('tutorial-step-title').textContent = step.title;
-        document.getElementById('tutorial-step-text').textContent = step.text;
+        document.getElementById('tutorial-step-title').textContent = window.i18n ? window.i18n.t(`tutorial.step${index}.title`) : step.title;
+        document.getElementById('tutorial-step-text').textContent = window.i18n ? window.i18n.t(`tutorial.step${index}.text`) : step.text;
 
         // Color list (step 3)
         const listEl = document.getElementById('tutorial-step-list');
@@ -2513,9 +2528,9 @@
             nextBtn.innerHTML = `
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" style="margin-right: 6px;">
                     <polygon points="5 3 19 12 5 21 5 3"/>
-                </svg>Inizia!`;
+                </svg>${window.i18n ? window.i18n.t('tutorial.startBtn') : 'Inizia!'}`;
         } else {
-            nextBtn.textContent = 'Avanti →';
+            nextBtn.textContent = window.i18n ? window.i18n.t('tutorial.next') : 'Avanti \u2192';
         }
 
         // Update progress dots

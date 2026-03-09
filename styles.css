@@ -2553,3 +2553,142 @@ body.menu-page {
         width: 60px;
     }
 }
+
+/* =====================================================
+   LANGUAGE SELECTOR
+   ===================================================== */
+
+.lang-selector {
+    position: relative;
+    z-index: 200;
+    flex-shrink: 0;
+}
+
+/* Button that shows current flag + code */
+.lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    transition: background 0.2s, border-color 0.2s;
+    white-space: nowrap;
+}
+
+.lang-btn:hover,
+.lang-btn:focus-visible {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.35);
+    outline: none;
+}
+
+/* Flag image inside the button */
+.lang-flag-current {
+    width: 26px;
+    height: 17px;
+    object-fit: cover;
+    border-radius: 3px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* Chevron arrow */
+.lang-chevron {
+    width: 12px;
+    height: 12px;
+    opacity: 0.65;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+}
+
+.lang-selector:has(.lang-dropdown.open) .lang-chevron {
+    transform: rotate(180deg);
+}
+
+/* Dropdown list */
+.lang-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(0,0,0,0.06);
+    list-style: none;
+    margin: 0;
+    padding: 5px;
+    min-width: 148px;
+    display: none;
+    z-index: 1000;
+    animation: langDropIn 0.15s ease;
+}
+
+@keyframes langDropIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.lang-dropdown.open {
+    display: block;
+}
+
+/* Individual language option */
+.lang-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    color: #1e2a4a;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.12s;
+    user-select: none;
+}
+
+.lang-option:hover {
+    background: #f0f4ff;
+}
+
+.lang-option.active {
+    background: #e8eeff;
+    color: var(--primary-dark);
+    font-weight: 700;
+}
+
+.lang-option .lang-flag-opt {
+    width: 26px;
+    height: 17px;
+    object-fit: cover;
+    border-radius: 3px;
+    flex-shrink: 0;
+    border: 1px solid rgba(0,0,0,0.10);
+}
+
+/* ---- Menu-page placement (fixed top-right corner) ---- */
+.menu-lang-selector {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 300;
+}
+
+/* On very small screens, tuck it further in */
+@media (max-width: 480px) {
+    .menu-lang-selector {
+        top: 0.5rem;
+        left: 0.5rem;
+    }
+}
+
+/* ---- In-game header: sits inline with other header controls ---- */
+.game-header .lang-selector .lang-dropdown {
+    top: calc(100% + 8px);
+}

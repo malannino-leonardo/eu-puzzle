@@ -1,0 +1,161 @@
+{
+  "lang": "it",
+  "menu": {
+    "title": "Puzzle UE",
+    "subtitle": "Ricostruisci la mappa dell'Unione Europea",
+    "play": "Gioca",
+    "settings": "Impostazioni",
+    "credits": "Crediti",
+    "github": "GitHub"
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "fontSize": "Dimensione Testo",
+    "small": "Piccolo",
+    "medium": "Medio",
+    "large": "Grande",
+    "xlarge": "XL",
+    "audio": "Audio",
+    "masterVolume": "Volume Generale",
+    "sfx": "Effetti Sonori",
+    "music": "Musica",
+    "playMusic": "Riproduci Musica"
+  },
+  "credits": {
+    "title": "Crediti",
+    "development": "Sviluppo",
+    "geoData": "Dati geografici",
+    "libraries": "Librerie",
+    "audioAssets": "Assets audio",
+    "topoJsonRole": "Elaborazione dati TopologicJSON",
+    "audioRole": "Assets audio (licenza CC0)"
+  },
+  "game": {
+    "title": "Puzzle UE",
+    "playAgain": "Gioca ancora",
+    "menu": "Menu",
+    "reset": "Reset",
+    "hint": "Suggerimento",
+    "tutorial": "Tutorial",
+    "settings": "Impostazioni",
+    "completed": "COMPLETATO!",
+    "completedMsg": "Hai ricostruito l'Unione Europea!",
+    "exploreMap": "Esplora la mappa",
+    "clickMode": "Modalità click (accessibilità)"
+  },
+  "info": {
+    "selectCountry": "Seleziona un paese",
+    "capital": "Capitale",
+    "population": "Popolazione",
+    "area": "Superficie",
+    "fact": "Curiosità",
+    "connected": "Collegato",
+    "notConnected": "Non collegato",
+    "na": "N/D",
+    "notAvailable": "Informazioni non disponibili."
+  },
+  "popup": {
+    "capital": "Capitale",
+    "population": "Popolazione",
+    "area": "Superficie",
+    "fact": "Curiosità",
+    "close": "Chiudi"
+  },
+  "confirm": {
+    "discardTitle": "Scartare i progressi?",
+    "discardMsg": "Hai già collegato {count} paesi. Sei sicuro di voler ricominciare?",
+    "tutorialTitle": "Scartare i progressi?",
+    "tutorialMsg": "Hai già collegato {count} paesi. Avviare il tutorial porterà al reset del gioco.",
+    "proceed": "Procedi e ricomincia",
+    "tutorialProceed": "Procedi al tutorial",
+    "cancel": "Annulla"
+  },
+  "welcome": {
+    "title": "Puzzle Unione Europea",
+    "subtitle": "Ricostruisci la mappa dell'UE collegando tutti i 27 paesi membri!",
+    "howToPlay": "Come si gioca",
+    "drag": "Trascina i Pezzi",
+    "dragDesc": "Clicca su un paese con <kbd>Tasto Sinistro</kbd> e trascinalo verso un'altro paese adiacente per collegarlo.",
+    "zoom": "Zoom e Panoramica",
+    "zoomDesc": "Rotella del mouse o pulsanti +/- per ingrandire. <br>Trascina lo sfondo con <kbd>Tasto Destro</kbd> per spostarti.",
+    "snap": "Aggancia i Confini",
+    "snapDesc": "Avvicina paesi che condividono un confine: si uniranno automaticamente!",
+    "keyboard": "Tastiera",
+    "keyboardDesc": "Usa <kbd>Tab</kbd> per selezionare un paese e <kbd>Invio</kbd> per spostarlo — nessun mouse necessario.",
+    "clickModeTitle": "Modalità Click (Accessibilità)",
+    "clickModeDesc": "Se il trascinamento è difficoltoso, attiva la <em>Modalità click</em> in basso a sinistra dello schermo.",
+    "hintTitle": "Suggerimento",
+    "hintDesc": "Il pulsante 💡 in alto evidenzia il paese successivo da collegare se sei bloccato",
+    "colorMeaning": "Significato dei colori",
+    "blue": "Blu",
+    "blueDesc": "Paese ancora da posizionare",
+    "purple": "Viola",
+    "purpleDesc": "Paese evidenziato (hover)",
+    "green": "Verde",
+    "greenDesc": "Paese correttamente collegato",
+    "orange": "Arancio / Oro",
+    "orangeDesc": "Paese selezionato (solo in modalità accessibilità)",
+    "skip": "Salta",
+    "start": "Inizia Tutorial"
+  },
+  "tutorial": {
+    "step": "Passo",
+    "of": "di",
+    "close": "Fine",
+    "back": "Indietro",
+    "next": "Avanti →",
+    "startBtn": "Inizia!",
+    "step0": {
+      "title": "Benvenuto!",
+      "text": "Sei qui per ricostruire la mappa dell'Unione Europea. I 27 paesi sono sparsi ed il tuo obiettivo è rimetterli al loro posto! Questo tutorial ti guiderà passo dopo passo."
+    },
+    "step1": {
+      "title": "L'Area di Gioco",
+      "text": "Questa è l'area di gioco. I pezzi del puzzle sono sparpagliati qui intorno. Avvicina due paesi con un confine in comune: si agganceranno automaticamente per formare la mappa dell'Unione Europea!"
+    },
+    "step2": {
+      "title": "Aggancia i Confini",
+      "text": "Aggancia la Francia alla Germania. Avvicina i due paesi finché non si uniscono automaticamente. Frecce dorate ti mostreranno la direzione!"
+    },
+    "step3": {
+      "title": "Le Info e le Curiosità",
+      "text": "Ora che hai collegato i paesi, clicca sul segnaposto per scoprire informazioni reali e curiosità! Nota bene: quando collegherai altri paesi a un gruppo già esistente, questa scheda si aprirà automaticamente!"
+    },
+    "step4": {
+      "title": "Barra di Progresso",
+      "text": "Qui vedi quanti paesi hai già collegato al gruppo principale. L'obiettivo è portare il contatore a 27 su 27!"
+    },
+    "step5": {
+      "title": "Impostazioni",
+      "text": "Dal pulsante Impostazioni puoi regolare il volume della musica e degli effetti sonori, e modificare la dimensione del testo per una migliore leggibilità."
+    },
+    "step6": {
+      "title": "Riapri il Tutorial",
+      "text": "Hai dubbi durante il gioco? Premi il pulsante \"Tutorial\" in cima alla pagina per riaprire questa guida in qualsiasi momento!"
+    },
+    "step7": {
+      "title": "Suggerimento",
+      "text": "Sei bloccato? Questo pulsante evidenzia il paese più piccolo ancora non collegato. Usalo con parsimonia per non perdere il gusto della sfida!"
+    },
+    "step8": {
+      "title": "Ricomincia",
+      "text": "Se vuoi ricominciare da capo, usa il pulsante Reset. Tutti i pezzi vengono rimescolati e puoi provare di nuovo a tuo piacimento!"
+    },
+    "step9": {
+      "title": "Sei Pronto!",
+      "text": "Ora sai tutto quello che ti serve. Buona fortuna nel ricostruire l'Unione Europea! Ricorda: puoi sempre riaprire questo tutorial dal pulsante in alto. Puoi farcela!"
+    }
+  },
+  "loading": {
+    "map": "Caricamento mappa..."
+  },
+  "error": {
+    "loadGame": "Errore nel caricamento del gioco. Ricarica la pagina."
+  },
+  "cluster": {
+    "label": "{names} e altri {count} paesi"
+  },
+  "langSelector": {
+    "label": "Lingua"
+  }
+}

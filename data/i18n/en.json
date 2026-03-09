@@ -1,0 +1,161 @@
+{
+  "lang": "en",
+  "menu": {
+    "title": "EU Puzzle",
+    "subtitle": "Rebuild the map of the European Union",
+    "play": "Play",
+    "settings": "Settings",
+    "credits": "Credits",
+    "github": "GitHub"
+  },
+  "settings": {
+    "title": "Settings",
+    "fontSize": "Text Size",
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large",
+    "xlarge": "XL",
+    "audio": "Audio",
+    "masterVolume": "Master Volume",
+    "sfx": "Sound Effects",
+    "music": "Music",
+    "playMusic": "Play Music"
+  },
+  "credits": {
+    "title": "Credits",
+    "development": "Development",
+    "geoData": "Geographic Data",
+    "libraries": "Libraries",
+    "audioAssets": "Audio Assets",
+    "topoJsonRole": "TopoJSON data processing",
+    "audioRole": "Audio assets (CC0 license)"
+  },
+  "game": {
+    "title": "EU Puzzle",
+    "playAgain": "Play again",
+    "menu": "Menu",
+    "reset": "Reset",
+    "hint": "Hint",
+    "tutorial": "Tutorial",
+    "settings": "Settings",
+    "completed": "COMPLETED!",
+    "completedMsg": "You rebuilt the European Union!",
+    "exploreMap": "Explore the map",
+    "clickMode": "Click mode (accessibility)"
+  },
+  "info": {
+    "selectCountry": "Select a country",
+    "capital": "Capital",
+    "population": "Population",
+    "area": "Area",
+    "fact": "Fun Fact",
+    "connected": "Connected",
+    "notConnected": "Not connected",
+    "na": "N/A",
+    "notAvailable": "Information not available."
+  },
+  "popup": {
+    "capital": "Capital",
+    "population": "Population",
+    "area": "Area",
+    "fact": "Fun Fact",
+    "close": "Close"
+  },
+  "confirm": {
+    "discardTitle": "Discard your progress?",
+    "discardMsg": "You have already connected {count} countries. Are you sure you want to restart?",
+    "tutorialTitle": "Discard your progress?",
+    "tutorialMsg": "You have already connected {count} countries. Starting the tutorial will reset the game.",
+    "proceed": "Proceed and restart",
+    "tutorialProceed": "Proceed to tutorial",
+    "cancel": "Cancel"
+  },
+  "welcome": {
+    "title": "European Union Puzzle",
+    "subtitle": "Rebuild the EU map by connecting all 27 member countries!",
+    "howToPlay": "How to play",
+    "drag": "Drag the Pieces",
+    "dragDesc": "Click on a country with <kbd>Left Click</kbd> and drag it to an adjacent country to connect it.",
+    "zoom": "Zoom and Pan",
+    "zoomDesc": "Mouse wheel or +/- buttons to zoom. <br>Drag the background with <kbd>Right Click</kbd> to pan.",
+    "snap": "Snap Borders",
+    "snapDesc": "Move countries that share a border close together: they will automatically connect!",
+    "keyboard": "Keyboard",
+    "keyboardDesc": "Use <kbd>Tab</kbd> to select a country and <kbd>Enter</kbd> to move it — no mouse needed.",
+    "clickModeTitle": "Click Mode (Accessibility)",
+    "clickModeDesc": "If dragging is difficult, enable <em>Click mode</em> at the bottom left of the screen.",
+    "hintTitle": "Hint",
+    "hintDesc": "The 💡 button at the top highlights the next country to connect if you are stuck",
+    "colorMeaning": "Color meaning",
+    "blue": "Blue",
+    "blueDesc": "Country yet to be placed",
+    "purple": "Purple",
+    "purpleDesc": "Highlighted country (hover)",
+    "green": "Green",
+    "greenDesc": "Correctly connected country",
+    "orange": "Orange / Gold",
+    "orangeDesc": "Selected country (accessibility mode only)",
+    "skip": "Skip",
+    "start": "Start Tutorial"
+  },
+  "tutorial": {
+    "step": "Step",
+    "of": "of",
+    "close": "Done",
+    "back": "Back",
+    "next": "Next →",
+    "startBtn": "Start!",
+    "step0": {
+      "title": "Welcome!",
+      "text": "You are here to rebuild the map of the European Union. The 27 countries are scattered and your goal is to put them back in their place! This tutorial will guide you step by step."
+    },
+    "step1": {
+      "title": "The Game Area",
+      "text": "This is the game area. The puzzle pieces are scattered around. Move two countries with a shared border close together: they will automatically snap to form the map of the European Union!"
+    },
+    "step2": {
+      "title": "Snap Borders",
+      "text": "Snap France to Germany. Move the two countries together until they automatically connect. Golden arrows will show you the direction!"
+    },
+    "step3": {
+      "title": "Info and Fun Facts",
+      "text": "Now that you have connected the countries, click the pin to discover real information and fun facts! Note: when you connect more countries to an existing group, this card will open automatically!"
+    },
+    "step4": {
+      "title": "Progress Bar",
+      "text": "Here you can see how many countries you have already connected to the main group. The goal is to reach 27 out of 27!"
+    },
+    "step5": {
+      "title": "Settings",
+      "text": "From the Settings button you can adjust the volume of music and sound effects, and change the text size for better readability."
+    },
+    "step6": {
+      "title": "Reopen the Tutorial",
+      "text": "Have questions during the game? Press the Tutorial button at the top of the page to reopen this guide at any time!"
+    },
+    "step7": {
+      "title": "Hint",
+      "text": "Stuck? This button highlights the smallest country not yet connected. Use it sparingly so you do not lose the thrill of the challenge!"
+    },
+    "step8": {
+      "title": "Restart",
+      "text": "If you want to start over, use the Reset button. All pieces are reshuffled and you can try again at your leisure!"
+    },
+    "step9": {
+      "title": "You Are Ready!",
+      "text": "Now you know everything you need. Good luck rebuilding the European Union! Remember: you can always reopen this tutorial from the button at the top. You can do it!"
+    }
+  },
+  "loading": {
+    "map": "Loading map..."
+  },
+  "error": {
+    "loadGame": "Error loading the game. Please reload the page."
+  },
+  "cluster": {
+    "label": "{names} and {count} more countries"
+  },
+  "langSelector": {
+    "label": "Language"
+  }
+}
