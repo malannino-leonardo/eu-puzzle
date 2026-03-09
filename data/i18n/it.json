@@ -66,6 +66,9 @@
     "discardMsg": "Hai già collegato {count} paesi. Sei sicuro di voler ricominciare?",
     "tutorialTitle": "Scartare i progressi?",
     "tutorialMsg": "Hai già collegato {count} paesi. Avviare il tutorial porterà al reset del gioco.",
+    "menuTitle": "Tornare al menu?",
+    "menuMsg": "Hai collegato {count} paesi. Tornare al menu farà perdere i tuoi progressi.",
+    "menuProceed": "Vai al menu",
     "proceed": "Procedi e ricomincia",
     "tutorialProceed": "Procedi al tutorial",
     "cancel": "Annulla"
@@ -157,5 +160,142 @@
   },
   "langSelector": {
     "label": "Lingua"
+  },
+  "countries": {
+    "040": {
+      "name": "Austria",
+      "capital": "Vienna",
+      "fact": "Vienna ospita il parco di divertimenti più antico del mondo ancora in funzione: il Prater."
+    },
+    "056": {
+      "name": "Belgio",
+      "capital": "Bruxelles",
+      "fact": "Il Belgio produce 220.000 tonnellate di cioccolato all'anno."
+    },
+    "100": {
+      "name": "Bulgaria",
+      "capital": "Sofia",
+      "fact": "In Bulgaria scuotere la testa significa 'sì' e annuire significa 'no'."
+    },
+    "191": {
+      "name": "Croazia",
+      "capital": "Zagabria",
+      "fact": "La cravatta moderna deriva dalla Croazia (dai soldati croati del XVII secolo)."
+    },
+    "196": {
+      "name": "Cipro",
+      "capital": "Nicosia",
+      "fact": "Geograficamente in Asia, ma culturalmente e politicamente europea."
+    },
+    "203": {
+      "name": "Repubblica Ceca",
+      "capital": "Praga",
+      "fact": "I cechi sono i maggiori consumatori di birra pro capite al mondo."
+    },
+    "208": {
+      "name": "Danimarca",
+      "capital": "Copenaghen",
+      "fact": "La bandiera danese è la più antica al mondo ancora in uso (dal 1219)."
+    },
+    "233": {
+      "name": "Estonia",
+      "capital": "Tallinn",
+      "fact": "È stato il primo paese a consentire il voto online."
+    },
+    "246": {
+      "name": "Finlandia",
+      "capital": "Helsinki",
+      "fact": "Ci sono più saune che automobili (3,3 milioni di saune)."
+    },
+    "250": {
+      "name": "Francia",
+      "capital": "Parigi",
+      "fact": "È il paese più visitato al mondo."
+    },
+    "276": {
+      "name": "Germania",
+      "capital": "Berlino",
+      "fact": "Esistono oltre 1.500 tipi di salsicce tedesche."
+    },
+    "300": {
+      "name": "Grecia",
+      "capital": "Atene",
+      "fact": "Ha più musei archeologici di qualsiasi altro paese."
+    },
+    "348": {
+      "name": "Ungheria",
+      "capital": "Budapest",
+      "fact": "Il Cubo di Rubik è stato inventato dall'ungherese Ernő Rubik."
+    },
+    "372": {
+      "name": "Irlanda",
+      "capital": "Dublino",
+      "fact": "L'arpa è il simbolo nazionale (unico paese ad avere uno strumento musicale)."
+    },
+    "380": {
+      "name": "Italia",
+      "capital": "Roma",
+      "fact": "Ha il maggior numero di siti UNESCO al mondo (59)."
+    },
+    "428": {
+      "name": "Lettonia",
+      "capital": "Riga",
+      "fact": "Riga ha la più grande collezione di edifici Art Nouveau al mondo."
+    },
+    "440": {
+      "name": "Lituania",
+      "capital": "Vilnius",
+      "fact": "Il lituano è la lingua indoeuropea più antica ancora parlata."
+    },
+    "442": {
+      "name": "Lussemburgo",
+      "capital": "Lussemburgo",
+      "fact": "Ha il PIL pro capite più alto al mondo."
+    },
+    "470": {
+      "name": "Malta",
+      "capital": "La Valletta",
+      "fact": "È stata set di film come Il Gladiatore, Troy e Game of Thrones."
+    },
+    "528": {
+      "name": "Paesi Bassi",
+      "capital": "Amsterdam",
+      "fact": "Il 26% del paese si trova sotto il livello del mare."
+    },
+    "616": {
+      "name": "Polonia",
+      "capital": "Varsavia",
+      "fact": "Marie Curie (nata Skłodowska) era polacca."
+    },
+    "620": {
+      "name": "Portogallo",
+      "capital": "Lisbona",
+      "fact": "Ha i confini più antichi d'Europa (definiti nel 1143)."
+    },
+    "642": {
+      "name": "Romania",
+      "capital": "Bucarest",
+      "fact": "Il Palazzo del Parlamento è l'edificio amministrativo più pesante al mondo."
+    },
+    "703": {
+      "name": "Slovacchia",
+      "capital": "Bratislava",
+      "fact": "Ha il più alto numero di castelli pro capite al mondo."
+    },
+    "705": {
+      "name": "Slovenia",
+      "capital": "Lubiana",
+      "fact": "È uno dei paesi più verdi del mondo (60% foreste)."
+    },
+    "724": {
+      "name": "Spagna",
+      "capital": "Madrid",
+      "fact": "Produce il 43% dell'olio d'oliva mondiale."
+    },
+    "752": {
+      "name": "Svezia",
+      "capital": "Stoccolma",
+      "fact": "Non è stata in guerra per oltre 200 anni (dal 1814)."
+    }
   }
 }

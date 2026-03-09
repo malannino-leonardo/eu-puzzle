@@ -66,6 +66,9 @@
     "discardMsg": "You have already connected {count} countries. Are you sure you want to restart?",
     "tutorialTitle": "Discard your progress?",
     "tutorialMsg": "You have already connected {count} countries. Starting the tutorial will reset the game.",
+    "menuTitle": "Go back to the menu?",
+    "menuMsg": "You have connected {count} countries. Going back to the menu will lose your progress.",
+    "menuProceed": "Go to menu",
     "proceed": "Proceed and restart",
     "tutorialProceed": "Proceed to tutorial",
     "cancel": "Cancel"
@@ -157,5 +160,142 @@
   },
   "langSelector": {
     "label": "Language"
+  },
+  "countries": {
+    "040": {
+      "name": "Austria",
+      "capital": "Vienna",
+      "fact": "Vienna hosts the oldest amusement park in the world still in operation: the Prater."
+    },
+    "056": {
+      "name": "Belgium",
+      "capital": "Brussels",
+      "fact": "Belgium produces 220,000 tons of chocolate per year."
+    },
+    "100": {
+      "name": "Bulgaria",
+      "capital": "Sofia",
+      "fact": "In Bulgaria, shaking your head means 'yes' and nodding means 'no'."
+    },
+    "191": {
+      "name": "Croatia",
+      "capital": "Zagreb",
+      "fact": "The modern necktie derives from Croatia (from 17th-century Croatian soldiers)."
+    },
+    "196": {
+      "name": "Cyprus",
+      "capital": "Nicosia",
+      "fact": "Geographically in Asia but culturally and politically European."
+    },
+    "203": {
+      "name": "Czech Republic",
+      "capital": "Prague",
+      "fact": "Czechs are the world's largest beer consumers per capita."
+    },
+    "208": {
+      "name": "Denmark",
+      "capital": "Copenhagen",
+      "fact": "The Danish flag is the oldest still in use in the world (since 1219)."
+    },
+    "233": {
+      "name": "Estonia",
+      "capital": "Tallinn",
+      "fact": "It was the first country to allow online voting."
+    },
+    "246": {
+      "name": "Finland",
+      "capital": "Helsinki",
+      "fact": "There are more saunas than cars (3.3 million saunas)."
+    },
+    "250": {
+      "name": "France",
+      "capital": "Paris",
+      "fact": "It is the most visited country in the world."
+    },
+    "276": {
+      "name": "Germany",
+      "capital": "Berlin",
+      "fact": "There are over 1,500 types of German sausages."
+    },
+    "300": {
+      "name": "Greece",
+      "capital": "Athens",
+      "fact": "Greece has more archaeological museums than any other country."
+    },
+    "348": {
+      "name": "Hungary",
+      "capital": "Budapest",
+      "fact": "The Rubik's Cube was invented by Hungarian Ernő Rubik."
+    },
+    "372": {
+      "name": "Ireland",
+      "capital": "Dublin",
+      "fact": "The harp is the national symbol (the only country with a musical instrument)."
+    },
+    "380": {
+      "name": "Italy",
+      "capital": "Rome",
+      "fact": "Italy has the highest number of UNESCO World Heritage Sites (59)."
+    },
+    "428": {
+      "name": "Latvia",
+      "capital": "Riga",
+      "fact": "Riga has the largest collection of Art Nouveau buildings in the world."
+    },
+    "440": {
+      "name": "Lithuania",
+      "capital": "Vilnius",
+      "fact": "Lithuanian is the oldest Indo-European language still spoken."
+    },
+    "442": {
+      "name": "Luxembourg",
+      "capital": "Luxembourg",
+      "fact": "It has the highest GDP per capita in the world."
+    },
+    "470": {
+      "name": "Malta",
+      "capital": "Valletta",
+      "fact": "It has been the filming location for movies like Gladiator, Troy, and Game of Thrones."
+    },
+    "528": {
+      "name": "Netherlands",
+      "capital": "Amsterdam",
+      "fact": "26% of the country lies below sea level."
+    },
+    "616": {
+      "name": "Poland",
+      "capital": "Warsaw",
+      "fact": "Marie Curie (born Skłodowska) was Polish."
+    },
+    "620": {
+      "name": "Portugal",
+      "capital": "Lisbon",
+      "fact": "It has the oldest borders in Europe (defined in 1143)."
+    },
+    "642": {
+      "name": "Romania",
+      "capital": "Bucharest",
+      "fact": "The Palace of Parliament is the heaviest administrative building in the world."
+    },
+    "703": {
+      "name": "Slovakia",
+      "capital": "Bratislava",
+      "fact": "It has the highest number of castles per capita in the world."
+    },
+    "705": {
+      "name": "Slovenia",
+      "capital": "Ljubljana",
+      "fact": "It is one of the greenest countries in the world (60% forests)."
+    },
+    "724": {
+      "name": "Spain",
+      "capital": "Madrid",
+      "fact": "Spain produces 43% of the world's olive oil."
+    },
+    "752": {
+      "name": "Sweden",
+      "capital": "Stockholm",
+      "fact": "It has not been at war for over 200 years (since 1814)."
+    }
   }
 }

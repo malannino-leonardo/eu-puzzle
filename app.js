@@ -110,7 +110,8 @@
         // Game progress
         totalCountries: 0,
         connectedCountries: 0,
-        gameComplete: false
+        gameComplete: false,
+        popupDisabled: false
     };
 
     // =====================================================
@@ -822,7 +823,7 @@
                     targetCluster.members.forEach(id => addCountryMarker(id));
                 }
                 
-                if (popupCountryId && !state.gameComplete) {
+                if (popupCountryId && !state.gameComplete && !state.popupDisabled) {
                     showAnchoredPopup(popupCountryId);
                 }
             });
@@ -908,6 +909,12 @@
         const country = state.countries.get(countryId);
         const info = state.countryInfo.get(countryId) || { capital: '?', population: '?', area: '?', facts: [] };
         
+        // Get translated data (directly from translations object — t() only handles strings)
+        const countryI18n = window.i18n?.translations?.countries?.[countryId] || null;
+        const translatedName = countryI18n?.name || country.name;
+        const translatedFact = countryI18n?.fact || '';
+        const translatedCapital = countryI18n?.capital || info.capital;
+        
         const popup = document.createElement('div');
         popup.className = 'anchored-popup';
         // Inline styles to ensure overriding
@@ -919,18 +926,18 @@
         popup.style.overflow = 'hidden'; // Clip content to radius
         // Animation handled by CSS class .anchored-popup
         
-        // Handle facts (array) - Random fact selection
-        let factText = '';
-        if (info.facts && Array.isArray(info.facts) && info.facts.length > 0) {
+        // Handle facts (array) - Random fact selection or use translated fact
+        let factText = translatedFact || '';
+        if (!factText && info.facts && Array.isArray(info.facts) && info.facts.length > 0) {
             const randomIndex = Math.floor(Math.random() * info.facts.length);
             factText = info.facts[randomIndex]; 
-        } else if (info.fact) {
+        } else if (!factText && info.fact) {
             factText = info.fact;
         }
 
         // Header
         const h3 = document.createElement('h3');
-        h3.textContent = country.name;
+        h3.textContent = translatedName;
         h3.style.color = '#ffffff';
         h3.style.background = 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)';
         h3.style.padding = '18px 20px 14px 20px'; // Increased padding
@@ -983,8 +990,11 @@
         };
 
         const _t = (key, fallback) => window.i18n ? window.i18n.t(key) : fallback;
-        addRow(_t('popup.capital', 'Capitale'), info.capital);
-        addRow(_t('popup.population', 'Popolazione'), info.population);
+        const populationDisplay = info.population
+            ? info.population.replace(/milioni/g, window.i18n?.currentLang === 'en' ? 'million' : 'milioni')
+            : '';
+        addRow(_t('popup.capital', 'Capitale'), translatedCapital);
+        addRow(_t('popup.population', 'Popolazione'), populationDisplay);
         addRow(_t('popup.area', 'Superficie'), info.area);
 
         // Fact
@@ -1308,7 +1318,22 @@
         });
         document.getElementById('btn-play-again-header').addEventListener('click', resetGame);
 
-        // Refresh dynamic i18n strings when language changes
+        // Intercept Menu link — show custom confirm instead of native beforeunload dialog
+        const menuLink = document.querySelector('.btn-menu-inline');
+        if (menuLink) {
+            menuLink.addEventListener('click', (e) => {
+                if (state.connectedCountries >= 2) {
+                    e.preventDefault();
+                    showConfirmModal(
+                        window.i18n ? window.i18n.t('confirm.menuTitle') : 'Tornare al menu?',
+                        window.i18n ? window.i18n.t('confirm.menuMsg', { count: state.connectedCountries }) : `Hai collegato ${state.connectedCountries} paesi. Tornare al menu farà perdere i tuoi progressi.`,
+                        window.i18n ? window.i18n.t('confirm.menuProceed') : 'Vai al menu',
+                        window.i18n ? window.i18n.t('confirm.cancel') : 'Annulla',
+                        () => { window.location.href = 'index.html'; }
+                    );
+                }
+            });
+        }
         document.addEventListener('languagechange', () => {
             if (tutorialState.active) {
                 showTutorialStep(tutorialState.step);
@@ -1318,10 +1343,11 @@
                 showCountryInfo(panel.dataset.countryId);
             }
         });
-
-        // Warn before leaving page if progress has been made
+        
+        // Warn before refresh / tab close if progress has been made
+        // (Menu link is intercepted separately with a custom modal above)
         window.addEventListener('beforeunload', (e) => {
-            if (state.connectedCountries >= 2 && !state.gameComplete) {
+            if (state.connectedCountries >= 2) {
                 e.preventDefault();
                 e.returnValue = '';
             }
@@ -1628,6 +1654,8 @@
 
     function onCountryClick(e) {
         if (state.isDragging) return;
+        // In accessibility mode, showCountryInfo is handled by handleClickModeSelect
+        if (state.clickMode) return;
         
         const path = e.target.closest('.country-path');
         if (!path) return;
@@ -1647,7 +1675,10 @@
             const countryId = path.dataset.countryId;
             const country = state.countries.get(countryId);
             if (country) {
-                showTooltip(country.name, e.clientX, e.clientY);
+                // Get translated country name (directly from translations object)
+                const countryI18n = window.i18n?.translations?.countries?.[countryId] || null;
+                const translatedName = countryI18n?.name || country.name;
+                showTooltip(translatedName, e.clientX, e.clientY);
             }
         } else {
             hideTooltip();
@@ -1683,6 +1714,10 @@
             cluster.element.querySelectorAll('.country-path').forEach(p => {
                 p.classList.add('selected');
             });
+            // Show info for the first (and only) member of a single-country cluster,
+            // or any member of a multi-country cluster, when it gets selected.
+            const firstId = Array.from(cluster.members)[0];
+            if (firstId) showCountryInfo(firstId);
         } else if (state.selectedForAttach === clusterId) {
             // Deselect
             const cluster = state.clusters.get(clusterId);
@@ -1768,19 +1803,22 @@
         const cluster = state.clusters.get(clusterId);
         const isConnected = cluster && cluster.members.size > 1;
         
-        // Update content
-        document.getElementById('info-country-name').textContent = info.name || country.name;
-        document.getElementById('info-capital').textContent = info.capital || (window.i18n ? window.i18n.t('info.na') : 'N/D');
-        document.getElementById('info-population').textContent = info.population || (window.i18n ? window.i18n.t('info.na') : 'N/D');
+        // Update content — prefer i18n translations over raw Italian data
+        const countryI18n = window.i18n?.translations?.countries?.[countryId] || null;
+        const translatedName = countryI18n?.name || info.name || country.name;
+        const translatedCapital = countryI18n?.capital || info.capital || (window.i18n ? window.i18n.t('info.na') : 'N/D');
+        const translatedFact = countryI18n?.fact
+            || (info.facts?.length > 0 ? info.facts[Math.floor(Math.random() * info.facts.length)] : info.fact)
+            || (window.i18n ? window.i18n.t('info.notAvailable') : 'Informazioni non disponibili.');
+        const populationDisplay = info.population
+            ? (window.i18n?.currentLang === 'en' ? info.population.replace(/milioni/g, 'million') : info.population)
+            : (window.i18n ? window.i18n.t('info.na') : 'N/D');
+
+        document.getElementById('info-country-name').textContent = translatedName;
+        document.getElementById('info-capital').textContent = translatedCapital;
+        document.getElementById('info-population').textContent = populationDisplay;
         document.getElementById('info-area').textContent = info.area || (window.i18n ? window.i18n.t('info.na') : 'N/D');
-        
-        // Show random fact
-        if (info.facts && info.facts.length > 0) {
-            const randomFact = info.facts[Math.floor(Math.random() * info.facts.length)];
-            document.getElementById('info-fact').textContent = randomFact;
-        } else {
-            document.getElementById('info-fact').textContent = info.fact || (window.i18n ? window.i18n.t('info.notAvailable') : 'Informazioni non disponibili.');
-        }
+        document.getElementById('info-fact').textContent = translatedFact;
         
         // Flag - use SVG from assets/flags folder
         const flagContainer = document.getElementById('info-flag');
@@ -2929,8 +2967,8 @@
         snapSounds: [],
         warnSound: null,
         hintSound: null,
-        winSound: null,
         odeToJoy: null,
+        _odeResumeCleanup: null,
 
         music: {
             tracks: ['assets/soundtracks/soundtrack1.mp3', 'assets/soundtracks/soundtrack2.mp3', 'assets/soundtracks/soundtrack3.mp3', 'assets/soundtracks/soundtrack4.mp3'],
@@ -2963,9 +3001,6 @@
 
             this.hintSound = new Audio('assets/sound-effects/hint.mp3');
             this.hintSound.preload = 'auto';
-
-            this.winSound = new Audio('assets/sound-effects/win.mp3');
-            this.winSound.preload = 'auto';
 
             this.odeToJoy = new Audio('assets/soundtracks/ode-to-joy.mp3');
             this.odeToJoy.preload = 'auto';
@@ -3022,32 +3057,53 @@
 
         playOdeToJoy() {
             if (!this.odeToJoy) return;
-            // Stop any current Ode to Joy playback
+            // Cancel any pending resume from a previous attempt
             this.stopOdeToJoy();
-            
+
             const vol = this._effectiveVolume('music');
-            if (vol === 0) return;
-            
+
             this.odeToJoy.currentTime = 0;
             this.odeToJoy.volume = vol;
-            this.odeToJoy.loop = true; // Keep playing
-            this.odeToJoy.play().catch(() => {
+            this.odeToJoy.loop = true;
+            // Start muted to bypass autoplay restriction (same technique as regular tracks)
+            this.odeToJoy.muted = true;
+
+            this.odeToJoy.play().then(() => {
+                this.odeToJoy.muted = false;
+                this.odeToJoy.volume = this._effectiveVolume('music');
+            }).catch(() => {
                 // Fallback: resume on first user interaction
+                let active = true;
                 const resume = () => {
-                    this.odeToJoy.play().catch(() => {});
-                    document.removeEventListener('pointerdown', resume);
-                    document.removeEventListener('keydown', resume);
+                    if (!active) return;
+                    active = false;
+                    this._odeResumeCleanup = null;
+                    if (this.odeToJoy && this.odeToJoy.loop) {
+                        this.odeToJoy.muted = false;
+                        this.odeToJoy.play().catch(() => {});
+                    }
                 };
                 document.addEventListener('pointerdown', resume, { once: true });
                 document.addEventListener('keydown', resume, { once: true });
+                this._odeResumeCleanup = () => {
+                    active = false;
+                    document.removeEventListener('pointerdown', resume);
+                    document.removeEventListener('keydown', resume);
+                };
             });
         },
 
         stopOdeToJoy() {
+            // Cancel any pending resume listener
+            if (this._odeResumeCleanup) {
+                this._odeResumeCleanup();
+                this._odeResumeCleanup = null;
+            }
             if (this.odeToJoy) {
                 this.odeToJoy.pause();
                 this.odeToJoy.currentTime = 0;
                 this.odeToJoy.loop = false;
+                this.odeToJoy.muted = false;
             }
         },
 
@@ -3098,8 +3154,13 @@
         },
 
         _applyMusicVolume() {
+            const vol = this._effectiveVolume('music');
             if (this.music.current) {
-                this.music.current.volume = this._effectiveVolume('music');
+                this.music.current.volume = vol;
+            }
+            // Keep Ode to Joy volume in sync while it is playing
+            if (this.odeToJoy && !this.odeToJoy.paused && !this.odeToJoy.muted) {
+                this.odeToJoy.volume = vol;
             }
         },
 
@@ -3320,5 +3381,22 @@
     } else {
         init();
     }
+
+    // Typing  no.popup  in the browser console toggles automatic country popups
+    Object.defineProperty(window, 'no', {
+        get() {
+            const target = {};
+            Object.defineProperty(target, 'popup', {
+                get() {
+                    state.popupDisabled = !state.popupDisabled;
+                    console.log(`[EU Puzzle] Automatic popup ${state.popupDisabled ? 'disabled' : 'enabled'}.`);
+                    return state.popupDisabled;
+                },
+                configurable: true
+            });
+            return target;
+        },
+        configurable: true
+    });
 
 })();
