@@ -100,16 +100,7 @@ body {
     position: relative;
 }
 
-#btn-play-again-header {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1;
-}
-
-#btn-play-again-header.hidden {
-    display: none;
-}
+/* #btn-play-again-header appearance is handled by .btn-play-again; positioning by .play-again-bar */
 
 .game-header h1 {
     font-size: 1.5rem;
@@ -757,6 +748,29 @@ body {
 }
 
 /* =====================================================
+   HEADER PLAY-AGAIN BUTTON BAR (below header, not inside it)
+   ===================================================== */
+.play-again-bar {
+    position: fixed;
+    top: 90px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    padding: 0.5rem 0;
+    z-index: 1050;
+    pointer-events: none;
+}
+
+.play-again-bar.hidden {
+    display: none;
+}
+
+.play-again-bar > button {
+    pointer-events: auto;
+}
+
+/* =====================================================
    HEADER PLAY-AGAIN BUTTON
    ===================================================== */
 .btn-play-again {
@@ -1326,7 +1340,7 @@ body.accessibility-mode .country-marker {
     border: 1px solid rgba(245, 158, 11, 0.4);
     border-radius: 1.5rem;
     padding: 2.5rem 2.25rem 2rem;
-    max-width: 1040px;
+    max-width: 520px;
     width: 100%;
     max-height: 90vh;
     overflow-y: auto;
@@ -1384,17 +1398,7 @@ body.accessibility-mode .country-marker {
 }
 
 .welcome-section-label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.45rem;
-    font-size: 1.15rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #f59e0b;
-    margin-bottom: 0.75rem;
-    opacity: 0.85;
+    display: none;
 }
 
 .welcome-section-label svg {
@@ -1404,68 +1408,91 @@ body.accessibility-mode .country-marker {
     flex-shrink: 0;
 }
 
-.welcome-controls-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.65rem;
-    margin-bottom: 1.5rem;
-    text-align: left;
+/* Mouse Diagram */
+:root {
+    --mouse-body: rgba(20, 25, 46, 0.9);
+    --mouse-stroke: #22d3ee;
+    --mouse-btn-left: rgba(34, 211, 238, 0.12);
+    --mouse-btn-right: rgba(34, 211, 238, 0.12);
+    --mouse-wheel: rgba(34, 211, 238, 0.18);
 }
 
-.control-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(245, 158, 11, 0.2);
-    border-radius: 0.875rem;
-    padding: 0.875rem;
-    display: grid;
-    grid-template-columns: 40px 1fr;
-    grid-template-rows: auto 1fr;
-    column-gap: 0.75rem;
-    row-gap: 0.1rem;
-    align-items: start;
-    transition: border-color 0.2s ease, background 0.2s ease;
+.mouse-diagram {
+    position: relative;
+    margin: 1.5rem auto 2rem;
+    max-width: 500px;
+    height: 210px;
 }
 
-.control-card:hover {
-    border-color: rgba(245, 158, 11, 0.5);
-    background: rgba(245, 158, 11, 0.07);
+.mouse-svg-wrap {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
 }
 
-.control-icon-wrap {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(251, 191, 36, 0.15));
-    border-radius: 0.5rem;
+.mouse-svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.25));
+}
+
+.mouse-label {
+    position: absolute;
+}
+
+.mouse-label-left {
+    right: calc(50% + 64px);
+    top: calc(50% - 25px);
+    transform: translateY(-50%);
+}
+
+.mouse-label-right-top {
+    left: calc(50% + 64px);
+    top: calc(50% - 25px);
+    transform: translateY(-50%);
+}
+
+.mouse-label-right-bottom {
+    left: calc(50% + 64px);
+    top: calc(50% + 38px);
+    transform: translateY(-50%);
+}
+
+.mouse-label-box {
     display: flex;
     align-items: center;
-    justify-content: center;
-    grid-row: 1 / 3;
-    align-self: center;
+    gap: 0.45rem;
+    background: rgba(34, 211, 238, 0.08);
+    border: 1px solid rgba(34, 211, 238, 0.3);
+    border-radius: 0.5rem;
+    padding: 0.45rem 0.75rem;
+    white-space: nowrap;
 }
 
-.control-icon-wrap svg {
-    width: 18px;
-    height: 18px;
-    stroke: #f59e0b;
+.mouse-label-box svg {
+    stroke: #22d3ee;
+    flex-shrink: 0;
 }
 
-.control-card strong {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--text-color);
-    align-self: end;
-}
-
-.control-card span {
+.mouse-label-box span {
     font-size: 0.95rem;
-    color: var(--text-muted);
-    line-height: 1.5;
+    font-weight: 600;
+    color: #e2e8f0;
 }
 
+.welcome-controls-grid {
+    display: none;
+}
+
+.control-card,
+.control-icon-wrap,
+.control-card strong,
+.control-card span,
 .control-card span em {
-    color: #f59e0b;
-    font-style: normal;
-    font-weight: 600;
+    display: none;
 }
 
 kbd {
@@ -1480,56 +1507,18 @@ kbd {
     line-height: 1.4;
 }
 
-/* Color Legend */
+/* Color Legend (hidden in simplified modal) */
 .welcome-color-legend {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.55rem;
-    margin-bottom: 1.75rem;
-    text-align: left;
+    display: none;
 }
 
-.color-legend-item {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 0.625rem;
-    padding: 0.6rem 0.75rem;
-}
-
-.color-swatch {
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    flex-shrink: 0;
-}
-
-.color-legend-item div {
-    display: flex;
-    flex-direction: column;
-    gap: 0.1rem;
-}
-
-.color-legend-item strong {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--text-color);
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.color-legend-item strong svg {
-    opacity: 0.5;
-    flex-shrink: 0;
-}
-
+.color-legend-item,
+.color-swatch,
+.color-legend-item div,
+.color-legend-item strong,
+.color-legend-item strong svg,
 .color-legend-item span {
-    font-size: 0.88rem;
-    color: var(--text-muted);
-    line-height: 1.3;
+    display: none;
 }
 
 .welcome-actions {
@@ -1849,12 +1838,31 @@ kbd {
 }
 
 @media (max-width: 480px) {
-    .welcome-controls-grid {
-        grid-template-columns: 1fr;
+    .mouse-diagram {
+        height: 260px;
     }
 
-    .welcome-color-legend {
-        grid-template-columns: 1fr;
+    .mouse-label-left {
+        right: auto;
+        left: 50%;
+        top: auto;
+        bottom: 2px;
+        transform: translateX(-50%);
+    }
+
+    .mouse-label-right-top {
+        left: auto;
+        right: 8px;
+        top: 8px;
+        transform: none;
+    }
+
+    .mouse-label-right-bottom {
+        left: auto;
+        right: 8px;
+        top: auto;
+        bottom: 50px;
+        transform: none;
     }
     
     .welcome-content {
@@ -2233,6 +2241,8 @@ body.menu-page {
     background-position: center;
     transition: opacity 1.5s ease;
     opacity: 0;
+    image-rendering: auto;
+    will-change: opacity;
 }
 
 /* Overlay so the card stays readable over photos */

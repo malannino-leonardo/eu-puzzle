@@ -877,7 +877,7 @@
         // Solid Pin Shape
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z');
-        path.setAttribute('fill', 'var(--success-color)');
+        path.setAttribute('fill', 'var(--error-color)');
         path.setAttribute('stroke', '#fff');
         path.setAttribute('stroke-width', '1.5');
         
@@ -912,7 +912,6 @@
         // Get translated data (directly from translations object — t() only handles strings)
         const countryI18n = window.i18n?.translations?.countries?.[countryId] || null;
         const translatedName = countryI18n?.name || country.name;
-        const translatedFact = countryI18n?.fact || '';
         const translatedCapital = countryI18n?.capital || info.capital;
         
         const popup = document.createElement('div');
@@ -920,18 +919,20 @@
         // Inline styles to ensure overriding
         popup.style.background = '#ffffff';
         popup.style.color = '#000000';
-        popup.style.border = 'none'; // Clear border to let shadow shine
-        popup.style.borderRadius = '16px'; // Modern radius
-        popup.style.boxShadow = '0 10px 30px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)'; // Deep shade
-        popup.style.overflow = 'hidden'; // Clip content to radius
-        // Animation handled by CSS class .anchored-popup
+        popup.style.border = 'none';
+        popup.style.borderRadius = '16px';
+        popup.style.boxShadow = '0 10px 30px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)';
+        popup.style.overflow = 'hidden';
         
-        // Handle facts (array) - Random fact selection or use translated fact
-        let factText = translatedFact || '';
-        if (!factText && info.facts && Array.isArray(info.facts) && info.facts.length > 0) {
-            const randomIndex = Math.floor(Math.random() * info.facts.length);
-            factText = info.facts[randomIndex]; 
-        } else if (!factText && info.fact) {
+        // Random fact: prefer translated facts array, then single translated fact, then raw Italian facts array
+        let factText = '';
+        if (countryI18n?.facts?.length > 0) {
+            factText = countryI18n.facts[Math.floor(Math.random() * countryI18n.facts.length)];
+        } else if (countryI18n?.fact) {
+            factText = countryI18n.fact;
+        } else if (info.facts?.length > 0) {
+            factText = info.facts[Math.floor(Math.random() * info.facts.length)];
+        } else if (info.fact) {
             factText = info.fact;
         }
 
@@ -1315,8 +1316,12 @@
         document.getElementById('btn-restart').addEventListener('click', resetGame);
         document.getElementById('btn-close-completion').addEventListener('click', () => {
             document.getElementById('completion-overlay').classList.add('hidden');
+            document.getElementById('play-again-bar').classList.remove('hidden');
         });
         document.getElementById('btn-play-again-header').addEventListener('click', resetGame);
+
+        // Flag to track intentional navigation to menu
+        let intentionalMenuNavigation = false;
 
         // Intercept Menu link — show custom confirm instead of native beforeunload dialog
         const menuLink = document.querySelector('.btn-menu-inline');
@@ -1329,7 +1334,10 @@
                         window.i18n ? window.i18n.t('confirm.menuMsg', { count: state.connectedCountries }) : `Hai collegato ${state.connectedCountries} paesi. Tornare al menu farà perdere i tuoi progressi.`,
                         window.i18n ? window.i18n.t('confirm.menuProceed') : 'Vai al menu',
                         window.i18n ? window.i18n.t('confirm.cancel') : 'Annulla',
-                        () => { window.location.href = 'index.html'; }
+                        () => { 
+                            intentionalMenuNavigation = true;
+                            window.location.href = 'index.html'; 
+                        }
                     );
                 }
             });
@@ -1347,7 +1355,8 @@
         // Warn before refresh / tab close if progress has been made
         // (Menu link is intercepted separately with a custom modal above)
         window.addEventListener('beforeunload', (e) => {
-            if (state.connectedCountries >= 2) {
+            // Only show browser warning if not intentionally navigating via menu button
+            if (state.connectedCountries >= 2 && !intentionalMenuNavigation) {
                 e.preventDefault();
                 e.returnValue = '';
             }
@@ -1807,7 +1816,9 @@
         const countryI18n = window.i18n?.translations?.countries?.[countryId] || null;
         const translatedName = countryI18n?.name || info.name || country.name;
         const translatedCapital = countryI18n?.capital || info.capital || (window.i18n ? window.i18n.t('info.na') : 'N/D');
-        const translatedFact = countryI18n?.fact
+        const translatedFact = (countryI18n?.facts?.length > 0
+            ? countryI18n.facts[Math.floor(Math.random() * countryI18n.facts.length)]
+            : countryI18n?.fact)
             || (info.facts?.length > 0 ? info.facts[Math.floor(Math.random() * info.facts.length)] : info.fact)
             || (window.i18n ? window.i18n.t('info.notAvailable') : 'Informazioni non disponibili.');
         const populationDisplay = info.population
@@ -1930,14 +1941,13 @@
 
     function showCompletionOverlay() {
         document.getElementById('completion-overlay').classList.remove('hidden');
-        document.getElementById('btn-play-again-header').classList.remove('hidden');
         audioSystem.playWin();
     }
 
     function resetGame() {
-        // Hide completion overlay and header play-again button
+        // Hide completion overlay and below-header play-again button
         document.getElementById('completion-overlay').classList.add('hidden');
-        document.getElementById('btn-play-again-header').classList.add('hidden');
+        document.getElementById('play-again-bar').classList.add('hidden');
         
         // Close info panel
         closeInfoPanel();

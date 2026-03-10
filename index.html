@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puzzle Unione Europea</title>
+    <title data-i18n="menu.title">Puzzle UE</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
     <script src="scripts/i18n.js"></script>
@@ -334,6 +334,7 @@
                     const a = loadAudio();
                     a[key] = parseInt(slider.value) / 100;
                     saveAudio(a);
+                    document.dispatchEvent(new CustomEvent('audioSettingsChanged'));
                 });
             }
             setupSlider('slider-master-volume', 'val-master-volume', 'masterVolume');
@@ -347,6 +348,7 @@
                     const a = loadAudio();
                     a.musicEnabled = toggleMusic.checked;
                     saveAudio(a);
+                    document.dispatchEvent(new CustomEvent('audioSettingsChanged'));
                 });
             }
 
@@ -360,6 +362,7 @@
                     const a = loadAudio();
                     a[key] = nowMuted;
                     saveAudio(a);
+                    document.dispatchEvent(new CustomEvent('audioSettingsChanged'));
                 });
             }
             setupMuteBtn('btn-mute-master', 'masterMuted');
@@ -449,7 +452,14 @@
                     btnMenuMute.setAttribute('aria-pressed', String(muted));
                 }
                 if (sliderMenuVol) sliderMenuVol.value = Math.round(a.musicVolume * 100);
+                // Keep settings modal music slider in sync with top-right slider
+                const settingsMusicSlider = document.getElementById('slider-music-volume');
+                const settingsMusicVal = document.getElementById('val-music-volume');
+                if (settingsMusicSlider) settingsMusicSlider.value = Math.round(a.musicVolume * 100);
+                if (settingsMusicVal) settingsMusicVal.textContent = Math.round(a.musicVolume * 100) + '%';
             }
+
+            document.addEventListener('audioSettingsChanged', updateMenuAudio);
 
             function tryPlayMenu() {
                 menuAudio.currentTime = 0;
