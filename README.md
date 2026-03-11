@@ -1,29 +1,29 @@
-# Puzzle Unione Europea
+# The EU Puzzle
 
-Un puzzle interattivo per ricostruire l'Unione Europea (27 stati membri) usando i confini reali geografici.
+An interactive puzzle to reconstruct the European Union (27 member states) using real geographical borders.
 
-## Caratteristiche
-- 🧩 **27 Paesi da assemblare**: Solo stati membri dell'UE.
-- 🧲 **Snap automatico**: I paesi si agganciano quando avvicinati ai corretti vicini.
-- 🌍 **Fatti e Curiosità**: 10 curiosità casuali per ogni paese.
-- 🎮 **Menu principale**: Interfaccia di avvio per iniziare il gioco.
-- 📖 **Tutorial interattivo**: Guida passo-passo per imparare a giocare.
-- 🎵 **Effetti sonori e musica**: Colonna sonora e feedback audio durante il gioco.
-- ⭐ **Interfaccia aggiornata**: Colori ad alto contrasto (sfumature marine e paesi verdi) e zoom migliorato.
+## Features
+- **27 Countries to Connect**: EU member states only.
+- **Automatic Snap**: Countries lock in place when moved near correct neighbors.
+- **Facts & Trivia**: 10 random facts for each country.
+- **Main Menu**: Starting interface to launch the game.
+- **Interactive Tutorial**: Step-by-step guide to learn how to play.
+- **Sound Effects & Music**: Soundtrack and audio feedback during gameplay.
+- **Updated Interface**: High-contrast colors (ocean blues and green countries) with improved zoom.
 
-## Installazione e Avvio
-1. Assicurati di avere Node.js installato.
-2. Clona la repository.
-3. Installa le dipendenze:
+## Installation & Setup
+1. Ensure you have Node.js installed.
+2. Clone the repository.
+3. Install dependencies:
    ```bash
    npm install
    ```
-4. Avvia il progetto:
+4. Start the project:
    ```bash
-   npm start
+   npm run dev
    ```
-5. Apri **http://localhost:5000** nel browser.
+5. Open **http://localhost:3000** in your browser.
 
-## Tecnologie
-- **D3.js** & **TopoJSON** per la gestione delle mappe.
-- **Node.js** per lo scripting di build.
+## Technologies
+- **D3.js** & **TopoJSON** for map management.
+- **Node.js** for build scripting.
