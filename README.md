@@ -26,4 +26,4 @@ An interactive puzzle to reconstruct the European Union (27 member states) using
 
 ## Technologies
 - **D3.js** & **TopoJSON** for map management.
-- **Node.js** for build scripting.
+- **Node.js** for build scripting. 
