@@ -25,10 +25,10 @@
             </div>
 
             <nav class="menu-nav" aria-label="Menu principale">
-                <a href="game.html" class="menu-btn menu-btn-primary">
+                <button class="menu-btn menu-btn-primary" id="btn-open-difficulty" aria-haspopup="dialog">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                     <span data-i18n="menu.play">Gioca</span>
-                </a>
+                </button>
                 <button class="menu-btn menu-btn-secondary" id="btn-open-settings" aria-haspopup="dialog">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                     <span data-i18n="menu.settings">Impostazioni</span>
@@ -72,6 +72,59 @@
                 <span>English</span>
             </li>
         </ul>
+    </div>
+
+    <!-- Difficulty Picker Modal -->
+    <div id="difficulty-modal" class="difficulty-modal hidden" role="dialog" aria-modal="true" aria-labelledby="difficulty-modal-title">
+        <div class="difficulty-content">
+            <div class="settings-header" style="justify-content: space-between; align-items: flex-start; margin-bottom: 0;">
+                <div>
+                    <h2 id="difficulty-modal-title" class="difficulty-title" data-i18n="difficulty.title" style="margin-bottom: 0.25rem;">Scegli la difficoltà</h2>
+                    <p class="difficulty-subtitle" data-i18n="difficulty.subtitle">Seleziona il livello prima di iniziare</p>
+                </div>
+                <button id="btn-close-difficulty" class="btn-close" aria-label="Chiudi difficoltà">&times;</button>
+            </div>
+            <div class="difficulty-cards">
+                <!-- Easy -->
+                <button class="difficulty-card" data-difficulty="easy" aria-label="Facile">
+                    <div class="difficulty-card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="32" height="32"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                    </div>
+                    <div class="difficulty-card-label" data-i18n="difficulty.easy">Facile</div>
+                    <div class="difficulty-card-desc" data-i18n="difficulty.easyDesc">Contorni guida + area di aggancio ampia</div>
+                    <ul class="difficulty-card-features">
+                        <li data-i18n="difficulty.easyF1">✓ Sagome dei paesi visibili</li>
+                        <li data-i18n="difficulty.easyF2">✓ Aggancio facilitato</li>
+                    </ul>
+                </button>
+                <!-- Medium -->
+                <button class="difficulty-card difficulty-card--recommended" data-difficulty="medium" aria-label="Medio">
+                    <div class="difficulty-recommended-badge" data-i18n="difficulty.recommended">Consigliato</div>
+                    <div class="difficulty-card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="32" height="32"><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                    </div>
+                    <div class="difficulty-card-label" data-i18n="difficulty.medium">Medio</div>
+                    <div class="difficulty-card-desc" data-i18n="difficulty.mediumDesc">Nessuna guida, aggancio standard</div>
+                    <ul class="difficulty-card-features">
+                        <li data-i18n="difficulty.medF1">✓ Tavola vuota</li>
+                        <li data-i18n="difficulty.medF2">✓ Aggancio normale</li>
+                    </ul>
+                </button>
+                <!-- Hard -->
+                <button class="difficulty-card" data-difficulty="hard" aria-label="Difficile">
+                    <div class="difficulty-card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="32" height="32"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                    </div>
+                    <div class="difficulty-card-label" data-i18n="difficulty.hard">Difficile</div>
+                    <div class="difficulty-card-desc" data-i18n="difficulty.hardDesc">Pezzi ruotati, aggancio preciso</div>
+                    <ul class="difficulty-card-features">
+                        <li data-i18n="difficulty.hardF1">✓ Pezzi inizialmente ruotati</li>
+                        <li data-i18n="difficulty.hardF2">✓ Click destro = ruota 90°</li>
+                        <li data-i18n="difficulty.hardF3">✓ Aggancio ridotto</li>
+                    </ul>
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Settings Modal (identical structure to game.html) -->
@@ -371,6 +424,28 @@
         document.addEventListener('DOMContentLoaded', () => {
             setupSettingsListeners();
 
+            // Difficulty modal
+            document.getElementById('btn-open-difficulty').addEventListener('click', () => openModal('difficulty-modal'));
+            document.getElementById('btn-close-difficulty').addEventListener('click', () => closeModal('difficulty-modal'));
+            document.getElementById('difficulty-modal').addEventListener('click', e => {
+                if (e.target === e.currentTarget) closeModal('difficulty-modal');
+            });
+            
+            // Handle difficulty selection
+            document.querySelectorAll('.difficulty-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const difficulty = card.dataset.difficulty || 'medium';
+                    // Save chosen difficulty in localStorage so game.html can pick it up
+                    try {
+                        let settings = JSON.parse(localStorage.getItem('gameSettings') || '{}');
+                        settings.difficulty = difficulty;
+                        localStorage.setItem('gameSettings', JSON.stringify(settings));
+                    } catch (e) {}
+                    // Redirect to the game
+                    window.location.href = 'game.html';
+                });
+            });
+
             // Settings modal
             document.getElementById('btn-open-settings').addEventListener('click', () => {
                 populateSettingsUI();
@@ -393,6 +468,7 @@
                 if (e.key === 'Escape') {
                     closeModal('settings-modal');
                     closeModal('credits-modal');
+                    closeModal('difficulty-modal');
                 }
             });
 

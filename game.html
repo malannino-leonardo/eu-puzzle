@@ -55,6 +55,7 @@
                     <div id="progress-fill" class="progress-fill"></div>
                 </div>
             </div>
+            <span id="difficulty-badge" class="difficulty-badge" data-difficulty="medium" title="Cambia difficoltà"></span>
         </div>
     </header>
 
@@ -153,13 +154,7 @@
         </aside>
     </main>
 
-    <!-- Accessibility: Click-to-select mode toggle -->
-    <div class="accessibility-bar">
-        <label class="toggle-label">
-            <input type="checkbox" id="click-mode-toggle">
-            <span data-i18n="game.clickMode">Modalit&agrave; click (accessibilit&agrave;)</span>
-        </label>
-    </div>
+
 
     <!-- Confirm / Warning Modal -->
     <div id="confirm-modal" class="confirm-modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
@@ -273,6 +268,8 @@
 
     <!-- Main Script -->
     <script src="app.js"></script>
+
+
 
     <!-- Welcome Modal (shown after map loads) -->
     <div id="welcome-modal" class="welcome-modal hidden" role="dialog" aria-modal="true" aria-labelledby="welcome-title">

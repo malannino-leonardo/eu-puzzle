@@ -40,8 +40,7 @@
     "settings": "Impostazioni",
     "completed": "COMPLETATO!",
     "completedMsg": "Hai ricostruito l'Unione Europea!",
-    "exploreMap": "Esplora la mappa",
-    "clickMode": "Modalità click (accessibilità)"
+    "exploreMap": "Esplora la mappa"
   },
   "info": {
     "selectCountry": "Seleziona un paese",
@@ -89,43 +88,51 @@
     "back": "Indietro",
     "next": "Avanti →",
     "startBtn": "Inizia!",
-    "step0": {
+    "welcome": {
       "title": "Benvenuto!",
       "text": "Sei qui per ricostruire la mappa dell'Unione Europea. I 27 paesi sono sparsi ed il tuo obiettivo è rimetterli al loro posto! Questo tutorial ti guiderà passo dopo passo."
     },
-    "step1": {
+    "board": {
       "title": "L'Area di Gioco",
-      "text": "Questa è l'area di gioco. I pezzi del puzzle sono sparpagliati qui intorno. Avvicina due paesi con un confine in comune: si agganceranno automaticamente per formare la mappa dell'Unione Europea!"
+      "text": "Questa è l'area di gioco. I pezzi del puzzle sono sparpagliati qui intorno. A seconda della difficoltà, dovrai trascinarli al loro posto o unirli tra loro."
     },
-    "step2": {
+    "snapEasy": {
+      "title": "Trascina sulla Sagoma",
+      "text": "Trascina la Francia sulla sua sagoma corrispondente nella plancia. Il pezzo si aggancerà automaticamente quando sarai abbastanza vicino!"
+    },
+    "snapMedium": {
       "title": "Aggancia i Confini",
       "text": "Aggancia la Francia alla Germania. Avvicina i due paesi finché non si uniscono automaticamente. Frecce dorate ti mostreranno la direzione!"
     },
-    "step3": {
+    "rotateHard": {
+      "title": "Ruota e Aggancia",
+      "text": "In modalità difficile i pezzi sono ruotati. Fai clic destro o usa la rotellina sulla Francia per ruotarla finché non è dritta, poi agganciala alla Germania!"
+    },
+    "info": {
       "title": "Le Info e le Curiosità",
-      "text": "Ora che hai collegato i paesi, clicca sul segnaposto per scoprire informazioni reali e curiosità! Nota bene: quando collegherai altri paesi a un gruppo già esistente, questa scheda si aprirà automaticamente!"
+      "text": "Ora che hai piazzato il pezzo, clicca sul segnaposto per scoprire informazioni reali e curiosità! Nota bene: quando collegherai altri paesi, questa scheda si aprirà automaticamente!"
     },
-    "step4": {
+    "progress": {
       "title": "Barra di Progresso",
-      "text": "Qui vedi quanti paesi hai già collegato al gruppo principale. L'obiettivo è portare il contatore a 27 su 27!"
+      "text": "Qui vedi quanti paesi hai già collegato. L'obiettivo è portare il contatore a 27 su 27!"
     },
-    "step5": {
+    "settings": {
       "title": "Impostazioni",
       "text": "Dal pulsante Impostazioni puoi regolare il volume della musica e degli effetti sonori, e modificare la dimensione del testo per una migliore leggibilità."
     },
-    "step6": {
+    "reopen": {
       "title": "Riapri il Tutorial",
-      "text": "Hai dubbi durante il gioco? Premi il pulsante \"Tutorial\" in cima alla pagina per riaprire questa guida in qualsiasi momento!"
+      "text": "Hai dubbi durante il gioco? Premi il pulsante 'Tutorial' in cima alla pagina per riaprire questa guida in qualsiasi momento!"
     },
-    "step7": {
+    "hint": {
       "title": "Suggerimento",
       "text": "Sei bloccato? Questo pulsante evidenzia il paese più piccolo ancora non collegato. Usalo con parsimonia per non perdere il gusto della sfida!"
     },
-    "step8": {
+    "reset": {
       "title": "Ricomincia",
       "text": "Se vuoi ricominciare da capo, usa il pulsante Reset. Tutti i pezzi vengono rimescolati e puoi provare di nuovo a tuo piacimento!"
     },
-    "step9": {
+    "ready": {
       "title": "Sei Pronto!",
       "text": "Ora sai tutto quello che ti serve. Buona fortuna nel ricostruire l'Unione Europea! Ricorda: puoi sempre riaprire questo tutorial dal pulsante in alto. Puoi farcela!"
     }
@@ -138,6 +145,24 @@
   },
   "cluster": {
     "label": "{names} e altri {count} paesi"
+  },
+  "difficulty": {
+    "title": "Scegli la difficoltà",
+    "subtitle": "Seleziona il livello prima di iniziare",
+    "recommended": "Consigliato",
+    "easy": "Facile",
+    "easyDesc": "Contorni guida + area di aggancio ampia",
+    "easyF1": "✓ Sagome dei paesi visibili",
+    "easyF2": "✓ Aggancio facilitato",
+    "medium": "Medio",
+    "mediumDesc": "Nessuna guida, aggancio standard",
+    "medF1": "✓ Tavola vuota",
+    "medF2": "✓ Aggancio normale",
+    "hard": "Difficile",
+    "hardDesc": "Pezzi ruotati, aggancio preciso",
+    "hardF1": "✓ Pezzi inizialmente ruotati",
+    "hardF2": "✓ Click destro = ruota 90°",
+    "hardF3": "✓ Aggancio ridotto"
   },
   "langSelector": {
     "label": "Lingua"

@@ -40,8 +40,7 @@
     "settings": "Settings",
     "completed": "COMPLETED!",
     "completedMsg": "You rebuilt the European Union!",
-    "exploreMap": "Explore the map",
-    "clickMode": "Click mode (accessibility)"
+    "exploreMap": "Explore the map"
   },
   "info": {
     "selectCountry": "Select a country",
@@ -89,44 +88,52 @@
     "back": "Back",
     "next": "Next →",
     "startBtn": "Start!",
-    "step0": {
+    "welcome": {
       "title": "Welcome!",
       "text": "You are here to rebuild the map of the European Union. The 27 countries are scattered and your goal is to put them back in their place! This tutorial will guide you step by step."
     },
-    "step1": {
+    "board": {
       "title": "The Game Area",
-      "text": "This is the game area. The puzzle pieces are scattered around. Move two countries with a shared border close together: they will automatically snap to form the map of the European Union!"
+      "text": "This is the playing area. The puzzle pieces are scattered around here. Depending on your difficulty, you will need to drag them to their correct spot or snap them together."
     },
-    "step2": {
-      "title": "Snap Borders",
-      "text": "Snap France to Germany. Move the two countries together until they automatically connect. Golden arrows will show you the direction!"
+    "snapEasy": {
+      "title": "Drag to the Outline",
+      "text": "Drag France to its matching outline on the board. The piece will automatically snap into place when you get close enough!"
     },
-    "step3": {
-      "title": "Info and Fun Facts",
-      "text": "Now that you have connected the countries, click the pin to discover real information and fun facts! Note: when you connect more countries to an existing group, this card will open automatically!"
+    "snapMedium": {
+      "title": "Snap the Borders",
+      "text": "Snap France to Germany. Bring the two countries closer until they join automatically. Golden arrows will show you the direction!"
     },
-    "step4": {
+    "rotateHard": {
+      "title": "Rotate & Snap",
+      "text": "In Hard mode, pieces are rotated. Right-click or scroll with your mouse over France to rotate it until it's upright, then snap it to Germany!"
+    },
+    "info": {
+      "title": "Info and Curiosities",
+      "text": "Now that you have placed the piece, click the map pin to discover real information and facts! Note: when you connect countries this tab will open automatically."
+    },
+    "progress": {
       "title": "Progress Bar",
-      "text": "Here you can see how many countries you have already connected to the main group. The goal is to reach 27 out of 27!"
+      "text": "Here you see how many countries you have already connected. The goal is to bring the counter to 27 out of 27!"
     },
-    "step5": {
+    "settings": {
       "title": "Settings",
-      "text": "From the Settings button you can adjust the volume of music and sound effects, and change the text size for better readability."
+      "text": "From the Settings button you can adjust the volume of the music and sound effects, and change the text size for better readability."
     },
-    "step6": {
+    "reopen": {
       "title": "Reopen the Tutorial",
-      "text": "Have questions during the game? Press the Tutorial button at the top of the page to reopen this guide at any time!"
+      "text": "Have doubts during the game? Press the 'Tutorial' button at the top of the page to reopen this guide at any time!"
     },
-    "step7": {
+    "hint": {
       "title": "Hint",
-      "text": "Stuck? This button highlights the smallest country not yet connected. Use it sparingly so you do not lose the thrill of the challenge!"
+      "text": "Are you stuck? This button highlights the smallest country not yet connected. Use it sparingly so you don't lose the taste for the challenge!"
     },
-    "step8": {
+    "reset": {
       "title": "Restart",
       "text": "If you want to start over, use the Reset button. All pieces are reshuffled and you can try again at your leisure!"
     },
-    "step9": {
-      "title": "You Are Ready!",
+    "ready": {
+      "title": "You're Ready!",
       "text": "Now you know everything you need. Good luck rebuilding the European Union! Remember: you can always reopen this tutorial from the button at the top. You can do it!"
     }
   },
@@ -141,6 +148,24 @@
   },
   "langSelector": {
     "label": "Language"
+  },
+  "difficulty": {
+    "title": "Choose difficulty",
+    "subtitle": "Select your level before starting",
+    "recommended": "Recommended",
+    "easy": "Easy",
+    "easyDesc": "Guide outlines + wide snap radius",
+    "easyF1": "✓ Country silhouettes visible",
+    "easyF2": "✓ Easy snapping",
+    "medium": "Medium",
+    "mediumDesc": "No outlines, standard snap radius",
+    "medF1": "✓ Empty board",
+    "medF2": "✓ Normal snapping",
+    "hard": "Hard",
+    "hardDesc": "Rotated pieces, precise snapping",
+    "hardF1": "✓ Pieces start rotated",
+    "hardF2": "✓ Right-click = rotate 90°",
+    "hardF3": "✓ Reduced snap radius"
   },
   "countries": {
     "040": {

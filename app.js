@@ -17,9 +17,12 @@
         // TopoJSON source (Natural Earth 50m resolution)
         TOPOJSON_URL: 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json',
         
-        // Snap threshold in pixels
+        // Snap threshold in pixels (overridden by difficulty)
         SNAP_THRESHOLD: 20,
         
+        // Difficulty snap thresholds
+        DIFFICULTY_SNAP: { easy: 40, medium: 20, hard: 8 },
+
         // Board dimensions (will be calculated based on viewport)
         BOARD_WIDTH: 1000,
         BOARD_HEIGHT: 700,
@@ -30,7 +33,7 @@
         
         // Initial scatter settings
         SCATTER_PADDING: 50,
-        ROTATION_RANGE: 0, // degrees - set to 0 to keep countries properly oriented
+        ROTATION_RANGE: 0, // degrees - set by difficulty in Hard mode
         
         // Animation durations
         SNAP_DURATION: 200,
@@ -86,11 +89,10 @@
         isDragging: false,
         dragStart: { x: 0, y: 0 },
         clusterStartTransform: { x: 0, y: 0 },
+        hoveredCluster: null,
         hoveredCountry: null,
         
-        // Click-to-select mode (accessibility)
-        clickMode: false,
-        selectedForAttach: null,
+
         
         // DOM references
         svg: null,
@@ -111,7 +113,10 @@
         totalCountries: 0,
         connectedCountries: 0,
         gameComplete: false,
-        popupDisabled: false
+        popupDisabled: false,
+
+        // Difficulty
+        difficulty: 'medium'
     };
 
     // =====================================================
@@ -147,24 +152,38 @@
             
             // Render initial state
             renderClusters();
-            
+
+            // Setup event listeners (before showing picker so buttons work)
+            setupEventListeners();
+
+            // Read chosen difficulty from localStorage
+            let difficulty = 'medium';
+            try {
+                const settings = JSON.parse(localStorage.getItem('gameSettings') || '{}');
+                if (settings.difficulty) difficulty = settings.difficulty;
+            } catch (e) {}
+
+            // Apply difficulty settings
+            difficultySystem.set(difficulty);
+
             // Scatter pieces randomly
             scatterPieces();
-            
-            // Setup event listeners
-            setupEventListeners();
-            
-            // Update progress
             updateProgress();
-            
+
             showLoading(false);
-            
-            // Show welcome modal only if user hasn't dismissed it before
-            if (!getCookie('tutorialSeen')) {
+
+            // Show mode-specific welcome modal only if user hasn't dismissed it for THIS difficulty
+            const tutorialKey = `tutorialSeen_${difficulty}`;
+            let skipTutorial = false;
+            try {
+                skipTutorial = localStorage.getItem(tutorialKey) === 'true';
+            } catch (e) {}
+
+            if (!skipTutorial) {
                 showWelcomeModal();
             }
-            
-            console.log('[Puzzle UE] Initialized!');
+
+            console.log(`[Puzzle UE] Initialized in ${difficulty} mode!`);
             console.log(`[Info] Loaded ${state.countries.size} countries`);
             
         } catch (error) {
@@ -185,6 +204,14 @@
         
         // Initialize viewBox state
         state.viewBox = { x: 0, y: 0, w: CONFIG.BOARD_WIDTH, h: CONFIG.BOARD_HEIGHT };
+        
+        // Create markers layer if it doesn't exist
+        state.markersLayer = document.getElementById('markers-layer');
+        if (!state.markersLayer) {
+            state.markersLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            state.markersLayer.setAttribute('id', 'markers-layer');
+            state.svg.appendChild(state.markersLayer);
+        }
         
         // Set SVG viewBox
         updateViewBox();
@@ -522,7 +549,42 @@
 
     function updateClusterTransform(element, transform) {
         const { x, y, rotation } = transform;
-        element.setAttribute('transform', `translate(${x}, ${y}) rotate(${rotation})`);
+        const clusterId = parseInt(element.dataset.clusterId);
+        const cluster = state.clusters.get(clusterId);
+        
+        let cx = 0, cy = 0;
+        if (rotation) {
+            // Get centroid of first member to rotate around piece center
+            if (cluster && cluster.members.size > 0) {
+                const firstId = Array.from(cluster.members)[0];
+                const country = state.countries.get(firstId);
+                if (country && country.centroid) {
+                    cx = country.centroid[0];
+                    cy = country.centroid[1];
+                }
+            }
+            element.setAttribute('transform', `translate(${x}, ${y}) rotate(${rotation}, ${cx}, ${cy})`);
+        } else {
+            element.setAttribute('transform', `translate(${x}, ${y})`);
+        }
+
+        // Sync markers in the global layer
+        if (cluster) {
+            cluster.members.forEach(mId => {
+                const marker = state.markersLayer.querySelector(`.country-marker[data-for="${mId}"]`);
+                if (marker) {
+                    const country = state.countries.get(mId);
+                    if (country) {
+                        if (rotation) {
+                            // Complex rotation logic for markers outside the group
+                            marker.setAttribute('transform', `translate(${x}, ${y}) rotate(${rotation}, ${cx}, ${cy}) translate(${country.centroid[0]}, ${country.centroid[1]})`);
+                        } else {
+                            marker.setAttribute('transform', `translate(${x + country.centroid[0]}, ${y + country.centroid[1]})`);
+                        }
+                    }
+                }
+            });
+        }
     }
 
     function scatterPieces() {
@@ -576,7 +638,7 @@
         function overlapsAny(box) {
             return placedBoxes.some(p =>
                 box.maxX > p.minX && box.minX < p.maxX &&
-                box.maxY > p.minY && box.minY < p.maxY
+                box.maxY > p.minY && p.minY < p.maxY
             );
         }
 
@@ -619,9 +681,23 @@
                 };
             }
 
+            // Hard mode: apply random exact rotation (0, 90, 180, 270)
+            let rotation = 0;
+            if (state.difficulty === 'hard') {
+                const angles = [0, 90, 180, 270];
+                rotation = angles[Math.floor(Math.random() * angles.length)];
+            }
+
             if (placed.box) placedBoxes.push(placed.box);
-            cluster.transform = { x: placed.x, y: placed.y, rotation: 0 };
+            cluster.transform = { x: placed.x, y: placed.y, rotation };
             updateClusterTransform(cluster.element, cluster.transform);
+
+            // CSS class for cursor hint in Hard mode
+            if (Math.abs(rotation) > 5) {
+                cluster.element.classList.add('has-rotation');
+            } else {
+                cluster.element.classList.remove('has-rotation');
+            }
         });
     }
 
@@ -648,6 +724,9 @@
             state.countryToCluster.set(countryId, clusterA);
         });
 
+        // Ensure all connected countries have markers (pinpoints)
+        a.members.forEach(id => addCountryMarker(id));
+
         // 1. Move paths from B to A first (so they are "below" future markers)
         b.members.forEach(countryId => {
             const country = state.countries.get(countryId);
@@ -662,16 +741,7 @@
             a.element.appendChild(path);
         });
 
-        // 2. Move markers from B to A
-        b.element.querySelectorAll('.country-marker').forEach(marker => {
-            a.element.appendChild(marker);
-        });
-
-        // 3. CRITICAL: Bring ALL A's existing markers to front
-        // so they are not covered by the newly added paths from B.
-        a.element.querySelectorAll('.country-marker').forEach(marker => {
-            a.element.appendChild(marker); // Moves to end of children list (top)
-        });
+        // Markers are globally managed in state.markersLayer, so no need to move them between clusters anymore.
         
         // Remove cluster B
         b.element.remove();
@@ -711,7 +781,7 @@
         
         if (tutorialState.active) {
             // Check if we just merged France and Germany
-            const step = TUTORIAL_STEPS[tutorialState.step];
+            const step = tutorialState.steps[tutorialState.step];
             if (step && step.isSnapDemo) {
                 const frId = '250', deId = '276';
                 const frCluster = state.countryToCluster.get(frId);
@@ -720,7 +790,11 @@
                     // Success! Advance tutorial
                      setTimeout(() => {
                         const nextBtn = document.getElementById('btn-next-tutorial');
-                        if (nextBtn) nextBtn.style.display = '';
+                        if (nextBtn) {
+                            nextBtn.style.opacity = '1';
+                            nextBtn.style.pointerEvents = 'auto';
+                            nextBtn.disabled = false;
+                        }
                         nextTutorialStep();
                      }, 500); 
                 }
@@ -735,11 +809,56 @@
     function checkSnapOnDrop(draggedClusterId) {
         const draggedCluster = state.clusters.get(draggedClusterId);
         if (!draggedCluster) return;
+
+        // Hard mode: only allow snap if the piece is approximately upright (rotation ≈ 0°)
+        if (state.difficulty === 'hard') {
+            const rot = ((draggedCluster.transform.rotation % 360) + 360) % 360;
+            const normalised = rot > 180 ? rot - 360 : rot; // range -180..180
+            if (Math.abs(normalised) > 15) return false;
+        }
         
         let bestSnap = null;
         let bestDistance = CONFIG.SNAP_THRESHOLD;
+
+        // EASY MODE: Snap to silhouette only, disable country-to-country snapping
+        if (state.difficulty === 'easy') {
+            const dist = Math.sqrt(draggedCluster.transform.x ** 2 + draggedCluster.transform.y ** 2);
+            if (dist < CONFIG.SNAP_THRESHOLD) {
+                const countryId = Array.from(draggedCluster.members)[0];
+                animateSnap(draggedCluster, { x: 0, y: 0, rotation: 0 }, () => {
+                    createSnapRipple(draggedCluster.element);
+                    draggedCluster.isSolved = true;
+                    draggedCluster.members.forEach(id => addCountryMarker(id));
+                    
+                    // Visual feedback: mark as snapped
+                    draggedCluster.element.querySelectorAll('.country-path').forEach(p => p.classList.add('snapped'));
+
+                    if (!state.popupDisabled) {
+                        showAnchoredPopup(countryId);
+                    }
+                    updateProgress();
+
+                    // Tutorial advancement for Easy mode: check if France snapped to silhouette
+                    if (tutorialState.active && countryId === '250') {
+                        setTimeout(() => {
+                            const nextBtn = document.getElementById('btn-next-tutorial');
+                            if (nextBtn) {
+                                nextBtn.style.opacity = '1';
+                                nextBtn.style.pointerEvents = 'auto';
+                                nextBtn.disabled = false;
+                            }
+                            nextTutorialStep();
+                        }, 500);
+                    }
+                    
+                    checkCompletion();
+                });
+                return true;
+            }
+            return false;
+        }
         
-        // Check against all other clusters
+        // HARD MODE: only allow snap if piece is upright
         state.clusters.forEach((otherCluster, otherClusterId) => {
             if (otherClusterId === draggedClusterId) return;
             
@@ -818,11 +937,6 @@
                 mergeClusters(bestSnap.targetClusterId, draggedClusterId);
                 
                 // Add markers to both countries involved in the snap
-                draggedCluster.members.forEach(id => addCountryMarker(id));
-                if (targetCluster) {
-                    targetCluster.members.forEach(id => addCountryMarker(id));
-                }
-                
                 if (popupCountryId && !state.gameComplete && !state.popupDisabled) {
                     showAnchoredPopup(popupCountryId);
                 }
@@ -853,7 +967,7 @@
         const cluster = state.clusters.get(clusterId);
         if (!cluster) return;
         
-        if (cluster.element.querySelector(`.country-marker[data-for="${countryId}"]`)) return;
+        if (state.markersLayer.querySelector(`.country-marker[data-for="${countryId}"]`)) return;
 
         const country = state.countries.get(countryId);
         
@@ -899,7 +1013,20 @@
         
         markerGroup.addEventListener('pointerdown', (e) => e.stopPropagation());
 
-        cluster.element.appendChild(markerGroup);
+        state.markersLayer.appendChild(markerGroup);
+        
+        // Initial position sync
+        const { x, y, rotation } = cluster.transform;
+        if (rotation) {
+            // Get rotation center from cluster
+            const firstId = Array.from(cluster.members)[0];
+            const firstCountry = state.countries.get(firstId);
+            const cx = firstCountry?.centroid[0] || 0;
+            const cy = firstCountry?.centroid[1] || 0;
+            markerGroup.setAttribute('transform', `translate(${x}, ${y}) rotate(${rotation}, ${cx}, ${cy}) translate(${country.centroid[0]}, ${country.centroid[1]})`);
+        } else {
+            markerGroup.setAttribute('transform', `translate(${x + country.centroid[0]}, ${y + country.centroid[1]})`);
+        }
     }
 
     function createAnchoredPopup(countryId) {
@@ -1020,7 +1147,7 @@
         const cluster = state.clusters.get(clusterId);
         if (!cluster) return;
 
-        const marker = cluster.element.querySelector(`.country-marker[data-for="${countryId}"]`);
+        const marker = state.markersLayer.querySelector(`.country-marker[data-for="${countryId}"]`);
         if (!marker) return;
 
         document.body.appendChild(popup);
@@ -1274,14 +1401,26 @@
         // Zoom with mouse wheel
         state.svg.addEventListener('wheel', onWheel, { passive: false });
         
-        // Right mouse button for panning
+        // Right mouse button for panning (or piece rotation in Hard mode)
         state.svg.addEventListener('mousedown', onMouseDownPan);
         state.svg.addEventListener('mousemove', onMouseMovePan);
         state.svg.addEventListener('mouseup', onMouseUpPan);
         state.svg.addEventListener('mouseleave', onMouseUpPan);
         
-        // Prevent context menu on right-click (for pan)
-        state.svg.addEventListener('contextmenu', e => e.preventDefault());
+        // Context menu: in Hard mode right-click on a cluster rotates it 90°; otherwise prevent default (pan)
+        state.svg.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            if (state.difficulty === 'hard') {
+                const clusterEl = e.target.closest('.cluster-group');
+                if (clusterEl) {
+                    const clusterId = parseInt(clusterEl.dataset.clusterId);
+                    // Only rotate if not currently dragging a piece
+                    if (!state.isDragging) {
+                        rotateCluster(clusterId, 90);
+                    }
+                }
+            }
+        });
         
         // Prevent default touch behaviors
         state.svg.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
@@ -1344,7 +1483,19 @@
         }
         document.addEventListener('languagechange', () => {
             if (tutorialState.active) {
-                showTutorialStep(tutorialState.step);
+                // Animate out
+                tooltip.style.opacity = '0';
+                tooltip.style.transform = `${tooltip.style.transform} scale(0.95)`;
+                spotlight.style.opacity = '0';
+                
+                setTimeout(() => {
+                    tutorialState.step++;
+                    if (tutorialState.step >= tutorialState.steps.length) {
+                        closeTutorial();
+                    } else {
+                        showTutorialStep(tutorialState.step);
+                    }
+                }, 250);
             }
             const panel = document.getElementById('info-panel');
             if (panel && panel.classList.contains('visible') && panel.dataset.countryId) {
@@ -1367,8 +1518,7 @@
         document.getElementById('btn-zoom-out').addEventListener('click', zoomOut);
         document.getElementById('btn-zoom-reset').addEventListener('click', resetZoom);
         
-        // Accessibility mode toggle
-        document.getElementById('click-mode-toggle').addEventListener('change', toggleClickMode);
+
         
         // Window resize
         window.addEventListener('resize', debounce(onResize, 250));
@@ -1387,15 +1537,14 @@
         const clusterId = parseInt(clusterElement.dataset.clusterId);
         const cluster = state.clusters.get(clusterId);
         if (!cluster) return;
+
+        // Easy mode: cannot move solved pieces
+        if (state.difficulty === 'easy' && cluster.isSolved) return;
         
         // Prevent dragging with right click (reserved for panning)
         if (e.button === 2) return;
         
-        // Handle click mode (accessibility)
-        if (state.clickMode) {
-            handleClickModeSelect(clusterId);
-            return;
-        }
+
         
         // Start drag
         state.isDragging = true;
@@ -1467,6 +1616,14 @@
         
         clearSnapPreviews();
         
+        if (state.difficulty === 'easy') {
+            const dist = Math.sqrt(draggedCluster.transform.x ** 2 + draggedCluster.transform.y ** 2);
+            if (dist < CONFIG.SNAP_THRESHOLD * 1.5) {
+                showSnapPreview(draggedClusterId, true);
+            }
+            return;
+        }
+
         let foundPotentialSnap = false;
         
         state.clusters.forEach((otherCluster, otherClusterId) => {
@@ -1515,6 +1672,55 @@
     
     function onWheel(e) {
         e.preventDefault();
+
+        // Hard mode: scroll over a hovered cluster piece rotates it (no Ctrl needed)
+        if (state.difficulty === 'hard' && !e.ctrlKey) {
+            // Find if mouse is over a piece
+            let hoverClusterId = null;
+            // Iterate clusters in reverse to find topmost
+            const clusterArray = Array.from(state.clusters.entries());
+            for (let i = clusterArray.length - 1; i >= 0; i--) {
+                const [id, cluster] = clusterArray[i];
+                const paths = Array.from(cluster.element.querySelectorAll('.country-path'));
+                
+                // Convert mouse event clientX/Y to SVG coordinates
+                const pt = state.svg.createSVGPoint();
+                pt.x = e.clientX;
+                pt.y = e.clientY;
+                
+                // Check if any path in this cluster contains the point
+                const isHovering = paths.some(path => {
+                    // Check if point is inside the path's screen bounding box first as optimization
+                    const rect = path.getBoundingClientRect();
+                    if (e.clientX >= rect.left && e.clientX <= rect.right &&
+                        e.clientY >= rect.top && e.clientY <= rect.bottom) {
+                        
+                        // If it's a rough match, do precise check
+                        // Convert SVG point to the element's local coordinate system
+                        const svgCtm = path.getScreenCTM();
+                        if (svgCtm) {
+                            const localPt = pt.matrixTransform(svgCtm.inverse());
+                            // Use native SVG isPointInFill method for 100% accurate hit testing
+                            return path.isPointInFill(localPt);
+                        }
+                    }
+                    return false;
+                });
+                
+                if (isHovering) {
+                    hoverClusterId = id;
+                    break;
+                }
+            }
+            
+            if (hoverClusterId) {
+                e.preventDefault();
+                // Scroll up -> -90, Scroll down -> +90
+                const delta = e.deltaY > 0 ? 90 : -90;
+                rotateCluster(hoverClusterId, delta);
+                return;
+            }
+        }
         
         // Inverted: scroll up (negative deltaY) = zoom in, scroll down = zoom out
         const delta = e.deltaY < 0 ? 1.1 : 0.9;
@@ -1663,14 +1869,19 @@
 
     function onCountryClick(e) {
         if (state.isDragging) return;
-        // In accessibility mode, showCountryInfo is handled by handleClickModeSelect
-        if (state.clickMode) return;
+
         
         const path = e.target.closest('.country-path');
         if (!path) return;
         
         const countryId = path.dataset.countryId;
-        showCountryInfo(countryId);
+        const clusterId = state.countryToCluster.get(countryId);
+        const cluster = state.clusters.get(clusterId);
+        if (state.difficulty === 'easy' && cluster && cluster.isSolved) {
+            showAnchoredPopup(countryId);
+        } else {
+            showCountryInfo(countryId);
+        }
     }
 
     function onMouseMove(e) {
@@ -1694,95 +1905,7 @@
         }
     }
 
-    // =====================================================
-    // CLICK MODE (ACCESSIBILITY)
-    // =====================================================
 
-    function toggleClickMode(e) {
-        state.clickMode = e.target.checked;
-        state.selectedForAttach = null;
-
-        document.querySelectorAll('.country-path.selected').forEach(el => {
-            el.classList.remove('selected');
-        });
-
-        // In accessibility mode hide all pin markers; when disabled, reveal them all
-        document.body.classList.toggle('accessibility-mode', state.clickMode);
-        
-        // Close info panel when exiting accessibility mode
-        if (!state.clickMode) {
-            closeInfoPanel();
-        }
-    }
-
-    function handleClickModeSelect(clusterId) {
-        if (state.selectedForAttach === null) {
-            // First selection
-            state.selectedForAttach = clusterId;
-            const cluster = state.clusters.get(clusterId);
-            cluster.element.querySelectorAll('.country-path').forEach(p => {
-                p.classList.add('selected');
-            });
-            // Show info for the first (and only) member of a single-country cluster,
-            // or any member of a multi-country cluster, when it gets selected.
-            const firstId = Array.from(cluster.members)[0];
-            if (firstId) showCountryInfo(firstId);
-        } else if (state.selectedForAttach === clusterId) {
-            // Deselect
-            const cluster = state.clusters.get(clusterId);
-            cluster.element.querySelectorAll('.country-path').forEach(p => {
-                p.classList.remove('selected');
-            });
-            state.selectedForAttach = null;
-        } else {
-            // Try to attach
-            const result = tryAttachClusters(state.selectedForAttach, clusterId);
-            
-            // Clear selection
-            document.querySelectorAll('.country-path.selected').forEach(el => {
-                el.classList.remove('selected');
-            });
-            state.selectedForAttach = null;
-            
-            if (!result) {
-                const cluster = state.clusters.get(clusterId);
-                if (cluster) showSnapError(cluster);
-            }
-        }
-    }
-
-    function tryAttachClusters(clusterAId, clusterBId) {
-        const clusterA = state.clusters.get(clusterAId);
-        const clusterB = state.clusters.get(clusterBId);
-        
-        if (!clusterA || !clusterB) return false;
-        
-        // Check if they share an adjacent country
-        const canAttach = [...clusterA.members].some(countryA => {
-            const neighbors = state.adjacencies.get(countryA) || new Set();
-            return [...clusterB.members].some(countryB => neighbors.has(countryB));
-        });
-        
-        if (canAttach) {
-            // Move cluster B to align with cluster A
-            clusterB.transform = { ...clusterA.transform };
-            updateClusterTransform(clusterB.element, clusterB.transform);
-            
-            // Merge
-            mergeClusters(clusterAId, clusterBId);
-
-            // Add markers for all members of the merged cluster so they appear
-            // when the user switches back to normal mode
-            const mergedCluster = state.clusters.get(clusterAId);
-            if (mergedCluster) {
-                mergedCluster.members.forEach(id => addCountryMarker(id));
-            }
-
-            return true;
-        }
-        
-        return false;
-    }
 
     // =====================================================
     // INFO PANEL
@@ -1910,16 +2033,26 @@
     // =====================================================
 
     function updateProgress() {
-        // Count how many countries are in the largest cluster
-        let maxClusterSize = 0;
+        // Count how many countries are "placed" correctly
+        let connectedCount = 0;
+
+        if (state.difficulty === 'easy') {
+            // In Easy mode, countries are solved when they snap to silhouette
+            state.clusters.forEach(cluster => {
+                if (cluster.isSolved) connectedCount += cluster.members.size;
+            });
+        } else {
+            // In Medium/Hard, count how many countries are in the largest cluster
+            let maxClusterSize = 0;
+            state.clusters.forEach(cluster => {
+                if (cluster.members.size > maxClusterSize) {
+                    maxClusterSize = cluster.members.size;
+                }
+            });
+            connectedCount = maxClusterSize > 1 ? maxClusterSize : 0;
+        }
         
-        state.clusters.forEach(cluster => {
-            if (cluster.members.size > maxClusterSize) {
-                maxClusterSize = cluster.members.size;
-            }
-        });
-        
-        state.connectedCountries = maxClusterSize > 1 ? maxClusterSize : 0;
+        state.connectedCountries = connectedCount;
         
         // Update UI
         const progressText = document.getElementById('progress-text');
@@ -1932,8 +2065,16 @@
     }
 
     function checkCompletion() {
-        // Game is complete when there's only one cluster
-        if (state.clusters.size === 1) {
+        // Game is complete when there's only one cluster (Medium/Hard)
+        // or when all countries are solved (Easy)
+        let isDone = false;
+        if (state.difficulty === 'easy') {
+            isDone = Array.from(state.clusters.values()).every(c => c.isSolved);
+        } else {
+            isDone = (state.clusters.size === 1);
+        }
+
+        if (isDone) {
             state.gameComplete = true;
             showCompletionOverlay();
         }
@@ -1956,6 +2097,9 @@
         audioSystem.stopOdeToJoy();
         audioSystem.startMusic();
         
+        // Clear markers
+        if (state.markersLayer) state.markersLayer.innerHTML = '';
+        
         // Reset state
         state.clusters.clear();
         state.countryToCluster.clear();
@@ -1963,13 +2107,144 @@
         state.selectedCluster = null;
         state.isDragging = false;
         state.gameComplete = false;
-        state.selectedForAttach = null;
         
-        // Reinitialize
+        // Reinitialize clusters & render, then show difficulty picker before scattering
         initializeClusters();
         renderClusters();
+
+        // Clear any ghost outlines before difficulty picks a new mode
+        difficultySystem.clearOutlines();
+
+        // Scatter pieces
         scatterPieces();
         updateProgress();
+    }
+
+    // Silent variant used internally (tutorial, etc.) — keeps current difficulty
+    function resetGameSilent() {
+        document.getElementById('completion-overlay').classList.add('hidden');
+        document.getElementById('play-again-bar').classList.add('hidden');
+        closeInfoPanel();
+        audioSystem.stopOdeToJoy();
+        audioSystem.startMusic();
+        if (state.markersLayer) state.markersLayer.innerHTML = '';
+        state.clusters.clear();
+        state.countryToCluster.clear();
+        state.nextClusterId = 0;
+        state.selectedCluster = null;
+        state.isDragging = false;
+        state.gameComplete = false;
+        
+        // Remove tutorial-related artifacts if standard reset
+        document.getElementById('tutorial-overlay')?.classList.add('hidden');
+        document.querySelector('.anchored-popup')?.remove();
+        
+        difficultySystem.clearOutlines();
+        initializeClusters();
+        renderClusters();
+        // Re-apply current difficulty settings (ghost outlines etc.) without picker
+        difficultySystem.set(state.difficulty);
+        scatterPieces();
+        updateProgress();
+    }
+
+    // =====================================================
+    // HARD MODE ROTATION HELPER
+    // =====================================================
+
+    function rotateCluster(clusterId, deltaDeg) {
+        const cluster = state.clusters.get(clusterId);
+        if (!cluster) return;
+        cluster.transform.rotation = (cluster.transform.rotation + deltaDeg) % 360;
+        updateClusterTransform(cluster.element, cluster.transform);
+        // Update cursor class
+        const rot = ((cluster.transform.rotation % 360) + 360) % 360;
+        const normalised = rot > 180 ? rot - 360 : rot;
+        if (Math.abs(normalised) > 5) {
+            cluster.element.classList.add('has-rotation');
+        } else {
+            cluster.element.classList.remove('has-rotation');
+        }
+    }
+
+    function snapClusterDirect(cluster, clusterId, startTransform) {
+        audioSystem.playSnap();
+        createSnapRipple(cluster.element);
+
+        // Snap animation directly to absolute 0,0,0
+        const duration = 200;
+        const startTime = performance.now();
+        const startX = startTransform.x;
+        const startY = startTransform.y;
+        const startRot = startTransform.rotation;
+        
+        function drawFrame(now) {
+            let p = (now - startTime) / duration;
+            if (p >= 1) {
+                cluster.transform.x = 0;
+                cluster.transform.y = 0;
+                cluster.transform.rotation = 0;
+                updateClusterTransform(cluster.element, cluster.transform);
+                // After snapping to its exact silhouette, we mark the country visually as "snapped"
+                const paths = cluster.element.querySelectorAll('.country-path');
+                paths.forEach(p => p.classList.add('snapped'));
+                
+                // In easy mode, pieces placed perfectly in the silhouette count as connected
+                // Since they don't merge, we just mark this cluster as solved
+                const countryId = Array.from(cluster.members)[0];
+                const country = state.countries.get(countryId);
+                if (country && !cluster.isSolved) {
+                    cluster.isSolved = true;
+                    // Flash
+                    paths.forEach(p => {
+                        p.classList.add('snap-connect');
+                        setTimeout(() => p.classList.remove('snap-connect'), 550);
+                    });
+                    
+                    // Connected tracking: in easy mode, every piece connects to the "board"
+                    // If this is the very first piece, it counts as 1. Wait, if it's the first one, the first country starts at 1 usually.
+                    // Let's just tally how many clusters are solved
+                    let solvedCount = Array.from(state.clusters.values()).filter(c => c.isSolved).length;
+                    
+                    // Actually, let's just use connectedCountries to match the UI
+                    // A placed piece in Easy mode should increase connectedCountries
+                    state.connectedCountries = solvedCount === 1 ? 1 : solvedCount;
+                    
+                    updateProgress();
+                    
+                    // Pulse progress bar
+                    const progressFill = document.getElementById('progress-fill');
+                    if (progressFill) {
+                        progressFill.classList.remove('pulse');
+                        void progressFill.offsetWidth;
+                        progressFill.classList.add('pulse');
+                        setTimeout(() => progressFill.classList.remove('pulse'), 700);
+                    }
+
+                    if (!state.popupDisabled) {
+                        showAnchoredPopup(countryId);
+                    }
+                }
+                
+                checkWinCondition();
+                return;
+            }
+            
+            const easeP = p * (2 - p);
+            cluster.transform.x = startX + (0 - startX) * easeP;
+            cluster.transform.y = startY + (0 - startY) * easeP;
+            
+            // Shortest rotation path
+            let rotDiff = 0 - startRot;
+            while(rotDiff > 180) rotDiff -= 360;
+            while(rotDiff < -180) rotDiff += 360;
+            
+            cluster.transform.rotation = startRot + rotDiff * easeP;
+            updateClusterTransform(cluster.element, cluster.transform);
+            
+            requestAnimationFrame(drawFrame);
+        }
+        requestAnimationFrame(drawFrame);
     }
 
     function showHint() {
@@ -2249,7 +2524,9 @@
 
         // Use { once: true } to prevent listener stacking on repeated opens
         document.getElementById('btn-skip-tutorial').addEventListener('click', () => {
-            setCookie('tutorialSeen', 'true', 365);
+            try {
+                localStorage.setItem(`tutorialSeen_${state.difficulty}`, 'true');
+            } catch (e) {}
             hideWelcomeModal();
         }, { once: true });
 
@@ -2285,82 +2562,102 @@
 
     // =====================================================
     // TUTORIAL SYSTEM
-    // =====================================================
+    // ===========================================    
+    
+    function getTutorialSteps() {
+        // Base steps common to all difficulties before the snapping step
+        const steps = [
+            {
+                icon: '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/>',
+                selector: null,
+                id: 'welcome',
+                isMapStep: false
+            },
+            {
+                icon: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 8h10M7 12h6"/>',
+                selector: '#board-container',
+                id: 'board',
+                isMapStep: true
+            }
+        ];
 
-    const TUTORIAL_STEPS = [
-        {
-            icon: '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/>',
-            selector: null,
-            title: 'Benvenuto!',
-            text: 'Sei qui per ricostruire la mappa dell\'Unione Europea. I 27 paesi sono sparsi ed il tuo obiettivo è rimetterli al loro posto! Questo tutorial ti guiderà passo dopo passo.',
-            isMapStep: false
-        },
-        {
-            icon: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 8h10M7 12h6"/>',
-            selector: '#board-container',
-            title: 'L\'Area di Gioco',
-            text: 'Questa è l\'area di gioco. I pezzi del puzzle sono sparpagliati qui intorno. Avvicina due paesi con un confine in comune: si agganceranno automaticamente per formare la mappa dell\'Unione Europea!',
-            isMapStep: true
-        },
-        {
-            icon: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
-            selector: '#board-container',
-            title: 'Aggancia i Confini',
-            text: 'Aggancia la Francia alla Germania. Avvicina i due paesi finché non si uniscono automaticamente. Frecce dorate ti mostreranno la direzione!',
-            isMapStep: true,
-            isSnapDemo: true
-        },
-        {
-            icon: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>', // Info icon
-            selector: null, // Will handle manually
-            title: 'Le Info e le Curiosità',
-            text: 'Ora che hai collegato i paesi, clicca sul segnaposto per scoprire informazioni reali e curiosità! Nota bene: quando collegherai altri paesi a un gruppo già esistente, questa scheda si aprirà automaticamente!',
-            isMapStep: true,
-            isInfoDemo: true // New flag
-        },
-        {
-            icon: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
-            selector: '.progress-container',
-            title: 'Barra di Progresso',
-            text: 'Qui vedi quanti paesi hai già collegato al gruppo principale. L\'obiettivo è portare il contatore a 27 su 27!',
-            isMapStep: false
-        },
-        {
-            icon: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l-.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
-            selector: '#btn-settings',
-            title: 'Impostazioni',
-            text: 'Dal pulsante Impostazioni puoi regolare il volume della musica e degli effetti sonori, e modificare la dimensione del testo per una migliore leggibilità.',
-            isMapStep: false
-        },
-        {
-            icon: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
-            selector: '#btn-open-tutorial',
-            title: 'Riapri il Tutorial',
-            text: 'Hai dubbi durante il gioco? Premi il pulsante "Tutorial" in cima alla pagina per riaprire questa guida in qualsiasi momento!',
-            isMapStep: false
-        },
-        {
-            icon: '<line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>',
-            selector: '#btn-hint',
-            title: 'Suggerimento',
-            text: 'Sei bloccato? Questo pulsante evidenzia il paese più piccolo ancora non collegato. Usalo con parsimonia per non perdere il gusto della sfida!',
-            isMapStep: false
-        },
-        {
-            icon: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
-            selector: '#btn-reset',
-            title: 'Ricomincia',
-            text: 'Se vuoi ricominciare da capo, usa il pulsante Reset. Tutti i pezzi vengono rimescolati e puoi provare di nuovo a tuo piacimento!',
-            isMapStep: false
-        },
-        {
-            icon: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
-            selector: null,
-            title: 'Sei Pronto!',
-            text: 'Ora sai tutto quello che ti serve. Buona fortuna nel ricostruire l\'Unione Europea! Ricorda: puoi sempre riaprire questo tutorial dal pulsante in alto. Puoi farcela!',
-            isMapStep: false
+        // Mode-specific interactive step
+        if (state.difficulty === 'easy') {
+            steps.push({
+                icon: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+                selector: '#board-container',
+                id: 'snapEasy',
+                isMapStep: true,
+                isSnapDemo: true
+            });
+        } else if (state.difficulty === 'hard') {
+            steps.push({
+                icon: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+                selector: '#board-container',
+                id: 'rotateHard',
+                isMapStep: true,
+                isSnapDemo: true
+            });
+        } else {
+            // Medium
+            steps.push({
+                icon: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+                selector: '#board-container',
+                id: 'snapMedium',
+                isMapStep: true,
+                isSnapDemo: true
+            });
         }
-    ];
+
+        // Rest of the common steps
+        steps.push(
+            {
+                icon: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+                selector: null,
+                id: 'info',
+                isMapStep: true,
+                isInfoDemo: true
+            },
+            {
+                icon: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+                selector: '.progress-container',
+                id: 'progress',
+                isMapStep: false
+            },
+            {
+                icon: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+                selector: '#btn-settings',
+                id: 'settings',
+                isMapStep: false
+            },
+            {
+                icon: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+                selector: '#btn-open-tutorial',
+                id: 'reopen',
+                isMapStep: false
+            },
+            {
+                icon: '<line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>',
+                selector: '#btn-hint',
+                id: 'hint',
+                isMapStep: false
+            },
+            {
+                icon: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+                selector: '#btn-reset',
+                id: 'reset',
+                isMapStep: false
+            },
+            {
+                icon: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+                selector: null,
+                id: 'ready',
+                isMapStep: false
+            }
+        );
+
+        return steps;
+    }
 
     const tutorialState = {
         active: false,
@@ -2373,6 +2670,7 @@
     function startTutorial() {
         tutorialState.active = true;
         tutorialState.step = 0;
+        tutorialState.steps = getTutorialSteps();
 
         const overlay = document.getElementById('tutorial-overlay');
         overlay.classList.remove('hidden');
@@ -2380,7 +2678,7 @@
         // Render progress dots
         const dotsEl = document.getElementById('tutorial-dots');
         dotsEl.innerHTML = '';
-        TUTORIAL_STEPS.forEach((_, i) => {
+        tutorialState.steps.forEach((_, i) => {
             const dot = document.createElement('span');
             dot.className = 'tutorial-dot';
             dot.dataset.step = i;
@@ -2411,8 +2709,8 @@
     }
 
     function arrangeTutorialPieces() {
-        // Full reset so the tutorial always starts from a clean slate
-        resetGame();
+        // Full reset so the tutorial always starts from a clean slate (no difficulty picker re-prompt)
+        resetGameSilent();
         
         const frId = '250'; // France
         const deId = '276'; // Germany
@@ -2428,7 +2726,8 @@
         
         if (frCluster && deCluster) {
             // Position near center
-            frCluster.transform = { x: -120, y: 0, rotation: 0 };
+            const frRot = state.difficulty === 'hard' ? 90 : 0;
+            frCluster.transform = { x: -120, y: 0, rotation: frRot };
             deCluster.transform = { x: 120, y: 0, rotation: 0 };
             
             updateClusterTransform(frCluster.element, frCluster.transform);
@@ -2444,12 +2743,12 @@
         // Clean up any anchored popup that might be open from previous steps (e.g. from Info Demo)
         document.querySelector('.anchored-popup')?.remove();
 
-        const step = TUTORIAL_STEPS[index];
+        const step = tutorialState.steps[index];
         if (!step) { closeTutorial(); return; }
 
         const tooltip = document.getElementById('tutorial-tooltip');
         const spotlight = document.getElementById('tutorial-spotlight');
-        const total = TUTORIAL_STEPS.length;
+        const total = tutorialState.steps.length;
 
         // Update step indicator
         document.getElementById('tutorial-step-num').textContent = index + 1;
@@ -2467,8 +2766,8 @@
         }
 
         // Update text content
-        document.getElementById('tutorial-step-title').textContent = window.i18n ? window.i18n.t(`tutorial.step${index}.title`) : step.title;
-        document.getElementById('tutorial-step-text').textContent = window.i18n ? window.i18n.t(`tutorial.step${index}.text`) : step.text;
+        document.getElementById('tutorial-step-title').textContent = window.i18n ? window.i18n.t(`tutorial.${step.id}.title`) : step.id;
+        document.getElementById('tutorial-step-text').textContent = window.i18n ? window.i18n.t(`tutorial.${step.id}.text`) : '';
 
         // Color list (step 3)
         const listEl = document.getElementById('tutorial-step-list');
@@ -2506,7 +2805,7 @@
         tooltip.style.visibility = 'hidden';
         tooltip.classList.remove('hidden');
 
-        if (index === 0 || index === TUTORIAL_STEPS.length - 1) {
+        if (index === 0 || index === tutorialState.steps.length - 1) {
              centerTutorialTooltip(tooltip);
              // Ensure it's not off-center before showing
              tooltip.style.transform = 'translate(-50%, -50%)'; 
@@ -2726,7 +3025,7 @@
 
     function nextTutorialStep() {
         const next = tutorialState.step + 1;
-        if (next >= TUTORIAL_STEPS.length) {
+        if (next >= tutorialState.steps.length) {
             closeTutorial();
         } else {
             showTutorialStep(next);
@@ -2760,7 +3059,12 @@
         document.removeEventListener('keydown', onTutorialEscape);
 
         if (wasActive) {
-            setTimeout(resetGame, 300);
+            setTimeout(() => {
+                resetGameSilent();
+                if (state.difficulty === 'easy') {
+                    difficultySystem.renderOutlines();
+                }
+            }, 300);
         }
     }
 
@@ -2829,8 +3133,10 @@
         };
         const frArrow = makeArrow();
         const deArrow = makeArrow();
-        g.appendChild(frArrow);
-        g.appendChild(deArrow);
+        if (state.difficulty !== 'easy') {
+            g.appendChild(frArrow);
+            g.appendChild(deArrow);
+        }
 
         const makeDot = () => {
             const c = document.createElementNS(ns, 'circle');
@@ -2841,8 +3147,10 @@
         };
         const frDot = makeDot();
         const deDot = makeDot();
-        g.appendChild(frDot);
-        g.appendChild(deDot);
+        if (state.difficulty !== 'easy') {
+            g.appendChild(frDot);
+            g.appendChild(deDot);
+        }
 
         const ring = document.createElementNS(ns, 'circle');
         ring.setAttribute('r', '12');
@@ -2850,7 +3158,9 @@
         ring.setAttribute('stroke', '#f59e0b');
         ring.setAttribute('stroke-width', '3');
         ring.setAttribute('class', 'tutorial-snap-target');
-        g.appendChild(ring);
+        if (state.difficulty !== 'easy') {
+            g.appendChild(ring);
+        }
 
         state.clustersContainer.appendChild(g);
 
@@ -2910,6 +3220,60 @@
             updateViewBox();
         }
     }
+
+    // =====================================================
+    // DIFFICULTY SYSTEM
+    // =====================================================
+
+    const difficultySystem = {
+
+        set(difficulty) {
+            state.difficulty = difficulty;
+            CONFIG.SNAP_THRESHOLD = CONFIG.DIFFICULTY_SNAP[difficulty] ?? 20;
+            CONFIG.ROTATION_RANGE = difficulty === 'hard' ? 170 : 0;
+
+            // Apply body attribute for CSS cursor rules
+            document.body.setAttribute('data-difficulty', difficulty);
+
+            // Update header badge
+            const badge = document.getElementById('difficulty-badge');
+            if (badge) {
+                badge.setAttribute('data-difficulty', difficulty);
+                const labels = { easy: 'Facile', medium: 'Medio', hard: 'Difficile' };
+                const i18nKeys = { easy: 'difficulty.easy', medium: 'difficulty.medium', hard: 'difficulty.hard' };
+                badge.textContent = window.i18n ? window.i18n.t(i18nKeys[difficulty]) : labels[difficulty];
+            }
+
+            // Easy mode: render ghost outlines
+            this.clearOutlines();
+            if (difficulty === 'easy') this.renderOutlines();
+        },
+
+        // Render faint country outlines at their correct map positions (Easy mode)
+        renderOutlines() {
+            if (!state.svg || !state.countries.size) return;
+
+            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            g.setAttribute('id', 'ghost-outline-layer');
+            g.setAttribute('aria-hidden', 'true');
+            g.setAttribute('pointer-events', 'none');
+
+            state.countries.forEach(country => {
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', country.pathD);
+                path.setAttribute('class', 'ghost-outline');
+                g.appendChild(path);
+            });
+
+            // Insert below clusters container so pieces appear on top
+            state.svg.insertBefore(g, state.clustersContainer);
+        },
+
+        clearOutlines() {
+            const existing = document.getElementById('ghost-outline-layer');
+            if (existing) existing.remove();
+        }
+    };
 
     // =====================================================
     // BOOTSTRAP
