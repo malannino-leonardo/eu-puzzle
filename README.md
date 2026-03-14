@@ -11,6 +11,26 @@ An interactive puzzle to reconstruct the European Union (27 member states) using
 - **Sound Effects & Music**: Soundtrack and audio feedback during gameplay.
 - **Updated Interface**: High-contrast colors (ocean blues and green countries) with improved zoom.
 
+## Difficulty Modes
+
+The game offers three difficulty levels to suit different skill levels:
+
+### Easy Mode
+- Country silhouettes are displayed as guides on the map.
+- Drag countries near their correct positions and they snap automatically to their silhouettes.
+- Perfect for beginners or those learning European geography.
+
+### Medium Mode
+- No visual guides; you must rely on geographical adjacency.
+- Countries automatically snap together when positioned near their correct neighboring countries.
+- Requires knowledge of which countries are adjacent to each other.
+
+### Hard Mode
+- No guides and countries are randomly rotated (0°, 90°, 180°, or 270°).
+- You must manually rotate pieces by right-clicking them.
+- Countries only snap when both positioned correctly AND rotated to approximately 0°.
+- For experienced players seeking a true challenge.
+
 ## Installation & Setup
 1. Ensure you have Node.js installed.
 2. Clone the repository.

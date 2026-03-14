@@ -366,6 +366,7 @@ body {
 
 .cluster-group.dragging {
     cursor: grabbing;
+    will-change: transform;
 }
 
 .cluster-group:focus {
