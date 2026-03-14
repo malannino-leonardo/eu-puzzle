@@ -56,6 +56,7 @@
                 </div>
             </div>
             <span id="difficulty-badge" class="difficulty-badge" data-difficulty="medium" title="Cambia difficoltà"></span>
+            <span id="timer" class="timer" aria-label="Timer di gioco">00:00</span>
         </div>
     </header>
 
@@ -116,6 +117,14 @@
                     <svg class="icon-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
                     <h2 data-i18n="game.completed">COMPLETATO!</h2>
                     <p data-i18n="game.completedMsg">Hai ricostruito l'Unione Europea!</p>
+                    <div class="completion-time-row">
+                        <span data-i18n="game.yourTime">Il tuo tempo</span>
+                        <strong id="completion-time">0:00</strong>
+                    </div>
+                    <div class="completion-stats">
+                        <h4 data-i18n="game.personalBests">Migliori tempi personali</h4>
+                        <div id="completion-stats"></div>
+                    </div>
                     <div class="completion-actions">
                         <button id="btn-close-completion" class="btn btn-ghost">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -153,8 +162,6 @@
             </div>
         </aside>
     </main>
-
-
 
     <!-- Confirm / Warning Modal -->
     <div id="confirm-modal" class="confirm-modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">

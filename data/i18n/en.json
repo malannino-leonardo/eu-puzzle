@@ -40,7 +40,14 @@
     "settings": "Settings",
     "completed": "COMPLETED!",
     "completedMsg": "You rebuilt the European Union!",
-    "exploreMap": "Explore the map"
+    "yourTime": "Your time",
+    "personalBests": "Personal bests",
+    "exploreMap": "Explore the map",
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    }
   },
   "info": {
     "selectCountry": "Select a country",

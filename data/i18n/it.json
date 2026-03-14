@@ -40,7 +40,14 @@
     "settings": "Impostazioni",
     "completed": "COMPLETATO!",
     "completedMsg": "Hai ricostruito l'Unione Europea!",
-    "exploreMap": "Esplora la mappa"
+    "yourTime": "Il tuo tempo",
+    "personalBests": "Migliori tempi personali",
+    "exploreMap": "Esplora la mappa",
+    "difficulty": {
+      "easy": "Facile",
+      "medium": "Medio",
+      "hard": "Difficile"
+    }
   },
   "info": {
     "selectCountry": "Seleziona un paese",

@@ -116,7 +116,10 @@
         popupDisabled: false,
 
         // Difficulty
-        difficulty: 'medium'
+        difficulty: 'medium',
+
+        // Timer
+        timerStarted: false
     };
 
     // =====================================================
@@ -1587,6 +1590,12 @@
         // Start drag
         state.isDragging = true;
         state.selectedCluster = clusterId;
+
+        // Start timer on first move
+        if (!state.timerStarted) {
+            state.timerStarted = true;
+            timerSystem.start();
+        }
         
         state.dragStart = getSVGPoint(e);
         state.clusterStartTransform = { ...cluster.transform };
@@ -1895,11 +1904,6 @@
             return;
         }
 
-        // Throttle to ~30 fps to avoid layout queries on every raw mouse event
-        const now = Date.now();
-        if (now - _lastTooltipTime < 33) return;
-        _lastTooltipTime = now;
-
         const path = e.target.closest('.country-path');
         if (path) {
             const countryId = path.dataset.countryId;
@@ -1914,7 +1918,6 @@
             hideTooltip();
         }
     }
-
 
 
     // =====================================================
@@ -2091,6 +2094,34 @@
     }
 
     function showCompletionOverlay() {
+        timerSystem.pause();
+        timerSystem.saveTime();
+
+        // Current run time
+        const timeEl = document.getElementById('completion-time');
+        if (timeEl) timeEl.textContent = timerSystem.formatTime(timerSystem.elapsed);
+
+        // Personal bests for all difficulties
+        const statsEl = document.getElementById('completion-stats');
+        if (statsEl) {
+            const difficulties = ['easy', 'medium', 'hard'];
+            const t = key => window.i18n ? window.i18n.t(key) : key;
+            const labels = {
+                easy: t('difficulty.easy'),
+                medium: t('difficulty.medium'),
+                hard: t('difficulty.hard')
+            };
+            statsEl.innerHTML = difficulties.map(d => {
+                const best = localStorage.getItem(`bestTime_${d}`);
+                const isActive = d === state.difficulty;
+                const timeStr = best ? timerSystem.formatTime(parseInt(best)) : '—';
+                return `<div class="stats-row${isActive ? ' stats-row--active' : ''}">
+                    <span class="stats-label">${labels[d]}</span>
+                    <span class="stats-value">${timeStr}</span>
+                </div>`;
+            }).join('');
+        }
+
         document.getElementById('completion-overlay').classList.remove('hidden');
         audioSystem.playWin();
     }
@@ -2117,7 +2148,11 @@
         state.selectedCluster = null;
         state.isDragging = false;
         state.gameComplete = false;
-        
+        state.timerStarted = false;
+        timerSystem.reset();
+        const timerEl = document.getElementById('timer');
+        if (timerEl) timerEl.textContent = '0:00';
+
         // Reinitialize clusters & render, then show difficulty picker before scattering
         initializeClusters();
         renderClusters();
@@ -2144,7 +2179,11 @@
         state.selectedCluster = null;
         state.isDragging = false;
         state.gameComplete = false;
-        
+        state.timerStarted = false;
+        timerSystem.reset();
+        const timerElSilent = document.getElementById('timer');
+        if (timerElSilent) timerElSilent.textContent = '0:00';
+
         // Remove tutorial-related artifacts if standard reset
         document.getElementById('tutorial-overlay')?.classList.add('hidden');
         document.querySelector('.anchored-popup')?.remove();
@@ -3608,6 +3647,80 @@
                     Object.assign(this.settings, parsed);
                 }
             } catch (_) {}
+        }
+    };
+
+    // =====================================================
+    // TIMER SYSTEM
+    // =====================================================
+    const timerSystem = {
+        timerId: null,
+        startTime: null,
+        elapsed: 0,
+        running: false,
+
+        start() {
+            if (this.running) return;
+            this.running = true;
+            this.startTime = Date.now() - this.elapsed;
+            this._tick();
+        },
+        pause() {
+            if (!this.running) return;
+            this.running = false;
+            clearTimeout(this.timerId);
+            this.elapsed = Date.now() - this.startTime;
+        },
+        reset() {
+            this.running = false;
+            clearTimeout(this.timerId);
+            this.startTime = null;
+            this.elapsed = 0;
+        },
+        _tick() {
+            const timerEl = document.getElementById('timer');
+            if (timerEl) {
+                const totalSeconds = Math.floor(this.elapsed / 1000);
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                timerEl.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            }
+            if (this.running) {
+                this.timerId = setTimeout(() => {
+                    this.elapsed = Date.now() - this.startTime;
+                    this._tick();
+                }, 1000);
+            }
+        },
+        saveTime() {
+            const bestKey = `bestTime_${state.difficulty}`;
+            const currentBest = localStorage.getItem(bestKey);
+            if (!currentBest || this.elapsed < parseInt(currentBest)) {
+                localStorage.setItem(bestKey, this.elapsed.toString());
+            }
+        },
+        getBestTime() {
+            const bestKey = `bestTime_${state.difficulty}`;
+            const currentBest = localStorage.getItem(bestKey);
+            return currentBest ? parseInt(currentBest) : null;
+        },
+        formatTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        },
+        displayBestTime() {
+            const bestTime = this.getBestTime();
+            const bestTimeEl = document.getElementById('best-time');
+            if (bestTimeEl) {
+                if (bestTime) {
+                    bestTimeEl.textContent = `${window.i18n ? window.i18n.t('timer.best') : 'Best'}: ${this.formatTime(bestTime)}`;
+                    bestTimeEl.classList.remove('hidden');
+                } else {
+                    bestTimeEl.classList.add('hidden');
+                }
+            }
         }
     };
 

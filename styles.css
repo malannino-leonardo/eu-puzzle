@@ -2899,3 +2899,84 @@ body[data-difficulty="hard"] .cluster-group {
 body[data-difficulty="hard"] .cluster-group.has-rotation {
     cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='white' stroke='black' stroke-width='1' d='M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z'/%3E%3Cpath fill='white' d='M13 7v4.586l2.707 2.707-1.414 1.414L11 12.414V7z'/%3E%3C/svg%3E") 12 12, grab;
 }
+
+/* =====================================================
+   TIMER
+   ===================================================== */
+.timer {
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--primary-light);
+    letter-spacing: 0.05em;
+    min-width: 42px;
+    padding-left: 0.75rem;
+    border-left: 1px solid var(--border-color);
+}
+
+/* =====================================================
+   COMPLETION STATS
+   ===================================================== */
+.completion-time-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+    font-size: 1rem;
+    color: var(--text-muted);
+}
+
+.completion-time-row strong {
+    font-size: 1.4rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--success-color);
+}
+
+.completion-stats {
+    margin-bottom: 1.5rem;
+}
+
+.completion-stats h4 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.stats-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.stats-row + .stats-row {
+    margin-top: 0.25rem;
+}
+
+.stats-row--active {
+    background: rgba(99, 102, 241, 0.12);
+    font-weight: 700;
+}
+
+.stats-label {
+    color: var(--text-muted);
+}
+
+.stats-row--active .stats-label {
+    color: var(--text-primary);
+}
+
+.stats-value {
+    font-variant-numeric: tabular-nums;
+    color: var(--primary-light);
+}
+
+.stats-row--active .stats-value {
+    color: var(--success-color);
+}
