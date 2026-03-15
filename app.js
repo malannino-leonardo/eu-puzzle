@@ -874,7 +874,8 @@
                     // Visual feedback: mark as snapped
                     draggedCluster.element.querySelectorAll('.country-path').forEach(p => p.classList.add('snapped'));
 
-                    if (!state.popupDisabled) {
+                    const isLastPiece = Array.from(state.clusters.values()).every(c => c.isSolved);
+                    if (!state.popupDisabled && !isLastPiece) {
                         showAnchoredPopup(countryId);
                     }
                     updateProgress();
@@ -2272,7 +2273,8 @@
                         setTimeout(() => progressFill.classList.remove('pulse'), 700);
                     }
 
-                    if (!state.popupDisabled) {
+                    const isLastPiece = Array.from(state.clusters.values()).every(c => c.isSolved);
+                    if (!state.popupDisabled && !isLastPiece) {
                         showAnchoredPopup(countryId);
                     }
                 }
