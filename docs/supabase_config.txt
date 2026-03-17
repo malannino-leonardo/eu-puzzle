@@ -1,0 +1,340 @@
+═══════════════════════════════════════════════════════════════════════════════
+  PUZZLE EUROPA — SUPABASE SETUP GUIDE
+  Global Leaderboard + Magic-Link Authentication
+═══════════════════════════════════════════════════════════════════════════════
+
+OVERVIEW
+─────────────────────────────────────────────────────────────────────────────
+This guide sets up the Supabase backend for the global leaderboard.
+
+Features enabled:
+  • Magic-link (passwordless e-mail) authentication
+  • User profiles  (username + player country)
+  • Leaderboard    (best time per user per difficulty: easy / medium / hard)
+  • Row-Level Security (RLS) — clients cannot tamper with other users' data
+  • SECURITY DEFINER function for safe upsert (guest + authenticated users)
+
+
+STEP 1 — CREATE A SUPABASE PROJECT
+─────────────────────────────────────────────────────────────────────────────
+  1. Go to https://supabase.com and sign in / create an account.
+  2. Click "New Project", fill in name and database password.
+  3. Wait for provisioning (~1 min).
+
+
+STEP 2 — CONFIGURE YOUR CREDENTIALS FILE
+─────────────────────────────────────────────────────────────────────────────
+  1. Copy the example config:
+       cp scripts/supabase-config.example.js scripts/supabase-config.js
+
+  2. Open  scripts/supabase-config.js  and fill in:
+       • SUPABASE_URL   → Project Settings → API → "Project URL"
+       • SUPABASE_ANON_KEY → Project Settings → API → "anon / public" key
+
+  NOTE: supabase-config.js is gitignored. Never commit real credentials.
+        Only the "anon" key belongs in client-side code — it is safe to
+        expose.  Never put the "service_role" key in client code.
+
+
+STEP 3 — RUN THE SQL SCHEMA
+─────────────────────────────────────────────────────────────────────────────
+Open your Supabase project → SQL Editor → paste and run the SQL below.
+
+─────────────────────────────────────────────────────────────────────────────
+-- ============================================================
+-- TABLE: profiles
+-- One row per authenticated user.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.profiles (
+    id             UUID        PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    username       TEXT        NOT NULL UNIQUE,
+    player_country TEXT,
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ============================================================
+-- TABLE: leaderboard
+-- One best time per user (or guest) per difficulty.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.leaderboard (
+    id             BIGSERIAL   PRIMARY KEY,
+    user_id        UUID        REFERENCES public.profiles(id) ON DELETE CASCADE,
+    guest_id       UUID,
+    display_name   TEXT        NOT NULL,
+    player_country TEXT,
+    difficulty     TEXT        NOT NULL CHECK (difficulty IN ('easy', 'medium', 'hard')),
+    time_ms        INTEGER     NOT NULL CHECK (time_ms > 0),
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    -- At least one identity must be set
+    CONSTRAINT chk_identity CHECK (user_id IS NOT NULL OR guest_id IS NOT NULL)
+);
+
+-- Unique best-time indexes (used by ON CONFLICT in upsert_score)
+CREATE UNIQUE INDEX IF NOT EXISTS leaderboard_user_diff_idx
+    ON public.leaderboard (user_id, difficulty)
+    WHERE user_id IS NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS leaderboard_guest_diff_idx
+    ON public.leaderboard (guest_id, difficulty)
+    WHERE guest_id IS NOT NULL;
+
+-- Index for fast leaderboard reads
+CREATE INDEX IF NOT EXISTS leaderboard_diff_time_idx
+    ON public.leaderboard (difficulty, time_ms ASC);
+
+-- ============================================================
+-- ENABLE ROW-LEVEL SECURITY
+-- ============================================================
+ALTER TABLE public.profiles   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.leaderboard ENABLE ROW LEVEL SECURITY;
+
+-- ============================================================
+-- RLS POLICIES — profiles
+-- ============================================================
+CREATE POLICY "profiles_select_all"
+    ON public.profiles FOR SELECT USING (TRUE);
+
+CREATE POLICY "profiles_insert_own"
+    ON public.profiles FOR INSERT
+    WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "profiles_update_own"
+    ON public.profiles FOR UPDATE
+    USING (auth.uid() = id);
+
+-- ============================================================
+-- RLS POLICIES — leaderboard
+-- Everyone can READ; all writes go through upsert_score (SECURITY DEFINER)
+-- to prevent clients from modifying other users' rows directly.
+-- ============================================================
+CREATE POLICY "leaderboard_select_all"
+    ON public.leaderboard FOR SELECT USING (TRUE);
+
+-- Block all direct insert / update / delete from clients
+CREATE POLICY "leaderboard_no_direct_insert"
+    ON public.leaderboard FOR INSERT WITH CHECK (FALSE);
+
+CREATE POLICY "leaderboard_no_direct_update"
+    ON public.leaderboard FOR UPDATE USING (FALSE);
+
+CREATE POLICY "leaderboard_no_direct_delete"
+    ON public.leaderboard FOR DELETE USING (FALSE);
+
+-- ============================================================
+-- FUNCTION: upsert_score
+-- Runs as the DB owner (SECURITY DEFINER) so it bypasses RLS
+-- and can safely perform the upsert atomically.
+-- Called by the browser via db.rpc('upsert_score', {...})
+-- ============================================================
+CREATE OR REPLACE FUNCTION public.upsert_score(
+    p_user_id        UUID,
+    p_guest_id       UUID,
+    p_display_name   TEXT,
+    p_player_country TEXT,
+    p_difficulty     TEXT,
+    p_time_ms        INTEGER
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    v_existing_time INTEGER;
+    v_improved      BOOLEAN;
+    v_rank          BIGINT;
+BEGIN
+    -- Validate difficulty
+    IF p_difficulty NOT IN ('easy', 'medium', 'hard') THEN
+        RAISE EXCEPTION 'Invalid difficulty: %', p_difficulty;
+    END IF;
+
+    -- Validate time
+    IF p_time_ms IS NULL OR p_time_ms <= 0 THEN
+        RAISE EXCEPTION 'Invalid time_ms: %', p_time_ms;
+    END IF;
+
+    -- Validate identity
+    IF p_user_id IS NULL AND p_guest_id IS NULL THEN
+        RAISE EXCEPTION 'Either p_user_id or p_guest_id must be provided';
+    END IF;
+
+    -- Fetch existing best time for this identity + difficulty
+    IF p_user_id IS NOT NULL THEN
+        SELECT time_ms INTO v_existing_time
+        FROM public.leaderboard
+        WHERE user_id = p_user_id AND difficulty = p_difficulty;
+    ELSE
+        SELECT time_ms INTO v_existing_time
+        FROM public.leaderboard
+        WHERE guest_id = p_guest_id AND difficulty = p_difficulty;
+    END IF;
+
+    v_improved := (v_existing_time IS NULL OR p_time_ms < v_existing_time);
+
+    IF v_improved THEN
+        IF p_user_id IS NOT NULL THEN
+            INSERT INTO public.leaderboard
+                (user_id, display_name, player_country, difficulty, time_ms, created_at)
+            VALUES
+                (p_user_id, p_display_name, p_player_country, p_difficulty, p_time_ms, NOW())
+            ON CONFLICT (user_id, difficulty) WHERE user_id IS NOT NULL
+                DO UPDATE SET
+                    time_ms        = EXCLUDED.time_ms,
+                    display_name   = EXCLUDED.display_name,
+                    player_country = EXCLUDED.player_country,
+                    created_at     = NOW();
+        ELSE
+            INSERT INTO public.leaderboard
+                (guest_id, display_name, player_country, difficulty, time_ms, created_at)
+            VALUES
+                (p_guest_id, p_display_name, p_player_country, p_difficulty, p_time_ms, NOW())
+            ON CONFLICT (guest_id, difficulty) WHERE guest_id IS NOT NULL
+                DO UPDATE SET
+                    time_ms        = EXCLUDED.time_ms,
+                    display_name   = EXCLUDED.display_name,
+                    player_country = EXCLUDED.player_country,
+                    created_at     = NOW();
+        END IF;
+    END IF;
+
+    -- Compute rank (1-based: number of entries with strictly better time + 1)
+    SELECT COUNT(*) + 1 INTO v_rank
+    FROM public.leaderboard
+    WHERE difficulty = p_difficulty AND time_ms < p_time_ms;
+
+    RETURN jsonb_build_object(
+        'improved', v_improved,
+        'rank',     v_rank
+    );
+END;
+$$;
+
+-- Grant execute to both anonymous and authenticated roles
+GRANT EXECUTE ON FUNCTION public.upsert_score TO anon;
+GRANT EXECUTE ON FUNCTION public.upsert_score TO authenticated;
+
+-- ============================================================
+-- FUNCTION: delete_my_account
+-- Deletes the currently authenticated user (account + related rows).
+-- Called by the browser via db.rpc('delete_my_account').
+-- ============================================================
+CREATE OR REPLACE FUNCTION public.delete_my_account()
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+DECLARE
+    v_uid UUID := auth.uid();
+BEGIN
+    IF v_uid IS NULL THEN
+        RAISE EXCEPTION 'Not authenticated';
+    END IF;
+
+    -- Deleting auth.users cascades to profiles, then to leaderboard rows.
+    DELETE FROM auth.users
+    WHERE id = v_uid;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.delete_my_account TO authenticated;
+
+-- Grant SELECT on leaderboard and profiles to anon (for public reads)
+GRANT SELECT ON public.leaderboard TO anon;
+GRANT SELECT ON public.profiles    TO anon;
+GRANT SELECT, INSERT, UPDATE ON public.profiles TO authenticated;
+─────────────────────────────────────────────────────────────────────────────
+
+
+STEP 4 — CONFIGURE MAGIC-LINK AUTHENTICATION
+─────────────────────────────────────────────────────────────────────────────
+  1. In Supabase → Authentication → Providers → Email
+       ✓ Enable Email provider
+       ✓ Disable "Confirm email" (magic link is the confirmation itself)
+       ✓ OR leave "Confirm email" enabled — the magic link handles both
+
+  2. In Supabase → Authentication → URL Configuration
+       • Site URL:          https://your-domain.com   (or http://localhost:3000 for dev)
+       • Redirect URLs:     Add every URL the magic link may redirect back to, e.g.:
+                              http://localhost:3000/stats.html
+                              http://localhost:3000/game.html
+                              https://your-domain.com/stats.html
+                              https://your-domain.com/game.html
+
+  NOTE: For local development (live-server / serve), add http://localhost:3000/*
+        Supabase supports wildcards in redirect URLs.
+
+
+STEP 5 — (OPTIONAL) AUTO-CREATE PROFILE ON FIRST LOGIN
+─────────────────────────────────────────────────────────────────────────────
+You can create a Postgres trigger that auto-creates a profile row when a
+new user signs up.  This is optional — the client JS will prompt the user
+to set a username on first login.
+
+If you want the trigger:
+
+    CREATE OR REPLACE FUNCTION public.handle_new_user()
+    RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
+    BEGIN
+        -- Do nothing here; username will be set via the stats page
+        RETURN NEW;
+    END;
+    $$;
+
+    CREATE TRIGGER on_auth_user_created
+        AFTER INSERT ON auth.users
+        FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+
+STEP 6 — VERIFY EVERYTHING WORKS
+─────────────────────────────────────────────────────────────────────────────
+  1. Start the dev server:   npm run dev   (or: npm start)
+  2. Open http://localhost:3000
+  3. Play a game and complete it
+  4. The completion overlay should show a "Submit Score" widget
+  5. Go to stats.html → Global Leaderboard tab
+  6. Your guest score should appear in the table
+  7. Try signing in with a real email → you'll receive a magic link
+  8. Click the link → you're authenticated; set your username
+  9. Submit a score with your username — it appears on the leaderboard
+
+
+TROUBLESHOOTING
+─────────────────────────────────────────────────────────────────────────────
+  • Widget not showing       → Check SUPABASE_URL and SUPABASE_ANON_KEY in
+                               scripts/supabase-config.js
+  • "Failed to send email"   → Check Supabase → Auth → Email templates;
+                               ensure SMTP is configured (Supabase free tier
+                               uses an internal mail server with rate limits)
+  • Redirect after magic link → Add the redirect URL to Supabase →
+                               Authentication → URL Configuration
+  • "permission denied"      → Re-run the GRANT statements in Step 3
+  • ON CONFLICT not working  → Make sure you ran both CREATE UNIQUE INDEX
+                               statements from Step 3
+  • upsert_score returns null → Check the ON CONFLICT constraint names match
+                               the index names exactly
+    • delete_my_account fails  → Ensure FUNCTION public.delete_my_account exists
+                                                             and EXECUTE is granted to authenticated
+
+
+TABLE SCHEMA REFERENCE
+─────────────────────────────────────────────────────────────────────────────
+  public.profiles
+    id             UUID    — auth.users.id (PK)
+    username       TEXT    — unique display name
+    player_country TEXT    — optional self-reported country
+    created_at     TSTZ
+
+  public.leaderboard
+    id             BIGINT  — PK (auto)
+    user_id        UUID    — FK → profiles.id  (NULL for guests)
+    guest_id       UUID    — guest UUID from localStorage  (NULL for auth users)
+    display_name   TEXT    — username or 'Guest_NNNN'
+    player_country TEXT    — optional
+    difficulty     TEXT    — 'easy' | 'medium' | 'hard'
+    time_ms        INT     — completion time in milliseconds
+    created_at     TSTZ
+
+
+═══════════════════════════════════════════════════════════════════════════════

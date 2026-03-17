@@ -57,6 +57,9 @@
             </div>
             <span id="difficulty-badge" class="difficulty-badge" data-difficulty="medium" title="Cambia difficoltà"></span>
             <span id="timer" class="timer" aria-label="Timer di gioco">00:00</span>
+            <a href="account.html?ref=game" class="game-account-icon" data-i18n-aria="menu.account" aria-label="Account">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </a>
         </div>
     </header>
 
@@ -125,6 +128,7 @@
                         <h4 data-i18n="game.personalBests">Migliori tempi personali</h4>
                         <div id="completion-stats"></div>
                     </div>
+                    <div id="leaderboard-submit-widget"></div>
                     <div class="completion-actions">
                         <button id="btn-close-completion" class="btn btn-ghost">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -275,6 +279,11 @@
 
     <!-- Main Script -->
     <script src="app.js"></script>
+
+    <!-- Supabase (leaderboard) — loaded after app.js so it doesn't slow game startup -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="scripts/supabase-config.js" onerror="console.info('[SupabaseClient] supabase-config.js not found — leaderboard disabled')"></script>
+    <script src="scripts/supabase-client.js"></script>
 
 
 

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="auth.accountPageTitle">Account</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        (function () {
+            try {
+                const s = localStorage.getItem('gameSettings');
+                document.documentElement.setAttribute('data-font-size',
+                    s ? (JSON.parse(s).fontSize || 'medium') : 'medium');
+            } catch (_) {}
+        })();
+    </script>
+    <script src="scripts/i18n.js"></script>
+</head>
+<body class="stats-page login-page">
+
+    <div class="menu-bg-wrap" aria-hidden="true">
+        <div class="menu-bg-layer menu-bg-a"></div>
+        <div class="menu-bg-layer menu-bg-b"></div>
+    </div>
+
+    <header class="stats-header">
+        <a id="back-btn" href="index.html" class="stats-back-btn" data-i18n-aria="stats.backAriaLabel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </a>
+        <h1 class="stats-page-title" data-i18n="auth.accountPageTitle">Account</h1>
+        <div class="lang-selector stats-lang-selector" aria-label="Language">
+            <button class="lang-btn" aria-haspopup="listbox" data-i18n-aria="langSelector.label">
+                <img class="lang-flag-current" src="assets/flags/ITA_landscape.svg" alt="">
+                <span class="lang-code-current">IT</span>
+                <svg class="lang-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <ul class="lang-dropdown" role="listbox">
+                <li class="lang-option" data-lang="it" role="option" aria-selected="false">
+                    <img class="lang-flag-opt" src="assets/flags/ITA_landscape.svg" alt=""> <span>Italiano</span>
+                </li>
+                <li class="lang-option" data-lang="en" role="option" aria-selected="false">
+                    <img class="lang-flag-opt" src="assets/flags/UK_landscape.svg" alt=""> <span>English</span>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="stats-main login-main">
+        <div class="login-card" id="account-card">
+            <div class="login-loading">
+                <span class="lb-spinner"></span>
+            </div>
+        </div>
+        <p class="login-privacy-link">
+            <a href="privacy.html?ref=login" data-i18n="privacy.title">Privacy Policy</a>
+        </p>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="scripts/supabase-config.js" onerror="console.info('[SupabaseClient] config not found')"></script>
+    <script src="scripts/supabase-client.js"></script>
+
+    <script>
+    (function () {
+        'use strict';
+
+        function t(key) { return window.i18n ? window.i18n.t(key) : key; }
+        function esc(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function fmtTime(ms) {
+            const total = Math.floor(ms / 1000);
+            const m = Math.floor(total / 60);
+            const s = total % 60;
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function getStoredBest(diff) {
+            const raw = localStorage.getItem('bestTime_' + diff);
+            if (!raw) return null;
+            const n = parseInt(raw, 10);
+            return Number.isFinite(n) && n > 0 ? n : null;
+        }
+
+        function clearStoredBests() {
+            ['easy', 'medium', 'hard'].forEach(diff => {
+                localStorage.removeItem('bestTime_' + diff);
+            });
+        }
+
+        const ref = new URLSearchParams(location.search).get('ref');
+        const backBtn = document.getElementById('back-btn');
+        const card = document.getElementById('account-card');
+
+        if (ref === 'stats') backBtn.href = 'stats.html#global';
+        else if (ref === 'game') backBtn.href = 'game.html';
+        else if (ref === 'menu') backBtn.href = 'index.html';
+
+        function getLoginHref() {
+            if (ref === 'stats' || ref === 'game' || ref === 'menu') {
+                return 'login.html?ref=' + encodeURIComponent(ref);
+            }
+            return 'login.html';
+        }
+
+        function redirectToLogin() {
+            window.location.replace(getLoginHref());
+        }
+
+        function renderLoading() {
+            card.innerHTML = '<div class="login-loading"><span class="lb-spinner"></span></div>';
+        }
+
+        function renderNotConfigured() {
+            card.innerHTML = `
+                <div class="login-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h2 class="login-title">Supabase not configured</h2>
+                <p class="login-subtitle">See <code>supabase_config.txt</code> to enable accounts.</p>`;
+        }
+
+        function renderNeedLogin() {
+            card.innerHTML = `
+                <div class="login-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <h2 class="login-title" data-i18n="auth.accountPageTitle">${esc(t('auth.accountPageTitle'))}</h2>
+                <p class="login-subtitle" data-i18n="auth.accountRequiresLogin">${esc(t('auth.accountRequiresLogin'))}</p>
+                <a href="${esc(getLoginHref())}" class="lb-btn lb-btn-primary login-btn" data-i18n="auth.goToLogin">${esc(t('auth.goToLogin'))}</a>`;
+        }
+
+        function renderBestTimesBlock() {
+            const rows = ['easy', 'medium', 'hard'].map(diff => {
+                const best = getStoredBest(diff);
+                const label = t('difficulty.' + diff);
+                const value = best ? fmtTime(best) : '—';
+                return `<div class="stats-row${best ? ' stats-row--active' : ''}">
+                    <span class="stats-label">${esc(label)}</span>
+                    <span class="stats-value">${esc(value)}</span>
+                </div>`;
+            }).join('');
+
+            return `<div class="completion-stats account-bests">
+                <h4 data-i18n="stats.personalBests">${esc(t('stats.personalBests'))}</h4>
+                <div>${rows}</div>
+            </div>`;
+        }
+
+        function renderSetup(userEmail) {
+            card.innerHTML = `
+                <div class="login-icon login-icon--success">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <h2 class="login-title">${esc(t('auth.setupTitle'))}</h2>
+                <p class="login-subtitle">${esc(t('auth.setupDesc'))}</p>
+                <div class="login-form">
+                    <label class="login-label" for="setup-username">${esc(t('auth.usernameLabel'))}</label>
+                    <input type="text" id="setup-username" class="lb-input login-input" maxlength="30"
+                        placeholder="${esc(t('auth.usernamePlaceholder'))}" autocomplete="username">
+                    <label class="login-label" for="setup-country">
+                        ${esc(t('auth.countryLabel'))} <small>${esc(t('auth.optional'))}</small>
+                    </label>
+                    <input type="text" id="setup-country" class="lb-input login-input" maxlength="60"
+                        placeholder="${esc(t('auth.countryPlaceholder'))}" autocomplete="country-name">
+                    <span class="login-error" id="setup-error"></span>
+                    <button class="lb-btn lb-btn-primary login-btn" id="btn-save-setup"
+                        data-i18n="auth.saveProfile">${esc(t('auth.saveProfile'))}</button>
+                </div>`;
+            document.getElementById('btn-save-setup').addEventListener('click', () => handleSaveProfile(userEmail));
+        }
+
+        function renderProfile(profile, email) {
+            card.innerHTML = `
+                <div class="login-icon login-icon--user">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <h2 class="login-title">${esc(t('auth.profileTitle'))}</h2>
+                <p class="login-email-badge">${esc(email)}</p>
+                <div class="login-form">
+                    <label class="login-label" for="edit-username">${esc(t('auth.usernameLabel'))}</label>
+                    <input type="text" id="edit-username" class="lb-input login-input" maxlength="30"
+                        value="${esc(profile.username)}" autocomplete="username">
+                    <label class="login-label" for="edit-country">
+                        ${esc(t('auth.countryLabel'))} <small>${esc(t('auth.optional'))}</small>
+                    </label>
+                    <input type="text" id="edit-country" class="lb-input login-input" maxlength="60"
+                        value="${esc(profile.player_country || '')}"
+                        placeholder="${esc(t('auth.countryPlaceholder'))}" autocomplete="country-name">
+                    <span class="login-error" id="edit-error"></span>
+                    <div class="login-actions-row">
+                        <button class="lb-btn lb-btn-primary login-btn" id="btn-save-edit">${esc(t('auth.saveProfile'))}</button>
+                    </div>
+                </div>
+                ${renderBestTimesBlock()}
+                <div class="account-danger-zone">
+                    <h3>${esc(t('auth.deleteAccountTitle'))}</h3>
+                    <p>${esc(t('auth.deleteAccountHint'))}</p>
+                    <a href="#" class="account-delete-link" id="btn-delete-account">${esc(t('auth.deleteAccount'))}</a>
+                </div>
+                <div class="account-footer-actions">
+                    <button class="lb-btn account-sign-out-btn" id="btn-sign-out">${esc(t('auth.signOut'))}</button>
+                </div>
+                <div class="lb-modal hidden" id="delete-account-modal" role="dialog" aria-modal="true" aria-labelledby="delete-account-modal-title">
+                    <div class="lb-modal-content account-delete-modal-content">
+                        <h3 class="lb-modal-title" id="delete-account-modal-title">${esc(t('auth.deleteAccountTitle'))}</h3>
+                        <p class="lb-modal-desc">${esc(t('auth.deleteAccountWarn'))}</p>
+                        <div class="account-delete-actions">
+                            <button class="lb-btn lb-btn-danger" id="btn-confirm-delete">${esc(t('auth.deleteAccountConfirm'))}</button>
+                            <button class="lb-btn lb-btn-ghost" id="btn-cancel-delete">${esc(t('auth.cancel'))}</button>
+                        </div>
+                        <span class="login-error" id="delete-error"></span>
+                    </div>
+                </div>`;
+
+            document.getElementById('btn-save-edit').addEventListener('click', () => handleSaveEdit(profile));
+            document.getElementById('btn-sign-out').addEventListener('click', handleSignOut);
+            const deleteModal = document.getElementById('delete-account-modal');
+            const closeDeleteModal = () => {
+                if (!deleteModal) return;
+                deleteModal.classList.add('hidden');
+                const err = document.getElementById('delete-error');
+                if (err) err.textContent = '';
+                const confirmBtn = document.getElementById('btn-confirm-delete');
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = t('auth.deleteAccountConfirm');
+                }
+            };
+
+            document.getElementById('btn-delete-account').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (deleteModal) deleteModal.classList.remove('hidden');
+            });
+
+            document.getElementById('btn-cancel-delete').addEventListener('click', closeDeleteModal);
+            if (deleteModal) {
+                deleteModal.addEventListener('click', (e) => {
+                    if (e.target === deleteModal) closeDeleteModal();
+                });
+            }
+            document.getElementById('btn-confirm-delete').addEventListener('click', handleDeleteAccount);
+        }
+
+        async function handleSaveProfile(userEmail) {
+            const username = document.getElementById('setup-username').value.trim();
+            const country  = document.getElementById('setup-country').value.trim();
+            const errEl    = document.getElementById('setup-error');
+            const btn      = document.getElementById('btn-save-setup');
+            errEl.textContent = '';
+            if (!username) { errEl.textContent = t('auth.usernameRequired'); return; }
+            btn.disabled = true;
+            btn.textContent = t('auth.saving');
+            const taken = await window.SupabaseClient.isUsernameTaken(username);
+            if (taken) {
+                errEl.textContent = t('auth.usernameTaken');
+                btn.disabled = false;
+                btn.textContent = t('auth.saveProfile');
+                return;
+            }
+            const user = await window.SupabaseClient.getCurrentUser();
+            if (!user) { redirectToLogin(); return; }
+            const { error } = await window.SupabaseClient.upsertProfile(user.id, username, country || null);
+            if (error) {
+                errEl.textContent = error.message || String(error);
+                btn.disabled = false;
+                btn.textContent = t('auth.saveProfile');
+                return;
+            }
+            renderProfile({ username, player_country: country || null }, userEmail || user.email);
+        }
+
+        async function handleSaveEdit(oldProfile) {
+            const username = document.getElementById('edit-username').value.trim();
+            const country  = document.getElementById('edit-country').value.trim();
+            const errEl    = document.getElementById('edit-error');
+            const btn      = document.getElementById('btn-save-edit');
+            errEl.textContent = '';
+            if (!username) { errEl.textContent = t('auth.usernameRequired'); return; }
+            btn.disabled = true;
+            btn.textContent = t('auth.saving');
+            if (username !== oldProfile.username) {
+                const taken = await window.SupabaseClient.isUsernameTaken(username);
+                if (taken) {
+                    errEl.textContent = t('auth.usernameTaken');
+                    btn.disabled = false;
+                    btn.textContent = t('auth.saveProfile');
+                    return;
+                }
+            }
+            const user = await window.SupabaseClient.getCurrentUser();
+            if (!user) { redirectToLogin(); return; }
+            const { error } = await window.SupabaseClient.upsertProfile(user.id, username, country || null);
+            if (error) {
+                errEl.textContent = error.message || String(error);
+                btn.disabled = false;
+                btn.textContent = t('auth.saveProfile');
+                return;
+            }
+            btn.disabled = false;
+            btn.textContent = t('auth.saveProfile');
+            errEl.textContent = '';
+            const saved = document.createElement('span');
+            saved.className = 'login-saved';
+            saved.textContent = '✓ ' + t('auth.profileTitle');
+            btn.insertAdjacentElement('afterend', saved);
+            setTimeout(() => saved.remove(), 2000);
+        }
+
+        async function handleSignOut() {
+            renderLoading();
+            await window.SupabaseClient.signOut();
+            redirectToLogin();
+        }
+
+        async function handleDeleteAccount() {
+            const confirmBtn = document.getElementById('btn-confirm-delete');
+            const errEl = document.getElementById('delete-error');
+            if (!confirmBtn || !errEl) return;
+
+            errEl.textContent = '';
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = t('auth.deleting');
+
+            const { error } = await window.SupabaseClient.deleteCurrentUser();
+            if (error) {
+                errEl.textContent = (error && error.message) ? error.message : t('auth.deleteAccountFailed');
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = t('auth.deleteAccountConfirm');
+                return;
+            }
+
+            clearStoredBests();
+            card.innerHTML = `<div class="login-loading"><p class="login-subtitle">${esc(t('auth.deleteAccountDone'))}</p></div>`;
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 900);
+        }
+
+        async function renderCurrentState() {
+            if (!window.SupabaseClient || !window.SupabaseClient.isConfigured()) {
+                redirectToLogin();
+                return;
+            }
+
+            const user = await window.SupabaseClient.getCurrentUser();
+            if (!user) {
+                redirectToLogin();
+                return;
+            }
+
+            await window.SupabaseClient.syncPersonalBestsForCurrentUser();
+
+            const profile = await window.SupabaseClient.getProfile(user.id);
+            if (!profile) {
+                renderSetup(user.email);
+                return;
+            }
+
+            renderProfile(profile, user.email);
+        }
+
+        async function init() {
+            await renderCurrentState();
+
+            if (window.SupabaseClient && typeof window.SupabaseClient.onAuthStateChange === 'function') {
+                window.SupabaseClient.onAuthStateChange(async (event) => {
+                    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
+                        await renderCurrentState();
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const imgs = ['assets/backgrounds/bg1.jpg','assets/backgrounds/bg2.jpeg',
+                          'assets/backgrounds/bg3.jpg','assets/backgrounds/bg4.jpg',
+                          'assets/backgrounds/bg5.jpg','assets/backgrounds/bg6.jpg'];
+            const layers = [document.querySelector('.menu-bg-a'), document.querySelector('.menu-bg-b')];
+            let cur = 0;
+            let active = 0;
+            layers[0].style.backgroundImage = `url('${imgs[0]}')`;
+            layers[0].style.opacity = '1';
+            layers[1].style.opacity = '0';
+            setInterval(() => {
+                cur = (cur + 1) % imgs.length;
+                const next = 1 - active;
+                layers[next].style.backgroundImage = `url('${imgs[cur]}')`;
+                layers[next].style.opacity = '1';
+                layers[active].style.opacity = '0';
+                active = next;
+            }, 5000);
+        });
+
+        window.i18nReady.then(init);
+    })();
+    </script>
+
+</body>
+</html>

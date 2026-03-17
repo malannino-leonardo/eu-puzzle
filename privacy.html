@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="privacy.title">Privacy Policy</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        (function () {
+            try {
+                const s = localStorage.getItem('gameSettings');
+                const size = s ? (JSON.parse(s).fontSize || 'medium') : 'medium';
+                document.documentElement.setAttribute('data-font-size', size);
+            } catch (_) {}
+        })();
+    </script>
+    <script src="scripts/i18n.js"></script>
+</head>
+<body class="stats-page privacy-page">
+
+    <div class="menu-bg-wrap" aria-hidden="true">
+        <div class="menu-bg-layer menu-bg-a"></div>
+        <div class="menu-bg-layer menu-bg-b"></div>
+    </div>
+
+    <header class="stats-header">
+        <a id="privacy-back-btn" href="index.html" class="stats-back-btn" data-i18n-aria="stats.backAriaLabel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </a>
+        <h1 class="stats-page-title" data-i18n="privacy.title">Privacy Policy</h1>
+
+        <div class="lang-selector stats-lang-selector" aria-label="Language selector">
+            <button class="lang-btn" aria-haspopup="listbox" data-i18n-aria="langSelector.label">
+                <img class="lang-flag-current" src="assets/flags/ITA_landscape.svg" alt="IT">
+                <span class="lang-code-current">IT</span>
+                <svg class="lang-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <ul class="lang-dropdown" role="listbox">
+                <li class="lang-option" data-lang="it" role="option" aria-selected="false">
+                    <img class="lang-flag-opt" src="assets/flags/ITA_landscape.svg" alt="Bandiera italiana">
+                    <span>Italiano</span>
+                </li>
+                <li class="lang-option" data-lang="en" role="option" aria-selected="false">
+                    <img class="lang-flag-opt" src="assets/flags/UK_landscape.svg" alt="UK flag">
+                    <span>English</span>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="stats-main privacy-main" role="main">
+        <article class="privacy-card">
+            <p class="privacy-intro" data-i18n="privacy.intro">EU Puzzle stores only what is needed to run the game.</p>
+
+            <section class="privacy-section">
+                <h2 data-i18n="privacy.localTitle">Data stored locally (your browser only)</h2>
+                <p data-i18n="privacy.localItems">Game settings (volume, font size) · Personal best times per difficulty · Language preference · Guest identity (random ID + name)</p>
+            </section>
+
+            <section class="privacy-section">
+                <h2 data-i18n="privacy.cloudTitle">Data sent to the global leaderboard (Supabase)</h2>
+                <p data-i18n="privacy.cloudItems">Display name (username or Guest_NNNN) · Best completion time · Difficulty · Optional: your country · If signed in: your email address</p>
+            </section>
+
+            <section class="privacy-section">
+                <h2 data-i18n="privacy.authTitle">Authentication</h2>
+                <p data-i18n="privacy.authText">Sign-in uses Supabase magic links (email OTP). Your email is stored securely by Supabase and is never shared or sold.</p>
+            </section>
+
+            <section class="privacy-section">
+                <h2 data-i18n="privacy.deleteTitle">Deleting your data</h2>
+                <p data-i18n="privacy.deleteLocal">Clear your browser's localStorage to remove all local data.</p>
+                <p data-i18n="privacy.deleteCloud">Sign in and use the Account page to delete your leaderboard entry.</p>
+            </section>
+
+            <p class="privacy-contact" data-i18n="privacy.contact">Questions? Open an issue on GitHub.</p>
+        </article>
+    </main>
+
+    <script>
+    (function () {
+        'use strict';
+
+        const ref = new URLSearchParams(location.search).get('ref');
+        const backBtn = document.getElementById('privacy-back-btn');
+        if (ref === 'login') backBtn.href = 'login.html?ref=stats';
+        else if (ref === 'stats') backBtn.href = 'stats.html';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const images = [
+                'assets/backgrounds/bg1.jpg', 'assets/backgrounds/bg2.jpeg',
+                'assets/backgrounds/bg3.jpg', 'assets/backgrounds/bg4.jpg',
+                'assets/backgrounds/bg5.jpg', 'assets/backgrounds/bg6.jpg'
+            ];
+            const layers = [
+                document.querySelector('.menu-bg-a'),
+                document.querySelector('.menu-bg-b')
+            ];
+            let current = 0;
+            let active = 0;
+            layers[0].style.backgroundImage = `url('${images[0]}')`;
+            layers[0].style.opacity = '1';
+            layers[1].style.opacity = '0';
+
+            setInterval(() => {
+                current = (current + 1) % images.length;
+                const next = 1 - active;
+                layers[next].style.backgroundImage = `url('${images[current]}')`;
+                layers[next].style.opacity = '1';
+                layers[active].style.opacity = '0';
+                active = next;
+            }, 5000);
+        });
+    })();
+    </script>
+
+</body>
+</html>

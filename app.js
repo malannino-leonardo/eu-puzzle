@@ -2125,6 +2125,11 @@
 
         document.getElementById('completion-overlay').classList.remove('hidden');
         audioSystem.playWin();
+
+        // Global leaderboard submit widget (no-op if Supabase not configured)
+        if (typeof window.initLeaderboardSubmit === 'function') {
+            window.initLeaderboardSubmit(state.difficulty, timerSystem.elapsed);
+        }
     }
 
     function resetGame() {
