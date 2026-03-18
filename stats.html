@@ -215,11 +215,15 @@
             const banners = document.querySelectorAll('.auth-suggest-banner');
             if (!banners.length) return;
 
-            let user = null;
-            if (window.SupabaseClient && window.SupabaseClient.isConfigured()) {
+            // Trust the last known auth user to avoid banner flicker on transient auth timeouts.
+            let user = authUser;
+            if (!user && window.SupabaseClient && window.SupabaseClient.isConfigured()) {
                 try {
                     user = await window.SupabaseClient.getCurrentUser();
-                } catch (_) {}
+                    authUser = user || null;
+                } catch (e) {
+                    console.error('[Stats] getCurrentUser failed while updating auth banner:', e);
+                }
             }
 
             const shouldShowBanner = !user;
@@ -232,7 +236,9 @@
             if (window.SupabaseClient && typeof window.SupabaseClient.syncPersonalBestsForCurrentUser === 'function') {
                 try {
                     await window.SupabaseClient.syncPersonalBestsForCurrentUser();
-                } catch (_) {}
+                } catch (e) {
+                    console.error('[Stats] syncPersonalBestsForCurrentUser failed:', e);
+                }
             }
         }
 
@@ -303,6 +309,14 @@
                 rows = await window.SupabaseClient.fetchLeaderboard(diff, limit, offset);
             } catch (e) {
                 console.error('[Stats] fetchLeaderboard failed:', e);
+                st.loading = false;
+                const wrap = document.getElementById('leaderboard-wrap');
+                if (wrap) {
+                    const msg = (e && e.message) ? e.message : String(e);
+                    wrap.innerHTML = `<p class="lb-empty">${escHtml(t('stats.submitError'))}: ${escHtml(msg)}</p>`;
+                }
+                document.getElementById('lb-show-more-wrap').style.display = 'none';
+                return;
             }
 
             st.loading = false;
@@ -467,7 +481,9 @@
                     if (!input || !input.value.trim()) return;
                     btn.disabled = true;
                     btn.textContent = t('auth.sending');
-                        const { error, message } = await window.SupabaseClient.signInWithMagicLink(input.value.trim());
+                    const oldErr = section.querySelector('.auth-error');
+                    if (oldErr) oldErr.remove();
+                    const { error, message } = await window.SupabaseClient.signInWithMagicLink(input.value.trim());
                     if (error) {
                         btn.disabled = false;
                         btn.textContent = t('auth.sendMagicLink');
@@ -604,12 +620,30 @@
             });
 
             if (window.SupabaseClient && typeof window.SupabaseClient.onAuthStateChange === 'function') {
-                window.SupabaseClient.onAuthStateChange(async (event) => {
+                window.SupabaseClient.onAuthStateChange(async (event, session) => {
+                    const isAuthStateEvent = event === 'SIGNED_IN'
+                        || event === 'SIGNED_OUT'
+                        || event === 'USER_UPDATED'
+                        || event === 'TOKEN_REFRESHED'
+                        || event === 'INITIAL_SESSION';
+                    if (!isAuthStateEvent) return;
+
+                    if (event === 'SIGNED_OUT') {
+                        authUser = null;
+                        authProfile = null;
+                    } else if (session && session.user) {
+                        authUser = session.user;
+                    }
+
                     if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
+                        if (event === 'SIGNED_IN' && typeof window.SupabaseClient.ensureProfileForCurrentUser === 'function') {
+                            await window.SupabaseClient.ensureProfileForCurrentUser();
+                        }
                         await syncAccountBestTimes();
                         loadLocalRecords();
-                        await updateAuthSuggestionVisibility();
                     }
+
+                    await updateAuthSuggestionVisibility();
                 });
             }
         });
@@ -662,9 +696,19 @@
         /* ---- init ---- */
 
         window.i18nReady.then(async () => {
+            if (window.SupabaseClient && window.SupabaseClient.isConfigured()) {
+                authUser = await window.SupabaseClient.getCurrentUser();
+            }
+            if (authUser && window.SupabaseClient && typeof window.SupabaseClient.ensureProfileForCurrentUser === 'function') {
+                await window.SupabaseClient.ensureProfileForCurrentUser();
+            }
             await syncAccountBestTimes();
             loadLocalRecords();
             await updateAuthSuggestionVisibility();
+            switchMainTab(getRequestedTab());
+        }).catch((e) => {
+            console.error('[Stats] init failed:', e);
+            loadLocalRecords();
             switchMainTab(getRequestedTab());
         });
 

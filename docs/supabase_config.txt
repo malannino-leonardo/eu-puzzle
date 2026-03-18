@@ -286,6 +286,14 @@ If you want the trigger:
         AFTER INSERT ON auth.users
         FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
+If you get this error during magic-link signup:
+    500: Database error saving new user
+    SQLSTATE 23502: null value in column "username" of relation "profiles"
+
+Run the hardened fix script in this repository:
+    docs/supabase_fix_otp_profile_trigger.sql
+    (it replaces user-defined triggers on auth.users with a safe version)
+
 
 STEP 6 — VERIFY EVERYTHING WORKS
 ─────────────────────────────────────────────────────────────────────────────
@@ -312,6 +320,8 @@ TROUBLESHOOTING
   • "permission denied"      → Re-run the GRANT statements in Step 3
   • ON CONFLICT not working  → Make sure you ran both CREATE UNIQUE INDEX
                                statements from Step 3
+    • /otp 500 on new signup   → Run docs/supabase_fix_otp_profile_trigger.sql
+                                                             (trigger inserts profile with safe username fallback)
   • upsert_score returns null → Check the ON CONFLICT constraint names match
                                the index names exactly
     • delete_my_account fails  → Ensure FUNCTION public.delete_my_account exists

@@ -344,21 +344,30 @@
                 return;
             }
 
-            const user = await window.SupabaseClient.getCurrentUser();
-            if (!user) {
-                redirectToLogin();
-                return;
+            try {
+                const user = await window.SupabaseClient.getCurrentUser();
+                if (!user) {
+                    redirectToLogin();
+                    return;
+                }
+
+                if (typeof window.SupabaseClient.ensureProfileForCurrentUser === 'function') {
+                    await window.SupabaseClient.ensureProfileForCurrentUser();
+                }
+
+                await window.SupabaseClient.syncPersonalBestsForCurrentUser();
+
+                const profile = await window.SupabaseClient.getProfile(user.id);
+                if (!profile) {
+                    renderSetup(user.email);
+                    return;
+                }
+
+                renderProfile(profile, user.email);
+            } catch (e) {
+                console.error('[Account] renderCurrentState failed:', e);
+                renderNeedLogin();
             }
-
-            await window.SupabaseClient.syncPersonalBestsForCurrentUser();
-
-            const profile = await window.SupabaseClient.getProfile(user.id);
-            if (!profile) {
-                renderSetup(user.email);
-                return;
-            }
-
-            renderProfile(profile, user.email);
         }
 
         async function init() {
@@ -393,7 +402,10 @@
             }, 5000);
         });
 
-        window.i18nReady.then(init);
+        window.i18nReady.then(init).catch((e) => {
+            console.error('[Account] init failed:', e);
+            renderLoading();
+        });
     })();
     </script>
 

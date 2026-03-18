@@ -42,6 +42,32 @@
         }
     }
 
+    function logError(context, error, meta) {
+        const suffix = meta ? ' ' + JSON.stringify(meta) : '';
+        console.error('[SupabaseClient] ' + context + suffix, error);
+    }
+
+    function logWarn(context, error, meta) {
+        const suffix = meta ? ' ' + JSON.stringify(meta) : '';
+        console.warn('[SupabaseClient] ' + context + suffix, error);
+    }
+
+    function installGlobalErrorHooks() {
+        if (window.__SUPABASE_CLIENT_GLOBAL_ERRORS__) return;
+        window.__SUPABASE_CLIENT_GLOBAL_ERRORS__ = true;
+
+        window.addEventListener('error', function (event) {
+            const err = event && (event.error || event.message);
+            logError('Unhandled window error', err || event);
+        });
+
+        window.addEventListener('unhandledrejection', function (event) {
+            logError('Unhandled promise rejection', event && event.reason ? event.reason : event);
+        });
+    }
+
+    installGlobalErrorHooks();
+
     /* ------------------------------------------------------------------ */
     /*  Helpers                                                            */
     /* ------------------------------------------------------------------ */
@@ -62,11 +88,29 @@
 
     function getAuthErrorMessage(error) {
         const status = Number(error && error.status);
-        const raw = String(
-            (error && (error.message || error.error_description || error.code)) || ''
-        ).toLowerCase();
+        const raw = [
+            error && error.message,
+            error && error.error_description,
+            error && error.code,
+            error && error.error,
+            error && error.name
+        ]
+            .filter(Boolean)
+            .map(String)
+            .join(' ')
+            .toLowerCase();
 
-        if (status === 429 || raw.includes('rate') || raw.includes('too many')) {
+        const isRateLimit =
+            status === 429 ||
+            raw.includes('rate') ||
+            raw.includes('too many') ||
+            raw.includes('too_many') ||
+            raw.includes('over_email_send_rate_limit') ||
+            raw.includes('retry after') ||
+            raw.includes('troppi tentativi') ||
+            raw.includes('attendi un minuto');
+
+        if (isRateLimit) {
             return t('auth.magicLinkRateLimit');
         }
 
@@ -81,6 +125,22 @@
         }
 
         return t('auth.magicLinkGenericError');
+    }
+
+    function buildSignupUsername(email) {
+        const localPart = String(email || '')
+            .split('@')[0]
+            .toLowerCase()
+            .replace(/[^a-z0-9._-]+/g, '_')
+            .replace(/^[_\-.]+|[_\-.]+$/g, '');
+        const base = (localPart || 'player').slice(0, 18);
+        const suffix = (
+            typeof crypto !== 'undefined' &&
+            crypto.randomUUID
+        )
+            ? crypto.randomUUID().slice(0, 8)
+            : Math.floor(1000 + Math.random() * 9000);
+        return `${base}_${suffix}`;
     }
 
     function getLeaderboardResultMessage(result) {
@@ -143,12 +203,30 @@
         return Promise.race([promise, timer]);
     }
 
+    function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     async function getCurrentUser() {
         if (!db) return null;
         try {
-            const { data: { user } } = await withTimeout(db.auth.getUser(), 10000);
-            return user || null;
-        } catch (_) { return null; }
+            const { data, error } = await withTimeout(db.auth.getUser(), 10000);
+            if (error) {
+                logWarn('getCurrentUser: getUser returned error', error);
+            }
+            if (data && data.user) {
+                return data.user;
+            }
+
+            const { data: sessionData, error: sessionError } = await withTimeout(db.auth.getSession(), 10000);
+            if (sessionError) {
+                logWarn('getCurrentUser: getSession returned error', sessionError);
+            }
+            return (sessionData && sessionData.session && sessionData.session.user) || null;
+        } catch (e) {
+            logError('getCurrentUser failed', e);
+            return null;
+        }
     }
 
     async function signInWithMagicLink(email) {
@@ -156,6 +234,8 @@
             const error = { message: 'Supabase not configured' };
             return { error, message: getAuthErrorMessage(error) };
         }
+
+        const signupUsername = buildSignupUsername(email);
 
         const baseRedirect = window.location.href.split('?')[0].split('#')[0];
         const preferredLang = (
@@ -170,14 +250,35 @@
             redirectTo = redirectUrl.toString();
         } catch (_) {}
 
-        const { error } = await db.auth.signInWithOtp({
-            email,
-            options: {
-                emailRedirectTo: redirectTo,
-                data: { preferred_lang: preferredLang }
+        try {
+            const { error } = await db.auth.signInWithOtp({
+                email,
+                options: {
+                    shouldCreateUser: true,
+                    emailRedirectTo: redirectTo,
+                    // Include fallback username metadata for projects that create
+                    // profiles from auth.users metadata in a DB trigger.
+                    data: {
+                        preferred_lang: preferredLang,
+                        username: signupUsername,
+                        display_name: signupUsername,
+                        full_name: signupUsername,
+                        name: signupUsername,
+                        user_name: signupUsername,
+                        nickname: signupUsername
+                    }
+                }
+            });
+
+            if (error) {
+                logWarn('signInWithMagicLink returned error', error);
             }
-        });
-        return { error, message: error ? getAuthErrorMessage(error) : null };
+
+            return { error, message: error ? getAuthErrorMessage(error) : null };
+        } catch (e) {
+            logError('signInWithMagicLink failed', e);
+            return { error: e, message: getAuthErrorMessage(e) };
+        }
     }
 
     async function signOut() {
@@ -187,7 +288,11 @@
 
     function onAuthStateChange(callback) {
         if (!db) return () => {};
-        const { data: { subscription } } = db.auth.onAuthStateChange(callback);
+        const { data: { subscription } } = db.auth.onAuthStateChange((event, session) => {
+            Promise.resolve(callback(event, session)).catch((e) => {
+                logError('onAuthStateChange callback failed', e, { event });
+            });
+        });
         return () => subscription.unsubscribe();
     }
 
@@ -203,32 +308,105 @@
                 .select('id, username, player_country')
                 .eq('id', userId)
                 .maybeSingle(), 10000);
-            if (error) return null;
+            if (error) {
+                logWarn('getProfile query failed', error, { userId });
+                return null;
+            }
             return data;
-        } catch (_) { return null; }
+        } catch (e) {
+            logError('getProfile failed', e, { userId });
+            return null;
+        }
     }
 
     async function upsertProfile(userId, username, playerCountry) {
         if (!db) return { error: { message: 'Supabase not configured' } };
-        const { data, error } = await db
-            .from('profiles')
-            .upsert(
-                { id: userId, username: username.trim(), player_country: playerCountry || null },
-                { onConflict: 'id' }
-            );
-        return { data, error };
+        try {
+            const { data, error } = await db
+                .from('profiles')
+                .upsert(
+                    { id: userId, username: username.trim(), player_country: playerCountry || null },
+                    { onConflict: 'id' }
+                );
+            if (error) {
+                logWarn('upsertProfile query failed', error, { userId });
+            }
+            return { data, error };
+        } catch (e) {
+            logError('upsertProfile failed', e, { userId });
+            return { data: null, error: e };
+        }
     }
 
     async function isUsernameTaken(username) {
         if (!db) return false;
         try {
-            const { data } = await db
+            const { data, error } = await db
                 .from('profiles')
                 .select('id')
                 .ilike('username', username.trim())
                 .maybeSingle();
+            if (error) {
+                logWarn('isUsernameTaken query failed', error, { username });
+                return false;
+            }
             return data !== null;
-        } catch (_) { return false; }
+        } catch (e) {
+            logError('isUsernameTaken failed', e, { username });
+            return false;
+        }
+    }
+
+    async function ensureProfileForUser(user, maxAttempts) {
+        if (!db || !user || !user.id) {
+            return { profile: null, created: false, error: null };
+        }
+
+        const attempts = Number.isFinite(maxAttempts) ? maxAttempts : 3;
+
+        for (let attempt = 1; attempt <= attempts; attempt++) {
+            const existingProfile = await getProfile(user.id);
+            if (existingProfile && existingProfile.username) {
+                return { profile: existingProfile, created: false, error: null };
+            }
+
+            const baseUsername = buildSignupUsername(user.email || ('player_' + String(user.id).slice(0, 8)));
+            const taken = await isUsernameTaken(baseUsername);
+            const usernameToUse = taken
+                ? (baseUsername + '_' + String(Date.now()).slice(-4))
+                : baseUsername;
+
+            const { error } = await upsertProfile(user.id, usernameToUse, null);
+            if (!error) {
+                const insertedProfile = await getProfile(user.id);
+                if (insertedProfile && insertedProfile.username) {
+                    return { profile: insertedProfile, created: true, error: null };
+                }
+            } else {
+                logWarn('ensureProfileForUser upsert attempt failed', error, { userId: user.id, attempt });
+            }
+
+            if (attempt < attempts) {
+                await delay(250 * attempt);
+            }
+        }
+
+        const fallbackProfile = await getProfile(user.id);
+        if (fallbackProfile && fallbackProfile.username) {
+            return { profile: fallbackProfile, created: false, error: null };
+        }
+
+        const finalError = new Error('Could not ensure profile for signed-in user');
+        logError('ensureProfileForUser failed', finalError, { userId: user.id });
+        return { profile: null, created: false, error: finalError };
+    }
+
+    async function ensureProfileForCurrentUser() {
+        const user = await getCurrentUser();
+        if (!user) {
+            return { profile: null, created: false, error: { message: 'not_logged_in' } };
+        }
+        return ensureProfileForUser(user, 4);
     }
 
     /* ------------------------------------------------------------------ */
@@ -284,7 +462,9 @@
      * Returns array of { display_name, player_country, time_ms, created_at }
      */
     async function fetchLeaderboard(difficulty, limit, offset) {
-        if (!db) return [];
+        if (!db) {
+            throw new Error('Supabase not configured');
+        }
         limit  = limit  || 50;
         offset = offset || 0;
         try {
@@ -294,9 +474,15 @@
                 .eq('difficulty', difficulty)
                 .order('time_ms', { ascending: true })
                 .range(offset, offset + limit - 1), 12000);
-            if (error) return [];
+            if (error) {
+                logError('fetchLeaderboard query failed', error, { difficulty, limit, offset });
+                throw error;
+            }
             return data || [];
-        } catch (_) { return []; }
+        } catch (e) {
+            logError('fetchLeaderboard failed', e, { difficulty, limit, offset });
+            throw e;
+        }
     }
 
     async function fetchUserBestTimes(userId) {
@@ -306,7 +492,12 @@
                 .from('leaderboard')
                 .select('difficulty, time_ms')
                 .eq('user_id', userId), 12000);
-            if (error || !Array.isArray(data)) return {};
+            if (error || !Array.isArray(data)) {
+                if (error) {
+                    logWarn('fetchUserBestTimes query failed', error, { userId });
+                }
+                return {};
+            }
 
             const bests = {};
             data.forEach(row => {
@@ -317,7 +508,8 @@
                 }
             });
             return bests;
-        } catch (_) {
+        } catch (e) {
+            logError('fetchUserBestTimes failed', e, { userId });
             return {};
         }
     }
@@ -361,12 +553,14 @@
         try {
             const { error } = await withTimeout(db.rpc('delete_my_account'), 15000);
             if (error) {
+                logWarn('deleteCurrentUser rpc error', error);
                 return { error };
             }
 
             await db.auth.signOut();
             return { error: null };
         } catch (e) {
+            logError('deleteCurrentUser failed', e);
             return { error: e };
         }
     }
@@ -432,6 +626,13 @@
         </div>`;
     }
 
+    function _renderLoginForm() {
+        return `<div class="lb-widget lb-neutral">
+            <span class="lb-result-msg">${escHtml(t('auth.signInHint'))}</span>
+            <a href="login.html?ref=game" class="lb-btn lb-btn-primary">${escHtml(t('auth.sendMagicLink'))}</a>
+        </div>`;
+    }
+
     function _renderUsernameSetup() {
         return `<div class="lb-widget lb-setup">
             <p class="lb-setup-label">${escHtml(t('auth.setUsername'))}</p>
@@ -487,7 +688,13 @@
                     return;
                 }
 
-                await upsertProfile(user.id, username, null);
+                const { error: profileError } = await upsertProfile(user.id, username, null);
+                if (profileError) {
+                    btn.disabled = false;
+                    btn.textContent = t('auth.saveAndSubmit');
+                    container.innerHTML = _renderError(profileError);
+                    return;
+                }
                 const result = await submitScore(difficulty, elapsedMs);
                 container.removeEventListener('click', handler);
                 container.innerHTML = result.error ? _renderError(result.error) : _renderResult(result);
@@ -496,13 +703,22 @@
     }
 
     if (db) {
-        getCurrentUser().then(user => {
-            if (user) syncPersonalBestsForCurrentUser();
+        getCurrentUser().then(async user => {
+            if (!user) return;
+            await ensureProfileForUser(user, 4);
+            await syncPersonalBestsForCurrentUser();
         });
 
-        onAuthStateChange((event) => {
+        onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
-                syncPersonalBestsForCurrentUser();
+                const user = session?.user || await getCurrentUser();
+                if (user && event === 'SIGNED_IN') {
+                    const ensured = await ensureProfileForUser(user, 4);
+                    if (ensured.error) {
+                        logWarn('SIGNED_IN profile ensure failed', ensured.error, { userId: user.id });
+                    }
+                }
+                await syncPersonalBestsForCurrentUser();
             }
         });
     }
@@ -522,11 +738,14 @@
         getProfile,
         upsertProfile,
         isUsernameTaken,
+        ensureProfileForCurrentUser,
         fetchUserBestTimes,
         syncPersonalBestsForCurrentUser,
         deleteCurrentUser,
         submitScore,
         fetchLeaderboard
     };
+
+    document.dispatchEvent(new CustomEvent('supabaseclientready'));
 
 })();
