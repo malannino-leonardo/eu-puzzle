@@ -18,5 +18,6 @@
  * Never expose the "service_role" secret key in client-side code.
  */
 
-window.SUPABASE_URL     = 'https://your-project-id.supabase.co';
+window.SUPABASE_URL      = 'https://your-project-id.supabase.co';
 window.SUPABASE_ANON_KEY = 'your-anon-public-key-here';
+window.APP_DOMAIN = '';

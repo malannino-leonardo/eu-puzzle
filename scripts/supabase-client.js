@@ -237,7 +237,12 @@
 
         const signupUsername = buildSignupUsername(email);
 
-        const baseRedirect = window.location.href.split('?')[0].split('#')[0];
+        // Determine the base redirect URL for magic links
+        // Use APP_DOMAIN if configured (for production email links), otherwise use current domain
+        const appDomain = window.APP_DOMAIN || window.location.origin;
+        const currentPath = window.location.pathname || '/';
+        const baseRedirect = appDomain + currentPath;
+        
         const preferredLang = (
             (window.i18n && window.i18n.currentLang) ||
             (document.documentElement.lang || 'en')
@@ -245,7 +250,7 @@
 
         let redirectTo = baseRedirect;
         try {
-            const redirectUrl = new URL(baseRedirect, window.location.origin);
+            const redirectUrl = new URL(baseRedirect);
             redirectUrl.searchParams.set('lang', preferredLang);
             redirectTo = redirectUrl.toString();
         } catch (_) {}
