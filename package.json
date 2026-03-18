@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "start": "npx serve .",
-    "build": "node scripts/build-map.js",
+    "inject-config": "node scripts/inject-supabase-config.js",
+    "build": "npm run inject-config && node scripts/build-map.js",
     "dev": "npx live-server --port=3000"
   },
   "devDependencies": {
