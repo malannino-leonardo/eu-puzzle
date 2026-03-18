@@ -77,6 +77,9 @@
     "menuTitle": "Go back to the menu?",
     "menuMsg": "You have connected {count} countries. Going back to the menu will lose your progress.",
     "menuProceed": "Go to menu",
+    "accountTitle": "Go to your account page?",
+    "accountMsg": "You have connected {count} countries. Going to your account page will lose your progress.",
+    "accountProceed": "Go to account",
     "proceed": "Proceed and restart",
     "tutorialProceed": "Proceed to tutorial",
     "cancel": "Cancel"

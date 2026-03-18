@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" class="account-page-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +17,7 @@
     </script>
     <script src="scripts/i18n.js"></script>
 </head>
-<body class="stats-page login-page">
+<body class="stats-page login-page account-scroll-root">
 
     <div class="menu-bg-wrap" aria-hidden="true">
         <div class="menu-bg-layer menu-bg-a"></div>
@@ -310,9 +310,8 @@
         }
 
         async function handleSignOut() {
-            renderLoading();
-            await window.SupabaseClient.signOut();
-            redirectToLogin();
+            window.SupabaseClient.signOut().catch(() => {});
+            window.location.replace('index.html');
         }
 
         async function handleDeleteAccount() {

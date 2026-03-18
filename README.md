@@ -1,49 +1,45 @@
-# The EU Puzzle
+# EU Puzzle
 
-An interactive puzzle to reconstruct the European Union (27 member states) using real geographical borders.
+EU Puzzle is an interactive map game where you rebuild the European Union (27 member states) by connecting countries in the correct way.
 
-## Features
-- **27 Countries to Connect**: EU member states only.
-- **Automatic Snap**: Countries lock in place when moved near correct neighbors.
-- **Facts & Trivia**: 10 random facts for each country.
-- **Main Menu**: Starting interface to launch the game.
-- **Interactive Tutorial**: Step-by-step guide to learn how to play.
-- **Sound Effects & Music**: Soundtrack and audio feedback during gameplay.
-- **Updated Interface**: High-contrast colors (ocean blues and green countries) with improved zoom.
+## What You Can Do
+- Play with all 27 EU countries using real map borders.
+- Choose between Easy, Medium, and Hard difficulty.
+- Use zoom, drag, and rotation controls to complete the map.
+- Learn while playing with country facts and quick info.
+- Enjoy background music and sound effects.
+
+## Additional Features
+- **Accounts**
+   Sign in with a magic link, create your profile, and keep your progress connected to your account.
+
+- **Global Leaderboards**
+   Compare your best times with other players in dedicated rankings for each difficulty.
+
+- **Personal Records**
+   Track your own best times (Easy, Medium, Hard) and keep improving run after run.
+
+- **Saved Preferences**
+   Your language settings are synced with your account.
 
 ## Difficulty Modes
+- **Easy**: Visual map guides help you place countries.
+- **Medium**: No guides, only adjacency knowledge.
+- **Hard**: Countries can be rotated and require precise placement.
 
-The game offers three difficulty levels to suit different skill levels:
+## Quick Start
+1. Install dependencies:
+    ```bash
+    npm install
+    ```
+2. Start the project:
+    ```bash
+    npm run dev
+    ```
+3. Open http://localhost:3000
 
-### Easy Mode
-- Country silhouettes are displayed as guides on the map.
-- Drag countries near their correct positions and they snap automatically to their silhouettes.
-- Perfect for beginners or those learning European geography.
+## Notes
+- The game works in guest mode too, but signing in unlocks account features and full leaderboard integration.
 
-### Medium Mode
-- No visual guides; you must rely on geographical adjacency.
-- Countries automatically snap together when positioned near their correct neighboring countries.
-- Requires knowledge of which countries are adjacent to each other.
-
-### Hard Mode
-- No guides and countries are randomly rotated (0°, 90°, 180°, or 270°).
-- You must manually rotate pieces by right-clicking them.
-- Countries only snap when both positioned correctly AND rotated to approximately 0°.
-- For experienced players seeking a true challenge.
-
-## Installation & Setup
-1. Ensure you have Node.js installed.
-2. Clone the repository.
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
-4. Start the project:
-   ```bash
-   npm run dev
-   ```
-5. Open **http://localhost:3000** in your browser.
-
-## Technologies
-- **D3.js** & **TopoJSON** for map management.
-- **Node.js** for build scripting. 
+## Credits
+This project was created by class 5IA from ISIS BEM during the 2025/2026 academic year.

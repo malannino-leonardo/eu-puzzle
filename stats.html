@@ -69,7 +69,7 @@
         <!-- ── LOCAL RECORDS ──────────────────────────────────────────── -->
         <section id="tab-local" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-local">
             <h2 class="stats-section-title" data-i18n="stats.personalBests">Personal Bests</h2>
-            <div class="auth-suggest-banner">
+            <div class="auth-suggest-banner hidden">
                 <p data-i18n="auth.banner">Sign in to save your records to your account and appear on the global leaderboard.</p>
                 <a href="login.html?ref=stats" class="lb-btn lb-btn-primary" data-i18n="auth.bannerBtn">Sign In</a>
             </div>
@@ -100,7 +100,7 @@
 
         <!-- ── GLOBAL LEADERBOARD ─────────────────────────────────────── -->
         <section id="tab-global" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-btn-global">
-            <div class="auth-suggest-banner auth-suggest-banner--global">
+            <div class="auth-suggest-banner auth-suggest-banner--global hidden">
                 <p data-i18n="auth.banner">Sign in to save your records to your account and appear on the global leaderboard.</p>
                 <a href="login.html?ref=stats" class="lb-btn lb-btn-primary" data-i18n="auth.bannerBtn">Sign In</a>
             </div>
@@ -215,17 +215,16 @@
             const banners = document.querySelectorAll('.auth-suggest-banner');
             if (!banners.length) return;
 
-            let isLoggedIn = false;
+            let user = null;
             if (window.SupabaseClient && window.SupabaseClient.isConfigured()) {
                 try {
-                    isLoggedIn = !!(await window.SupabaseClient.getCurrentUser());
-                } catch (_) {
-                    isLoggedIn = false;
-                }
+                    user = await window.SupabaseClient.getCurrentUser();
+                } catch (_) {}
             }
 
+            const shouldShowBanner = !user;
             banners.forEach(banner => {
-                banner.classList.toggle('hidden', isLoggedIn);
+                banner.classList.toggle('hidden', !shouldShowBanner);
             });
         }
 
@@ -485,10 +484,9 @@
 
                 if (action === 'sign-out') {
                     btn.disabled = true;
-                    await window.SupabaseClient.signOut();
-                    authUser    = null;
-                    authProfile = null;
-                    await renderAuthSection();
+                    window.SupabaseClient.signOut().catch(() => {});
+                    window.location.replace('index.html');
+                    return;
                 }
 
                 if (action === 'open-setup') {

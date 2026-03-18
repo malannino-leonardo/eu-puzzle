@@ -76,6 +76,13 @@ html, body {
     overflow: hidden;
 }
 
+.account-page-root,
+.account-page-root body {
+    min-height: 100%;
+    height: auto;
+    overflow-y: auto;
+}
+
 body {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     background: var(--bg-color);
@@ -142,8 +149,8 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.15rem;
-    height: 2.15rem;
+    width: 2.45rem;
+    height: 2.45rem;
     border-radius: 999px;
     border: 1px solid var(--border-color);
     background: rgba(255, 255, 255, 0.05);
@@ -160,8 +167,8 @@ body {
 }
 
 .game-account-icon svg {
-    width: 1rem;
-    height: 1rem;
+    width: 1.18rem;
+    height: 1.18rem;
 }
 
 /* Buttons */
@@ -2261,8 +2268,8 @@ body.menu-page {
     top: 1rem;
     right: 1rem;
     z-index: 320;
-    width: 2.2rem;
-    height: 2.2rem;
+    width: 2.6rem;
+    height: 2.6rem;
     border-radius: 999px;
     border: 1px solid rgba(255, 255, 255, 0.28);
     background: rgba(15, 15, 35, 0.68);
@@ -2283,8 +2290,8 @@ body.menu-page {
 }
 
 .menu-account-icon svg {
-    width: 1.05rem;
-    height: 1.05rem;
+    width: 1.22rem;
+    height: 1.22rem;
 }
 
 
@@ -2575,7 +2582,7 @@ body.menu-page {
 @media (max-width: 480px) {
     .menu-volume-control {
         top: 0.625rem;
-        right: 3.45rem;
+        right: 3.9rem;
         padding: 0.3rem 0.6rem;
     }
 
@@ -3116,8 +3123,8 @@ body.stats-page {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.1rem;
-    height: 2.1rem;
+    width: 2.45rem;
+    height: 2.45rem;
     border-radius: 999px;
     border: 1px solid var(--border-color);
     color: var(--text-secondary);
@@ -3133,8 +3140,8 @@ body.stats-page {
 }
 
 .stats-account-icon svg {
-    width: 1rem;
-    height: 1rem;
+    width: 1.18rem;
+    height: 1.18rem;
 }
 
 /* ── Main layout ─────────────────────────────────────── */
@@ -3788,10 +3795,25 @@ body.stats-page {
    ===================================================== */
 .login-main {
     min-height: calc(100vh - 7rem);
+    min-height: calc(100dvh - 7rem);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 2rem 1rem;
+}
+
+body.account-scroll-root {
+    overflow-y: auto;
+    min-height: 100vh;
+    height: auto;
+}
+
+body.account-scroll-root .login-main {
+    min-height: auto;
+    justify-content: flex-start;
+    padding-top: 1.5rem;
+    padding-bottom: 2.5rem;
 }
 
 .login-card {
