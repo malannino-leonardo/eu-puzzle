@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>EU Puzzle Sign In</title>
+</head>
+<body style="margin:0;padding:0;background-color:#0b1021;font-family:Segoe UI,Arial,sans-serif;color:#e5e7eb;">
+	<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+		One tap and you are back in the game.
+	</div>
+
+	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0b1021;padding:24px 12px;">
+		<tr>
+			<td align="center">
+				<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background:#111831;border:1px solid #273057;border-radius:14px;overflow:hidden;">
+					<tr>
+						<td style="padding:28px 28px 8px 28px;">
+							<p style="margin:0 0 8px 0;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#93c5fd;">EU Puzzle</p>
+							<h1 style="margin:0;font-size:26px;line-height:1.2;color:#ffffff;">Your secure sign-in link</h1>
+						</td>
+					</tr>
+
+					<tr>
+						<td style="padding:18px 28px 0 28px;font-size:15px;line-height:1.7;color:#d1d5db;">
+							<p style="margin:0 0 14px 0;">Hi {{ .Email }},</p>
+							<p style="margin:0 0 14px 0;">Great to see you again. Use this secure <strong><a href="{{ .ConfirmationURL }}">Magic Link</a></strong> to sign in instantly.</p>
+						</td>
+					</tr>
+
+					<tr>
+						<td style="padding:18px 28px 4px 28px;font-size:13px;line-height:1.7;color:#9ca3af;">
+							<p style="margin:0 0 10px 0;">This link is personal, expires soon, and can be used once.</p>
+							<p style="margin:0 0 10px 0;">If you did not request this login, you can safely ignore this email.</p>
+						</td>
+					</tr>
+
+					<tr>
+						<td style="padding:12px 28px 24px 28px;border-top:1px solid #273057;font-size:12px;line-height:1.6;color:#94a3b8;">
+							<p style="margin:0 0 8px 0;"><strong>Security note:</strong> never share this link with anyone.</p>
+							<p style="margin:0;">EU Puzzle will never ask for this link by email or chat.</p>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

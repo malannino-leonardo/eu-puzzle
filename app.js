@@ -116,8 +116,117 @@
         popupDisabled: false,
 
         // Difficulty
-        difficulty: 'medium'
+        difficulty: 'medium',
+
+        // Timer
+        timerStarted: false
     };
+
+    // =====================================================
+    // SETTINGS SYNC
+    // =====================================================
+
+    function readGameSettings() {
+        try {
+            const parsed = JSON.parse(localStorage.getItem('gameSettings') || '{}');
+            return (parsed && typeof parsed === 'object') ? parsed : {};
+        } catch (_) {
+            return {};
+        }
+    }
+
+    function writeGameSettingsPatch(patch) {
+        if (!patch || typeof patch !== 'object') return;
+        try {
+            const current = readGameSettings();
+            localStorage.setItem('gameSettings', JSON.stringify({ ...current, ...patch }));
+        } catch (_) {}
+    }
+
+    async function syncSettingsPatchToCloud(patch) {
+        if (!patch || typeof patch !== 'object') return;
+        if (!window.SupabaseClient || typeof window.SupabaseClient.getCurrentUser !== 'function') return;
+        if (typeof window.SupabaseClient.updateSettings !== 'function') return;
+
+        try {
+            const user = await window.SupabaseClient.getCurrentUser();
+            if (!user) return;
+            await window.SupabaseClient.updateSettings(user.id, patch);
+        } catch (_) {}
+    }
+
+    async function applyCloudSettingsToRuntime() {
+        if (!window.SupabaseClient || typeof window.SupabaseClient.getCurrentUser !== 'function') return;
+        if (typeof window.SupabaseClient.getSettings !== 'function') return;
+
+        try {
+            const user = await window.SupabaseClient.getCurrentUser();
+            if (!user) return;
+
+            const cloud = await window.SupabaseClient.getSettings(user.id);
+            if (!cloud || typeof cloud !== 'object') return;
+
+            if (cloud.fontSize) {
+                settingsSystem.fontSize = cloud.fontSize;
+                writeGameSettingsPatch({ fontSize: cloud.fontSize });
+                settingsSystem._applyFontSize();
+            }
+
+            if (cloud.difficulty && Object.prototype.hasOwnProperty.call(CONFIG.DIFFICULTY_SNAP, cloud.difficulty)) {
+                writeGameSettingsPatch({ difficulty: cloud.difficulty });
+                difficultySystem.set(cloud.difficulty, false);
+            }
+
+            if (cloud.audioSettings && typeof cloud.audioSettings === 'object') {
+                Object.assign(audioSystem.settings, cloud.audioSettings);
+                try { localStorage.setItem('audioSettings', JSON.stringify(audioSystem.settings)); } catch (_) {}
+                audioSystem._applyMusicVolume();
+            }
+
+            if (cloud.tutorialProgress && typeof cloud.tutorialProgress === 'object') {
+                ['easy', 'medium', 'hard'].forEach((diff) => {
+                    if (cloud.tutorialProgress[diff]) {
+                        try { localStorage.setItem(`tutorialSeen_${diff}`, 'true'); } catch (_) {}
+                    }
+                });
+            }
+        } catch (_) {}
+    }
+
+    function bindCloudSettingsSync() {
+        if (window.__gameCloudSettingsBound) return;
+
+        const bind = async () => {
+            if (window.__gameCloudSettingsBound) return;
+            if (!window.SupabaseClient) return;
+
+            window.__gameCloudSettingsBound = true;
+            await applyCloudSettingsToRuntime();
+
+            if (typeof window.SupabaseClient.onAuthStateChange === 'function') {
+                window.SupabaseClient.onAuthStateChange(async (event) => {
+                    if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'TOKEN_REFRESHED') {
+                        await applyCloudSettingsToRuntime();
+                    }
+                });
+            }
+        };
+
+        if (window.SupabaseClient) {
+            bind();
+        } else {
+            document.addEventListener('supabaseclientready', bind, { once: true });
+        }
+    }
+
+    async function saveTutorialProgress(difficulty) {
+        try {
+            localStorage.setItem(`tutorialSeen_${difficulty}`, 'true');
+        } catch (_) {}
+
+        const tutorialPatch = { tutorialProgress: { [difficulty]: true } };
+        await syncSettingsPatchToCloud(tutorialPatch);
+    }
 
     // =====================================================
     // INITIALIZATION
@@ -126,6 +235,7 @@
     async function init() {
         if (window.i18nReady) await window.i18nReady;
         showLoading(true);
+        bindCloudSettingsSync();
         
         try {
             // Setup DOM references
@@ -158,10 +268,8 @@
 
             // Read chosen difficulty from localStorage
             let difficulty = 'medium';
-            try {
-                const settings = JSON.parse(localStorage.getItem('gameSettings') || '{}');
-                if (settings.difficulty) difficulty = settings.difficulty;
-            } catch (e) {}
+            const settings = readGameSettings();
+            if (settings.difficulty) difficulty = settings.difficulty;
 
             // Apply difficulty settings
             difficultySystem.set(difficulty);
@@ -871,7 +979,8 @@
                     // Visual feedback: mark as snapped
                     draggedCluster.element.querySelectorAll('.country-path').forEach(p => p.classList.add('snapped'));
 
-                    if (!state.popupDisabled) {
+                    const isLastPiece = Array.from(state.clusters.values()).every(c => c.isSolved);
+                    if (!state.popupDisabled && !isLastPiece) {
                         showAnchoredPopup(countryId);
                     }
                     updateProgress();
@@ -1475,7 +1584,7 @@
         
         // UI buttons
         document.getElementById('btn-reset').addEventListener('click', () => {
-            if (state.connectedCountries >= 2) {
+            if (state.connectedCountries >= 1) {
                 showConfirmModal(
                     window.i18n ? window.i18n.t('confirm.discardTitle') : 'Scartare i progressi?',
                     window.i18n ? window.i18n.t('confirm.discardMsg', { count: state.connectedCountries }) : `Hai gi\u00e0 collegato ${state.connectedCountries} paesi. Sei sicuro di voler ricominciare?`,
@@ -1497,14 +1606,14 @@
         });
         document.getElementById('btn-play-again-header').addEventListener('click', resetGame);
 
-        // Flag to track intentional navigation to menu
-        let intentionalMenuNavigation = false;
+        // Flag to track intentional navigation that should skip beforeunload warning
+        let intentionalNavigation = false;
 
         // Intercept Menu link — show custom confirm instead of native beforeunload dialog
         const menuLink = document.querySelector('.btn-menu-inline');
         if (menuLink) {
             menuLink.addEventListener('click', (e) => {
-                if (state.connectedCountries >= 2) {
+                if (state.connectedCountries >= 1) {
                     e.preventDefault();
                     showConfirmModal(
                         window.i18n ? window.i18n.t('confirm.menuTitle') : 'Tornare al menu?',
@@ -1512,8 +1621,28 @@
                         window.i18n ? window.i18n.t('confirm.menuProceed') : 'Vai al menu',
                         window.i18n ? window.i18n.t('confirm.cancel') : 'Annulla',
                         () => { 
-                            intentionalMenuNavigation = true;
+                            intentionalNavigation = true;
                             window.location.href = 'index.html'; 
+                        }
+                    );
+                }
+            });
+        }
+
+        // Intercept Account link — use same warning modal style as reset
+        const accountLink = document.querySelector('.game-account-icon');
+        if (accountLink) {
+            accountLink.addEventListener('click', (e) => {
+                if (state.connectedCountries >= 1) {
+                    e.preventDefault();
+                    showConfirmModal(
+                        window.i18n ? window.i18n.t('confirm.accountTitle') : 'Andare alla pagina account?',
+                        window.i18n ? window.i18n.t('confirm.accountMsg', { count: state.connectedCountries }) : `Hai collegato ${state.connectedCountries} paesi. Andare alla pagina account farà perdere i tuoi progressi.`,
+                        window.i18n ? window.i18n.t('confirm.accountProceed') : 'Vai all\'account',
+                        window.i18n ? window.i18n.t('confirm.cancel') : 'Annulla',
+                        () => {
+                            intentionalNavigation = true;
+                            window.location.href = accountLink.getAttribute('href') || 'account.html?ref=game';
                         }
                     );
                 }
@@ -1544,8 +1673,8 @@
         // Warn before refresh / tab close if progress has been made
         // (Menu link is intercepted separately with a custom modal above)
         window.addEventListener('beforeunload', (e) => {
-            // Only show browser warning if not intentionally navigating via menu button
-            if (state.connectedCountries >= 2 && !intentionalMenuNavigation) {
+            // Only show browser warning if not intentionally navigating via in-game actions
+            if (state.connectedCountries >= 1 && !intentionalNavigation) {
                 e.preventDefault();
                 e.returnValue = '';
             }
@@ -1587,6 +1716,12 @@
         // Start drag
         state.isDragging = true;
         state.selectedCluster = clusterId;
+
+        // Start timer on first move
+        if (!state.timerStarted) {
+            state.timerStarted = true;
+            timerSystem.start();
+        }
         
         state.dragStart = getSVGPoint(e);
         state.clusterStartTransform = { ...cluster.transform };
@@ -1895,11 +2030,6 @@
             return;
         }
 
-        // Throttle to ~30 fps to avoid layout queries on every raw mouse event
-        const now = Date.now();
-        if (now - _lastTooltipTime < 33) return;
-        _lastTooltipTime = now;
-
         const path = e.target.closest('.country-path');
         if (path) {
             const countryId = path.dataset.countryId;
@@ -1914,7 +2044,6 @@
             hideTooltip();
         }
     }
-
 
 
     // =====================================================
@@ -2091,8 +2220,41 @@
     }
 
     function showCompletionOverlay() {
+        timerSystem.pause();
+        timerSystem.saveTime();
+
+        // Current run time
+        const timeEl = document.getElementById('completion-time');
+        if (timeEl) timeEl.textContent = timerSystem.formatTime(timerSystem.elapsed);
+
+        // Personal bests for all difficulties
+        const statsEl = document.getElementById('completion-stats');
+        if (statsEl) {
+            const difficulties = ['easy', 'medium', 'hard'];
+            const t = key => window.i18n ? window.i18n.t(key) : key;
+            const labels = {
+                easy: t('difficulty.easy'),
+                medium: t('difficulty.medium'),
+                hard: t('difficulty.hard')
+            };
+            statsEl.innerHTML = difficulties.map(d => {
+                const best = localStorage.getItem(`bestTime_${d}`);
+                const isActive = d === state.difficulty;
+                const timeStr = best ? timerSystem.formatTime(parseInt(best)) : '—';
+                return `<div class="stats-row${isActive ? ' stats-row--active' : ''}">
+                    <span class="stats-label">${labels[d]}</span>
+                    <span class="stats-value">${timeStr}</span>
+                </div>`;
+            }).join('');
+        }
+
         document.getElementById('completion-overlay').classList.remove('hidden');
         audioSystem.playWin();
+
+        // Global leaderboard submit widget (no-op if Supabase not configured)
+        if (typeof window.initLeaderboardSubmit === 'function') {
+            window.initLeaderboardSubmit(state.difficulty, timerSystem.elapsed);
+        }
     }
 
     function resetGame() {
@@ -2117,13 +2279,17 @@
         state.selectedCluster = null;
         state.isDragging = false;
         state.gameComplete = false;
-        
+        state.timerStarted = false;
+        timerSystem.reset();
+        const timerEl = document.getElementById('timer');
+        if (timerEl) timerEl.textContent = '0:00';
+
         // Reinitialize clusters & render, then show difficulty picker before scattering
         initializeClusters();
         renderClusters();
 
-        // Clear any ghost outlines before difficulty picks a new mode
-        difficultySystem.clearOutlines();
+        // Re-apply current difficulty settings so Easy mode silhouettes are restored
+        difficultySystem.set(state.difficulty, false);
 
         // Scatter pieces
         scatterPieces();
@@ -2144,7 +2310,11 @@
         state.selectedCluster = null;
         state.isDragging = false;
         state.gameComplete = false;
-        
+        state.timerStarted = false;
+        timerSystem.reset();
+        const timerElSilent = document.getElementById('timer');
+        if (timerElSilent) timerElSilent.textContent = '0:00';
+
         // Remove tutorial-related artifacts if standard reset
         document.getElementById('tutorial-overlay')?.classList.add('hidden');
         document.querySelector('.anchored-popup')?.remove();
@@ -2233,7 +2403,8 @@
                         setTimeout(() => progressFill.classList.remove('pulse'), 700);
                     }
 
-                    if (!state.popupDisabled) {
+                    const isLastPiece = Array.from(state.clusters.values()).every(c => c.isSolved);
+                    if (!state.popupDisabled && !isLastPiece) {
                         showAnchoredPopup(countryId);
                     }
                 }
@@ -2536,9 +2707,7 @@
 
         // Use { once: true } to prevent listener stacking on repeated opens
         document.getElementById('btn-skip-tutorial').addEventListener('click', () => {
-            try {
-                localStorage.setItem(`tutorialSeen_${state.difficulty}`, 'true');
-            } catch (e) {}
+            saveTutorialProgress(state.difficulty);
             hideWelcomeModal();
         }, { once: true });
 
@@ -2549,7 +2718,7 @@
         startBtn.parentNode.replaceChild(freshStartBtn, startBtn);
 
         freshStartBtn.addEventListener('click', () => {
-            if (state.connectedCountries >= 2) {
+            if (state.connectedCountries >= 1) {
                 showConfirmModal(
                     window.i18n ? window.i18n.t('confirm.tutorialTitle') : 'Scartare i progressi?',
                     window.i18n ? window.i18n.t('confirm.tutorialMsg', { count: state.connectedCountries }) : `Hai gi\u00e0 collegato ${state.connectedCountries} paesi. Avviare il tutorial porter\u00e0 al reset del gioco.`,
@@ -3239,10 +3408,16 @@
 
     const difficultySystem = {
 
-        set(difficulty) {
+        set(difficulty, persistCloud = true) {
+            const changed = state.difficulty !== difficulty;
             state.difficulty = difficulty;
             CONFIG.SNAP_THRESHOLD = CONFIG.DIFFICULTY_SNAP[difficulty] ?? 20;
             CONFIG.ROTATION_RANGE = difficulty === 'hard' ? 170 : 0;
+
+            writeGameSettingsPatch({ difficulty });
+            if (persistCloud && changed) {
+                syncSettingsPatchToCloud({ difficulty });
+            }
 
             // Apply body attribute for CSS cursor rules
             document.body.setAttribute('data-difficulty', difficulty);
@@ -3598,6 +3773,12 @@
             try {
                 localStorage.setItem('audioSettings', JSON.stringify(this.settings));
             } catch (_) {}
+            // Sync to database if user is authenticated
+            this._syncSettingsToDatabase();
+        },
+
+        async _syncSettingsToDatabase() {
+            await syncSettingsPatchToCloud({ audioSettings: { ...this.settings } });
         },
 
         _loadSettings() {
@@ -3608,6 +3789,80 @@
                     Object.assign(this.settings, parsed);
                 }
             } catch (_) {}
+        }
+    };
+
+    // =====================================================
+    // TIMER SYSTEM
+    // =====================================================
+    const timerSystem = {
+        timerId: null,
+        startTime: null,
+        elapsed: 0,
+        running: false,
+
+        start() {
+            if (this.running) return;
+            this.running = true;
+            this.startTime = Date.now() - this.elapsed;
+            this._tick();
+        },
+        pause() {
+            if (!this.running) return;
+            this.running = false;
+            clearTimeout(this.timerId);
+            this.elapsed = Date.now() - this.startTime;
+        },
+        reset() {
+            this.running = false;
+            clearTimeout(this.timerId);
+            this.startTime = null;
+            this.elapsed = 0;
+        },
+        _tick() {
+            const timerEl = document.getElementById('timer');
+            if (timerEl) {
+                const totalSeconds = Math.floor(this.elapsed / 1000);
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                timerEl.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            }
+            if (this.running) {
+                this.timerId = setTimeout(() => {
+                    this.elapsed = Date.now() - this.startTime;
+                    this._tick();
+                }, 1000);
+            }
+        },
+        saveTime() {
+            const bestKey = `bestTime_${state.difficulty}`;
+            const currentBest = localStorage.getItem(bestKey);
+            if (!currentBest || this.elapsed < parseInt(currentBest)) {
+                localStorage.setItem(bestKey, this.elapsed.toString());
+            }
+        },
+        getBestTime() {
+            const bestKey = `bestTime_${state.difficulty}`;
+            const currentBest = localStorage.getItem(bestKey);
+            return currentBest ? parseInt(currentBest) : null;
+        },
+        formatTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        },
+        displayBestTime() {
+            const bestTime = this.getBestTime();
+            const bestTimeEl = document.getElementById('best-time');
+            if (bestTimeEl) {
+                if (bestTime) {
+                    bestTimeEl.textContent = `${window.i18n ? window.i18n.t('timer.best') : 'Best'}: ${this.formatTime(bestTime)}`;
+                    bestTimeEl.classList.remove('hidden');
+                } else {
+                    bestTimeEl.classList.add('hidden');
+                }
+            }
         }
     };
 
@@ -3625,19 +3880,18 @@
         },
 
         _loadSettings() {
-            try {
-                const saved = localStorage.getItem('gameSettings');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    if (parsed.fontSize) this.fontSize = parsed.fontSize;
-                }
-            } catch (_) {}
+            const saved = readGameSettings();
+            if (saved.fontSize) this.fontSize = saved.fontSize;
         },
 
         _saveSettings() {
-            try {
-                localStorage.setItem('gameSettings', JSON.stringify({ fontSize: this.fontSize }));
-            } catch (_) {}
+            writeGameSettingsPatch({ fontSize: this.fontSize });
+            // Sync to database if user is authenticated
+            this._syncSettingsToDatabase();
+        },
+
+        async _syncSettingsToDatabase() {
+            await syncSettingsPatchToCloud({ fontSize: this.fontSize });
         },
 
         _applyFontSize() {

@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="stats.title">Statistics</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        // Apply font size before first paint to prevent flash
+        (function () {
+            try {
+                const s = localStorage.getItem('gameSettings');
+                const size = s ? (JSON.parse(s).fontSize || 'medium') : 'medium';
+                document.documentElement.setAttribute('data-font-size', size);
+            } catch (_) {}
+        })();
+    </script>
+    <script src="scripts/i18n.js"></script>
+</head>
+<body class="stats-page">
+
+    <!-- Background slideshow -->
+    <div class="menu-bg-wrap" aria-hidden="true">
+        <div class="menu-bg-layer menu-bg-a"></div>
+        <div class="menu-bg-layer menu-bg-b"></div>
+    </div>
+
+    <!-- Page header -->
+    <header class="stats-header">
+        <a href="index.html" class="stats-back-btn" data-i18n-aria="stats.backAriaLabel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            <span data-i18n="menu.play"></span>
+        </a>
+        <h1 class="stats-page-title" data-i18n="stats.title">Statistics</h1>
+
+        <!-- Language selector -->
+        <div class="lang-selector stats-lang-selector" id="stats-lang-selector" aria-label="Language selector">
+            <button class="lang-btn" id="stats-lang-btn" aria-haspopup="listbox" data-i18n-aria="langSelector.label">
+                <img class="lang-flag-current" src="assets/flags/ITA_landscape.svg" alt="IT">
+                <span class="lang-code-current">IT</span>
+                <svg class="lang-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <ul class="lang-dropdown" role="listbox" id="stats-lang-dropdown">
+                <li class="lang-option" data-lang="it" role="option" aria-selected="false">
+                    <img class="lang-flag-opt" src="assets/flags/ITA_landscape.svg" alt="Bandiera italiana">
+                    <span>Italiano</span>
+                </li>
+                <li class="lang-option" data-lang="en" role="option" aria-selected="false">
+                    <img class="lang-flag-opt" src="assets/flags/UK_landscape.svg" alt="UK flag">
+                    <span>English</span>
+                </li>
+            </ul>
+        </div>
+        <a href="account.html?ref=stats" class="stats-account-icon" data-i18n-aria="menu.account" aria-label="Account">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </a>
+    </header>
+
+    <!-- Main content -->
+    <main class="stats-main" role="main">
+
+        <!-- Tab bar -->
+        <div class="stats-tabs" role="tablist">
+            <button class="stats-tab active" role="tab" aria-selected="true"  data-tab="local"  id="tab-btn-local"  aria-controls="tab-local"  data-i18n="stats.localRecords">Local Records</button>
+            <button class="stats-tab"        role="tab" aria-selected="false" data-tab="global" id="tab-btn-global" aria-controls="tab-global" data-i18n="stats.globalLeaderboard">Global Leaderboard</button>
+        </div>
+
+        <!-- ── LOCAL RECORDS ──────────────────────────────────────────── -->
+        <section id="tab-local" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-local">
+            <h2 class="stats-section-title" data-i18n="stats.personalBests">Personal Bests</h2>
+            <div class="auth-suggest-banner hidden">
+                <p data-i18n="auth.banner">Sign in to save your records to your account and appear on the global leaderboard.</p>
+                <a href="login.html?ref=stats" class="lb-btn lb-btn-primary" data-i18n="auth.bannerBtn">Sign In</a>
+            </div>
+            <div class="local-records-grid">
+                <div class="record-card">
+                    <div class="record-card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                    </div>
+                    <div class="record-card-label" data-i18n="difficulty.easy">Easy</div>
+                    <div class="record-card-time" id="local-easy">—</div>
+                </div>
+                <div class="record-card">
+                    <div class="record-card-icon record-card-icon--medium">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                    </div>
+                    <div class="record-card-label" data-i18n="difficulty.medium">Medium</div>
+                    <div class="record-card-time" id="local-medium">—</div>
+                </div>
+                <div class="record-card">
+                    <div class="record-card-icon record-card-icon--hard">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                    </div>
+                    <div class="record-card-label" data-i18n="difficulty.hard">Hard</div>
+                    <div class="record-card-time" id="local-hard">—</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── GLOBAL LEADERBOARD ─────────────────────────────────────── -->
+        <section id="tab-global" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-btn-global">
+            <div class="auth-suggest-banner auth-suggest-banner--global hidden">
+                <p data-i18n="auth.banner">Sign in to save your records to your account and appear on the global leaderboard.</p>
+                <a href="login.html?ref=stats" class="lb-btn lb-btn-primary" data-i18n="auth.bannerBtn">Sign In</a>
+            </div>
+
+            <!-- Difficulty sub-tabs -->
+            <div class="diff-tabs" role="tablist" aria-label="Difficulty">
+                <button class="diff-tab active" role="tab" aria-selected="true"  data-diff="easy"   data-i18n="difficulty.easy">Easy</button>
+                <button class="diff-tab"        role="tab" aria-selected="false" data-diff="medium" data-i18n="difficulty.medium">Medium</button>
+                <button class="diff-tab"        role="tab" aria-selected="false" data-diff="hard"   data-i18n="difficulty.hard">Hard</button>
+            </div>
+
+            <!-- Leaderboard container -->
+            <div class="leaderboard-wrap" id="leaderboard-wrap">
+                <div class="lb-loading-area" id="lb-state">
+                    <span class="lb-spinner"></span>
+                </div>
+            </div>
+
+            <!-- Show more -->
+            <div class="lb-show-more-wrap" id="lb-show-more-wrap" style="display:none">
+                <button class="lb-show-more-btn" id="btn-show-more" data-i18n="stats.showMore">Show more</button>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Profile setup modal (shown when logged in but no username set) -->
+    <div id="profile-setup-modal" class="lb-modal hidden" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
+        <div class="lb-modal-content">
+            <h3 id="profile-modal-title" class="lb-modal-title" data-i18n="auth.setupTitle">Set up your profile</h3>
+            <p class="lb-modal-desc" data-i18n="auth.setupDesc">Choose a username to appear on the global leaderboard.</p>
+            <div class="lb-modal-field">
+                <label for="profile-username" data-i18n="auth.usernameLabel">Username</label>
+                <input type="text" id="profile-username" class="lb-input" maxlength="30" autocomplete="off"
+                    data-i18n-placeholder="auth.usernamePlaceholder">
+                <span class="lb-field-error" id="profile-username-error"></span>
+            </div>
+            <div class="lb-modal-field">
+                <label for="profile-country" data-i18n="auth.countryLabel">Your country <small data-i18n="auth.optional">(optional)</small></label>
+                <input type="text" id="profile-country" class="lb-input" maxlength="60" autocomplete="country-name"
+                    data-i18n-placeholder="auth.countryPlaceholder">
+            </div>
+            <button class="lb-btn lb-btn-primary" id="btn-save-profile" data-i18n="auth.saveProfile">Save</button>
+        </div>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <!-- Credentials (gitignored — see supabase-config.example.js) -->
+    <script src="scripts/supabase-config.js" onerror="console.info('[SupabaseClient] supabase-config.js not found – leaderboard disabled')"></script>
+    <script src="scripts/supabase-client.js"></script>
+
+    <script>
+    (function () {
+        'use strict';
+
+        /* ---- helpers ---- */
+
+        function t(key, vars) { return window.i18n ? window.i18n.t(key, vars) : key; }
+
+        function fmtTime(ms) {
+            const total = Math.floor(ms / 1000);
+            const m = Math.floor(total / 60);
+            const s = total % 60;
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function fmtDate(iso) {
+            try {
+                const d = new Date(iso);
+                return d.toLocaleDateString(window.i18n ? window.i18n.currentLang : 'en', {
+                    day: 'numeric', month: 'short', year: 'numeric'
+                });
+            } catch (_) { return '—'; }
+        }
+
+        function escHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        /* ---- state ---- */
+
+        const PAGE_INITIAL = 50;
+        const PAGE_MORE    = 25;
+
+        const lbState = {
+            easy:   { offset: 0, rows: [], loading: false, exhausted: false },
+            medium: { offset: 0, rows: [], loading: false, exhausted: false },
+            hard:   { offset: 0, rows: [], loading: false, exhausted: false }
+        };
+
+        let currentDiff      = 'easy';
+        let currentTab       = 'local';
+        let authUser         = null;
+        let authProfile      = null;
+
+        /* ---- local records ---- */
+
+        function loadLocalRecords() {
+            ['easy', 'medium', 'hard'].forEach(diff => {
+                const el  = document.getElementById('local-' + diff);
+                if (!el) return;
+                const val = localStorage.getItem('bestTime_' + diff);
+                el.textContent = val ? fmtTime(parseInt(val, 10)) : '—';
+                el.classList.toggle('record-card-time--set', !!val);
+            });
+        }
+
+        async function updateAuthSuggestionVisibility() {
+            const banners = document.querySelectorAll('.auth-suggest-banner');
+            if (!banners.length) return;
+
+            // Trust the last known auth user to avoid banner flicker on transient auth timeouts.
+            let user = authUser;
+            if (!user && window.SupabaseClient && window.SupabaseClient.isConfigured()) {
+                try {
+                    user = await window.SupabaseClient.getCurrentUser();
+                    authUser = user || null;
+                } catch (e) {
+                    console.error('[Stats] getCurrentUser failed while updating auth banner:', e);
+                }
+            }
+
+            const shouldShowBanner = !user;
+            banners.forEach(banner => {
+                banner.classList.toggle('hidden', !shouldShowBanner);
+            });
+        }
+
+        async function syncAccountBestTimes() {
+            if (window.SupabaseClient && typeof window.SupabaseClient.syncPersonalBestsForCurrentUser === 'function') {
+                try {
+                    await window.SupabaseClient.syncPersonalBestsForCurrentUser();
+                } catch (e) {
+                    console.error('[Stats] syncPersonalBestsForCurrentUser failed:', e);
+                }
+            }
+        }
+
+        /* ---- tab switching ---- */
+
+        function switchMainTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.stats-tab').forEach(btn => {
+                const active = btn.dataset.tab === tab;
+                btn.classList.toggle('active', active);
+                btn.setAttribute('aria-selected', active);
+            });
+            document.querySelectorAll('.tab-content').forEach(sec => {
+                sec.classList.toggle('hidden', sec.id !== 'tab-' + tab);
+            });
+            const expectedHash = tab === 'global' ? '#global' : '#local';
+            if (window.location.hash !== expectedHash) {
+                history.replaceState(null, '', expectedHash);
+            }
+            if (tab === 'global') {
+                ensureLeaderboardLoaded(currentDiff);
+            }
+        }
+
+        function getRequestedTab() {
+            const hash = (window.location.hash || '').replace('#', '').toLowerCase();
+            if (hash === 'global' || hash === 'leaderboard') return 'global';
+            if (hash === 'local' || hash === 'personal' || hash === 'records') return 'local';
+            const qTab = (new URLSearchParams(window.location.search).get('tab') || '').toLowerCase();
+            if (qTab === 'global' || qTab === 'leaderboard') return 'global';
+            if (qTab === 'local' || qTab === 'personal' || qTab === 'records') return 'local';
+            return 'local';
+        }
+
+        function switchDiffTab(diff) {
+            currentDiff = diff;
+            document.querySelectorAll('.diff-tab').forEach(btn => {
+                const active = btn.dataset.diff === diff;
+                btn.classList.toggle('active', active);
+                btn.setAttribute('aria-selected', active);
+            });
+            ensureLeaderboardLoaded(diff);
+        }
+
+        /* ---- leaderboard ---- */
+
+        async function ensureLeaderboardLoaded(diff) {
+            if (!window.SupabaseClient || !window.SupabaseClient.isConfigured()) {
+                renderLbNotConfigured();
+                document.getElementById('lb-show-more-wrap').style.display = 'none';
+                return;
+            }
+            const st = lbState[diff];
+            if (st.rows.length > 0 || st.loading) {
+                renderLbRows(diff);
+                return;
+            }
+            await loadLeaderboard(diff, PAGE_INITIAL, 0);
+        }
+
+        async function loadLeaderboard(diff, limit, offset) {
+            const st = lbState[diff];
+            st.loading = true;
+            renderLbLoading();
+
+            let rows = [];
+            try {
+                rows = await window.SupabaseClient.fetchLeaderboard(diff, limit, offset);
+            } catch (e) {
+                console.error('[Stats] fetchLeaderboard failed:', e);
+                st.loading = false;
+                const wrap = document.getElementById('leaderboard-wrap');
+                if (wrap) {
+                    const msg = (e && e.message) ? e.message : String(e);
+                    wrap.innerHTML = `<p class="lb-empty">${escHtml(t('stats.submitError'))}: ${escHtml(msg)}</p>`;
+                }
+                document.getElementById('lb-show-more-wrap').style.display = 'none';
+                return;
+            }
+
+            st.loading = false;
+
+            if (offset === 0) {
+                st.rows = rows;
+            } else {
+                st.rows = st.rows.concat(rows);
+            }
+            st.offset    = st.rows.length;
+            st.exhausted = rows.length < limit;
+
+            if (diff === currentDiff) renderLbRows(diff);
+        }
+
+        function renderLbRows(diff) {
+            const st      = lbState[diff];
+            const wrap    = document.getElementById('leaderboard-wrap');
+            const moreBtn = document.getElementById('lb-show-more-wrap');
+            if (!wrap) return;
+
+            if (st.rows.length === 0) {
+                wrap.innerHTML = `<p class="lb-empty">${escHtml(t('stats.noEntries'))}</p>`;
+                moreBtn.style.display = 'none';
+                return;
+            }
+
+            let html = `<table class="lb-table">
+                <thead>
+                    <tr>
+                        <th class="lb-col-rank">#</th>
+                        <th class="lb-col-name">${escHtml(t('stats.colPlayer'))}</th>
+                        <th class="lb-col-country">${escHtml(t('stats.colCountry'))}</th>
+                        <th class="lb-col-time">${escHtml(t('stats.colTime'))}</th>
+                        <th class="lb-col-date">${escHtml(t('stats.colDate'))}</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            st.rows.forEach((row, i) => {
+                const rank    = i + 1;
+                const name    = escHtml(row.display_name || '—');
+                const country = escHtml(row.player_country || '—');
+                const time    = escHtml(fmtTime(row.time_ms));
+                const date    = escHtml(fmtDate(row.created_at));
+                const rowCls  = rank <= 3 ? ` lb-row-top lb-row-top-${rank}` : '';
+                html += `<tr class="lb-row${rowCls}">
+                    <td class="lb-col-rank"><span class="lb-rank-badge">${rank}</span></td>
+                    <td class="lb-col-name">${name}</td>
+                    <td class="lb-col-country">${country}</td>
+                    <td class="lb-col-time">${time}</td>
+                    <td class="lb-col-date">${date}</td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            wrap.innerHTML = html;
+
+            moreBtn.style.display = st.exhausted ? 'none' : 'flex';
+        }
+
+        function renderLbLoading() {
+            const wrap = document.getElementById('lb-state');
+            if (wrap) wrap.innerHTML = '<span class="lb-spinner"></span>';
+            document.getElementById('leaderboard-wrap').innerHTML =
+                '<div class="lb-loading-area"><span class="lb-spinner"></span></div>';
+        }
+
+        function renderLbNotConfigured() {
+            document.getElementById('leaderboard-wrap').innerHTML =
+                `<div class="lb-not-configured">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <p>${escHtml(t('stats.notConfigured'))}</p>
+                    <p class="lb-nc-hint">${escHtml(t('stats.notConfiguredHint'))}</p>
+                </div>`;
+        }
+
+        /* ---- auth section ---- */
+
+        async function renderAuthSection() {
+            const section = document.getElementById('auth-section');
+            if (!section) return;
+
+            if (!window.SupabaseClient || !window.SupabaseClient.isConfigured()) {
+                section.innerHTML = '';
+                return;
+            }
+
+            const user = await window.SupabaseClient.getCurrentUser();
+            authUser   = user;
+
+            try {
+                if (!user) {
+                    authProfile = null;
+                    section.innerHTML = _authSignInHTML();
+                } else {
+                    authProfile = await window.SupabaseClient.getProfile(user.id);
+                    if (!authProfile) {
+                        section.innerHTML = _authNeedSetupHTML(user.email);
+                    } else {
+                        section.innerHTML = _authSignedInHTML(authProfile);
+                    }
+                }
+            } catch (e) {
+                console.error('[Stats] renderAuthSection failed:', e);
+                section.innerHTML = _authSignInHTML();
+            }
+
+            _bindAuthListeners(section);
+        }
+
+        function _authSignInHTML() {
+            return `<div class="auth-inner">
+                <p class="auth-hint" data-i18n="auth.signInHint">${escHtml(t('auth.signInHint'))}</p>
+                <div class="auth-form" id="auth-form">
+                    <input type="email" id="auth-email" class="lb-input" autocomplete="email"
+                        placeholder="${escHtml(t('auth.emailPlaceholder'))}">
+                    <button class="lb-btn lb-btn-primary" data-action="send-link"
+                        data-i18n="auth.sendMagicLink">${escHtml(t('auth.sendMagicLink'))}</button>
+                </div>
+                <p class="auth-guest-note">
+                    ${escHtml(t('auth.guestNote')
+                        .replace('{name}', window.SupabaseClient.getGuestIdentity().name))}
+                </p>
+            </div>`;
+        }
+
+        function _authNeedSetupHTML(email) {
+            return `<div class="auth-inner">
+                <p class="auth-hint">${escHtml(t('auth.loggedInAs'))} <strong>${escHtml(email)}</strong></p>
+                <p class="auth-hint">${escHtml(t('auth.setUsernameHint'))}</p>
+                <button class="lb-btn lb-btn-primary" data-action="open-setup"
+                    data-i18n="auth.setUsername">${escHtml(t('auth.setUsername'))}</button>
+                <button class="lb-btn lb-btn-ghost" data-action="sign-out"
+                    data-i18n="auth.signOut">${escHtml(t('auth.signOut'))}</button>
+            </div>`;
+        }
+
+        function _authSignedInHTML(profile) {
+            return `<div class="auth-inner auth-inner--signed-in">
+                <div class="auth-user-info">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span><strong>${escHtml(profile.username)}</strong>
+                    ${profile.player_country ? `· ${escHtml(profile.player_country)}` : ''}
+                    </span>
+                </div>
+                <button class="lb-btn lb-btn-ghost lb-btn-small" data-action="open-setup"
+                    data-i18n="auth.editProfile">${escHtml(t('auth.editProfile'))}</button>
+                <button class="lb-btn lb-btn-ghost lb-btn-small" data-action="sign-out"
+                    data-i18n="auth.signOut">${escHtml(t('auth.signOut'))}</button>
+            </div>`;
+        }
+
+        function _bindAuthListeners(section) {
+            section.addEventListener('click', async (e) => {
+                const btn = e.target.closest('[data-action]');
+                if (!btn) return;
+                const action = btn.dataset.action;
+
+                if (action === 'send-link') {
+                    const input = section.querySelector('#auth-email');
+                    if (!input || !input.value.trim()) return;
+                    btn.disabled = true;
+                    btn.textContent = t('auth.sending');
+                    const oldErr = section.querySelector('.auth-error');
+                    if (oldErr) oldErr.remove();
+                    const { error, message } = await window.SupabaseClient.signInWithMagicLink(input.value.trim());
+                    if (error) {
+                        btn.disabled = false;
+                        btn.textContent = t('auth.sendMagicLink');
+                        const form = section.querySelector('#auth-form');
+                        if (form) form.insertAdjacentHTML('afterend',
+                            `<p class="auth-error">${escHtml(message || t('auth.magicLinkGenericError'))}</p>`);
+                    } else {
+                        section.innerHTML = `<div class="auth-inner auth-inner--sent">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            <p>${escHtml(t('auth.linkSent'))}</p>
+                        </div>`;
+                    }
+                }
+
+                if (action === 'sign-out') {
+                    btn.disabled = true;
+                    window.SupabaseClient.signOut().catch(() => {});
+                    window.location.replace('index.html');
+                    return;
+                }
+
+                if (action === 'open-setup') {
+                    openProfileModal();
+                }
+            });
+        }
+
+        /* ---- profile setup modal ---- */
+
+        function openProfileModal() {
+            const modal = document.getElementById('profile-setup-modal');
+            if (!modal) return;
+            if (authProfile) {
+                const usernameEl = document.getElementById('profile-username');
+                const countryEl  = document.getElementById('profile-country');
+                if (usernameEl) usernameEl.value = authProfile.username || '';
+                if (countryEl)  countryEl.value  = authProfile.player_country || '';
+            }
+            modal.classList.remove('hidden');
+            const input = document.getElementById('profile-username');
+            if (input) input.focus();
+        }
+
+        function closeProfileModal() {
+            const modal = document.getElementById('profile-setup-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('btn-save-profile').addEventListener('click', async () => {
+                const btn      = document.getElementById('btn-save-profile');
+                const username = document.getElementById('profile-username').value.trim();
+                const country  = document.getElementById('profile-country').value.trim();
+                const errEl    = document.getElementById('profile-username-error');
+
+                errEl.textContent = '';
+
+                if (!username) {
+                    errEl.textContent = t('auth.usernameRequired');
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.textContent = t('auth.saving');
+
+                // Check if taken (only if changed)
+                if (!authProfile || authProfile.username !== username) {
+                    const taken = await window.SupabaseClient.isUsernameTaken(username);
+                    if (taken) {
+                        errEl.textContent = t('auth.usernameTaken');
+                        btn.disabled = false;
+                        btn.textContent = t('auth.saveProfile');
+                        return;
+                    }
+                }
+
+                const user = await window.SupabaseClient.getCurrentUser();
+                if (!user) {
+                    btn.disabled = false;
+                    btn.textContent = t('auth.saveProfile');
+                    closeProfileModal();
+                    return;
+                }
+
+                const { error } = await window.SupabaseClient.upsertProfile(user.id, username, country || null);
+                if (error) {
+                    errEl.textContent = error.message || String(error);
+                    btn.disabled = false;
+                    btn.textContent = t('auth.saveProfile');
+                    return;
+                }
+
+                authProfile = { username, player_country: country || null };
+                btn.disabled = false;
+                btn.textContent = t('auth.saveProfile');
+                closeProfileModal();
+
+                // Refresh auth section and leaderboard
+                await renderAuthSection();
+                // Invalidate cached leaderboard so updated names appear
+                Object.keys(lbState).forEach(d => { lbState[d].rows = []; lbState[d].offset = 0; });
+                await ensureLeaderboardLoaded(currentDiff);
+            });
+
+            // Close modal on backdrop click
+            document.getElementById('profile-setup-modal').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closeProfileModal();
+            });
+        });
+
+        /* ---- "show more" button ---- */
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('btn-show-more').addEventListener('click', async () => {
+                const btn = document.getElementById('btn-show-more');
+                btn.disabled = true;
+                btn.textContent = t('stats.loading');
+                const st = lbState[currentDiff];
+                await loadLeaderboard(currentDiff, PAGE_MORE, st.offset);
+                renderLbRows(currentDiff);
+                btn.disabled = false;
+                btn.textContent = t('stats.showMore');
+            });
+        });
+
+        /* ---- tab event listeners ---- */
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.stats-tab').forEach(btn => {
+                btn.addEventListener('click', () => switchMainTab(btn.dataset.tab));
+            });
+            document.querySelectorAll('.diff-tab').forEach(btn => {
+                btn.addEventListener('click', () => switchDiffTab(btn.dataset.diff));
+            });
+
+            if (window.SupabaseClient && typeof window.SupabaseClient.onAuthStateChange === 'function') {
+                window.SupabaseClient.onAuthStateChange(async (event, session) => {
+                    const isAuthStateEvent = event === 'SIGNED_IN'
+                        || event === 'SIGNED_OUT'
+                        || event === 'USER_UPDATED'
+                        || event === 'TOKEN_REFRESHED'
+                        || event === 'INITIAL_SESSION';
+                    if (!isAuthStateEvent) return;
+
+                    if (event === 'SIGNED_OUT') {
+                        authUser = null;
+                        authProfile = null;
+                    } else if (session && session.user) {
+                        authUser = session.user;
+                    }
+
+                    if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
+                        if (event === 'SIGNED_IN' && typeof window.SupabaseClient.ensureProfileForCurrentUser === 'function') {
+                            await window.SupabaseClient.ensureProfileForCurrentUser();
+                        }
+                        await syncAccountBestTimes();
+                        loadLocalRecords();
+                    }
+
+                    await updateAuthSuggestionVisibility();
+                });
+            }
+        });
+
+        /* ---- URL tab sync ---- */
+
+        window.addEventListener('hashchange', () => {
+            const requested = getRequestedTab();
+            if (requested !== currentTab) {
+                switchMainTab(requested);
+            }
+        });
+
+        /* ---- i18n language change: re-render dynamic content ---- */
+
+        document.addEventListener('languagechange', () => {
+            loadLocalRecords();
+            // Re-render leaderboard rows (date format is locale-dependent)
+            if (currentTab === 'global') {
+                renderLbRows(currentDiff);
+            }
+        });
+
+        /* ---- background slideshow ---- */
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const images = [
+                'assets/backgrounds/bg1.jpg', 'assets/backgrounds/bg2.jpeg',
+                'assets/backgrounds/bg3.jpg', 'assets/backgrounds/bg4.jpg',
+                'assets/backgrounds/bg5.jpg', 'assets/backgrounds/bg6.jpg'
+            ];
+            const layers = [
+                document.querySelector('.menu-bg-a'),
+                document.querySelector('.menu-bg-b')
+            ];
+            let current = 0, active = 0;
+            layers[0].style.backgroundImage = `url('${images[0]}')`;
+            layers[0].style.opacity = '1';
+            layers[1].style.opacity = '0';
+            setInterval(function () {
+                current = (current + 1) % images.length;
+                const next = 1 - active;
+                layers[next].style.backgroundImage = `url('${images[current]}')`;
+                layers[next].style.opacity = '1';
+                layers[active].style.opacity = '0';
+                active = next;
+            }, 5000);
+        });
+
+        /* ---- init ---- */
+
+        window.i18nReady.then(async () => {
+            if (window.SupabaseClient && window.SupabaseClient.isConfigured()) {
+                authUser = await window.SupabaseClient.getCurrentUser();
+            }
+            if (authUser && window.SupabaseClient && typeof window.SupabaseClient.ensureProfileForCurrentUser === 'function') {
+                await window.SupabaseClient.ensureProfileForCurrentUser();
+            }
+            await syncAccountBestTimes();
+            loadLocalRecords();
+            await updateAuthSuggestionVisibility();
+            switchMainTab(getRequestedTab());
+        }).catch((e) => {
+            console.error('[Stats] init failed:', e);
+            loadLocalRecords();
+            switchMainTab(getRequestedTab());
+        });
+
+    })();
+    </script>
+
+</body>
+</html>
