@@ -21,13 +21,24 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
 const configPath = path.join(__dirname, 'supabase-config.js');
 
+// Debug logging
+console.log('[inject-supabase-config] Environment check:');
+console.log('[inject-supabase-config]   SUPABASE_URL:', SUPABASE_URL ? '✓ Set' : '✗ Not set');
+console.log('[inject-supabase-config]   SUPABASE_ANON_KEY:', SUPABASE_ANON_KEY ? '✓ Set' : '✗ Not set');
+console.log('[inject-supabase-config]   Output path:', configPath);
+
 // Check if credentials are present
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     console.warn(
         '[inject-supabase-config] WARNING: SUPABASE_URL or SUPABASE_ANON_KEY not set.\n' +
-        '  If running locally, copy scripts/supabase-config.example.js to scripts/supabase-config.js\n' +
-        '  and fill in your credentials manually.\n' +
-        '  If deploying to Netlify, set these environment variables in Site Settings.\n' +
+        '  If running locally:\n' +
+        '    1. Copy: cp scripts/supabase-config.example.js scripts/supabase-config.js\n' +
+        '    2. Edit scripts/supabase-config.js with your real credentials\n' +
+        '  If deploying to Netlify:\n' +
+        '    1. Go to: Site Settings → Build & deploy → Environment\n' +
+        '    2. Add SUPABASE_URL = your-project-url\n' +
+        '    3. Add SUPABASE_ANON_KEY = your-anon-key\n' +
+        '    4. Re-trigger deployment\n' +
         '  Skipping config generation.'
     );
     process.exit(0);
@@ -60,7 +71,10 @@ window.SUPABASE_ANON_KEY = '${SUPABASE_ANON_KEY}';
 
 try {
     fs.writeFileSync(configPath, configContent, 'utf8');
-    console.log('[inject-supabase-config] ✓ Generated scripts/supabase-config.js');
+    console.log('[inject-supabase-config] ✓ Config generated successfully');
+    console.log('[inject-supabase-config]   File: scripts/supabase-config.js');
+    console.log('[inject-supabase-config]   URL: ' + SUPABASE_URL);
+    console.log('[inject-supabase-config]   Key: ' + SUPABASE_ANON_KEY.substring(0, 20) + '...');
 } catch (err) {
     console.error('[inject-supabase-config] ERROR: Failed to write config file:', err.message);
     process.exit(1);
