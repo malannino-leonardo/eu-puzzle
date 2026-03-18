@@ -3107,15 +3107,24 @@ body.stats-page {
 }
 
 .stats-page-title {
-    flex: 1;
-    text-align: center;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     font-size: 1.2rem;
     font-weight: 700;
     color: var(--text-color);
     letter-spacing: -0.01em;
+    margin: 0;
+    max-width: calc(100% - 12rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
 }
 
 .stats-lang-selector {
+    margin-left: auto;
     flex-shrink: 0;
 }
 
