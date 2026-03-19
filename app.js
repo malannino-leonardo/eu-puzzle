@@ -2438,6 +2438,7 @@
         // Gather all single unconnected countries
         const candidates = [];
         state.clusters.forEach(cluster => {
+            if (state.difficulty === 'easy' && cluster.isSolved) return;
             if (cluster.members.size === 1) {
                 const countryId = Array.from(cluster.members)[0];
                 const country = state.countries.get(countryId);
