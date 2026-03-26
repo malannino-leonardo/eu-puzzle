@@ -466,25 +466,31 @@
     
     function isGeometryInEuropeanBounds(geometry, pathGenerator) {
         const tempFeature = { type: 'Feature', properties: {}, geometry };
-        const bounds = pathGenerator.bounds(tempFeature);
-        if (!bounds) return false;
-        
-        const minX = bounds[0][0];
-        const maxX = bounds[1][0];
-        const minY = bounds[0][1];
-        const maxY = bounds[1][1];
-        
-        const cx = (minX + maxX) / 2;
-        const cy = (minY + maxY) / 2;
-        
-        // Tight bounds to exclude overseas territories (French Guiana, Caribbean, etc.)
-        // Board is approx 1000x700
-        const europeMinX = -200;
-        const europeMaxX = 1200;
-        const europeMinY = -200;
-        const europeMaxY = 900;
-        
-        return cx >= europeMinX && cx <= europeMaxX && cy >= europeMinY && cy <= europeMaxY;
+        // IMPORTANT: Use geographic bounds (lon/lat), not projected screen-space bounds.
+        // Screen-space filtering breaks at different resolutions and zoom levels.
+        const bounds = d3.geoBounds(tempFeature);
+        if (!bounds || !Array.isArray(bounds) || bounds.length < 2) return false;
+
+        const minLon = bounds[0][0];
+        const minLat = bounds[0][1];
+        const maxLon = bounds[1][0];
+        const maxLat = bounds[1][1];
+
+        // Handle possible antimeridian-crossing bounds.
+        const lonSpan = maxLon >= minLon ? (maxLon - minLon) : ((180 - minLon) + (maxLon + 180));
+        const centerLon = maxLon >= minLon
+            ? (minLon + maxLon) / 2
+            : (((minLon + lonSpan / 2 + 540) % 360) - 180);
+        const centerLat = (minLat + maxLat) / 2;
+
+        // Keep mainland/European-islands polygons while excluding overseas territories.
+        const europeMinLon = -30;
+        const europeMaxLon = 45;
+        const europeMinLat = 27;
+        const europeMaxLat = 73;
+
+        return centerLon >= europeMinLon && centerLon <= europeMaxLon &&
+               centerLat >= europeMinLat && centerLat <= europeMaxLat;
     }
 
     function filterFeatureToEurope(feature, pathGenerator) {
@@ -700,23 +706,33 @@
         const width = CONFIG.BOARD_WIDTH;
         const height = CONFIG.BOARD_HEIGHT;
         
-        const centerX = width / 2;
-        const centerY = height / 2;
+        const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
         
         // Define scatter zones around the edges of the board
-        const margin = 80;
-        const scatterWidth = Math.min(200, width * 0.25);
-        const scatterHeight = Math.min(200, height * 0.25);
+        const margin = clamp(Math.min(width, height) * 0.06, 50, 120);
+        const innerWidth = Math.max(160, width - 2 * margin);
+        const innerHeight = Math.max(160, height - 2 * margin);
+
+        // Scale edge bands with resolution so large displays don't stack pieces.
+        let scatterWidth = clamp(width * 0.22, 180, 520);
+        let scatterHeight = clamp(height * 0.22, 160, 440);
+
+        const maxScatterWidth = Math.max(80, (innerWidth / 2) - 40);
+        const maxScatterHeight = Math.max(80, (innerHeight / 2) - 40);
+        scatterWidth = Math.min(scatterWidth, maxScatterWidth);
+        scatterHeight = Math.min(scatterHeight, maxScatterHeight);
+
+        const middleBandHeight = Math.max(80, innerHeight - 2 * scatterHeight);
         
         const zones = [
             // Top edge
-            { x: margin, y: margin, w: width - 2 * margin, h: scatterHeight },
+            { x: margin, y: margin, w: innerWidth, h: scatterHeight },
             // Bottom edge
-            { x: margin, y: height - margin - scatterHeight, w: width - 2 * margin, h: scatterHeight },
+            { x: margin, y: height - margin - scatterHeight, w: innerWidth, h: scatterHeight },
             // Left edge
-            { x: margin, y: margin + scatterHeight, w: scatterWidth, h: height - 2 * margin - 2 * scatterHeight },
+            { x: margin, y: margin + scatterHeight, w: scatterWidth, h: middleBandHeight },
             // Right edge
-            { x: width - margin - scatterWidth, y: margin + scatterHeight, w: scatterWidth, h: height - 2 * margin - 2 * scatterHeight }
+            { x: width - margin - scatterWidth, y: margin + scatterHeight, w: scatterWidth, h: middleBandHeight }
         ];
         
         // Shuffle cluster order so distribution is random each game
@@ -729,7 +745,14 @@
         // Track placed bounding boxes (in absolute SVG space) for overlap prevention
         const placedBoxes = [];
         const BOX_PADDING = 8;
-        const MAX_ATTEMPTS_PER_ZONE = 40;
+        const MAX_ATTEMPTS_PER_ZONE = 80;
+        const BOARD_PADDING = 6;
+
+        function getClusterAnchor(cluster) {
+            const countryId = Array.from(cluster.members)[0];
+            const country = state.countries.get(countryId);
+            return country?.centroid || [width / 2, height / 2];
+        }
 
         function getTranslatedBounds(cluster, tx, ty) {
             const countryId = Array.from(cluster.members)[0];
@@ -751,6 +774,14 @@
             );
         }
 
+        function isInsideBoard(box) {
+            return box &&
+                box.minX >= BOARD_PADDING &&
+                box.minY >= BOARD_PADDING &&
+                box.maxX <= (width - BOARD_PADDING) &&
+                box.maxY <= (height - BOARD_PADDING);
+        }
+
         // Easy mode: check whether a piece at offset (tx, ty) still visually
         // overlaps its own ghost-outline silhouette (which is at offset 0,0).
         function overlapsOwnSilhouette(cluster, tx, ty) {
@@ -765,13 +796,15 @@
         }
 
         function tryPlaceInZone(cluster, zone) {
+            const [anchorX, anchorY] = getClusterAnchor(cluster);
             for (let attempt = 0; attempt < MAX_ATTEMPTS_PER_ZONE; attempt++) {
                 const localX = zone.x + Math.random() * zone.w;
                 const localY = zone.y + Math.random() * zone.h;
-                const x = localX - centerX;
-                const y = localY - centerY;
+                const x = localX - anchorX;
+                const y = localY - anchorY;
                 const box = getTranslatedBounds(cluster, x, y);
                 if (!box || overlapsAny(box)) continue;
+                if (!isInsideBoard(box)) continue;
                 if (overlapsOwnSilhouette(cluster, x, y)) continue;
                 return { x, y, box };
             }
@@ -794,8 +827,9 @@
             // Last-resort fallback: drop into the assigned zone, then push clear of own silhouette
             if (!placed) {
                 const zone = zones[assignedIndex];
-                let x = zone.x + Math.random() * zone.w - centerX;
-                let y = zone.y + Math.random() * zone.h - centerY;
+                const [anchorX, anchorY] = getClusterAnchor(cluster);
+                let x = zone.x + Math.random() * zone.w - anchorX;
+                let y = zone.y + Math.random() * zone.h - anchorY;
 
                 // Easy mode: if the fallback position still overlaps the ghost outline,
                 // displace further along the dominant axis so the piece clears its silhouette.
@@ -816,6 +850,15 @@
                             }
                         }
                     }
+                }
+
+                // Keep fallback placement inside visible board area.
+                const fallbackBox = getTranslatedBounds(cluster, x, y);
+                if (fallbackBox) {
+                    if (fallbackBox.minX < BOARD_PADDING) x += BOARD_PADDING - fallbackBox.minX;
+                    if (fallbackBox.maxX > width - BOARD_PADDING) x -= fallbackBox.maxX - (width - BOARD_PADDING);
+                    if (fallbackBox.minY < BOARD_PADDING) y += BOARD_PADDING - fallbackBox.minY;
+                    if (fallbackBox.maxY > height - BOARD_PADDING) y -= fallbackBox.maxY - (height - BOARD_PADDING);
                 }
 
                 placed = {
