@@ -70,6 +70,22 @@ CREATE TABLE IF NOT EXISTS public.leaderboard (
     CONSTRAINT chk_identity CHECK (user_id IS NOT NULL OR guest_id IS NOT NULL)
 );
 
+-- ============================================================
+-- TABLE: quiz_category_progress
+-- One row per authenticated user per quiz category.
+-- Stores per-category record of correct answers for account sync.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.quiz_category_progress (
+    user_id                UUID        NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    category_key           TEXT        NOT NULL CHECK (category_key IN ('whatIsEu', 'howEuWorks', 'euInDailyLife', 'euAgenda')),
+    attempts               INTEGER     NOT NULL DEFAULT 0 CHECK (attempts >= 0),
+    best_correct_questions INTEGER     NOT NULL DEFAULT 0 CHECK (best_correct_questions >= 0),
+    last_correct_questions INTEGER     NOT NULL DEFAULT 0 CHECK (last_correct_questions >= 0),
+    total_questions        INTEGER     NOT NULL DEFAULT 10 CHECK (total_questions > 0),
+    updated_at             TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (user_id, category_key)
+);
+
 -- Unique best-time indexes (used by ON CONFLICT in upsert_score)
 CREATE UNIQUE INDEX IF NOT EXISTS leaderboard_user_diff_idx
     ON public.leaderboard (user_id, difficulty)
@@ -88,6 +104,7 @@ CREATE INDEX IF NOT EXISTS leaderboard_diff_time_idx
 -- ============================================================
 ALTER TABLE public.profiles   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.leaderboard ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.quiz_category_progress ENABLE ROW LEVEL SECURITY;
 
 -- ============================================================
 -- RLS POLICIES — profiles
@@ -120,6 +137,22 @@ CREATE POLICY "leaderboard_no_direct_update"
 
 CREATE POLICY "leaderboard_no_direct_delete"
     ON public.leaderboard FOR DELETE USING (FALSE);
+
+-- ============================================================
+-- RLS POLICIES — quiz_category_progress
+-- Users can read/write only their own per-category progress rows.
+-- ============================================================
+CREATE POLICY "quiz_progress_select_own"
+    ON public.quiz_category_progress FOR SELECT
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "quiz_progress_insert_own"
+    ON public.quiz_category_progress FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "quiz_progress_update_own"
+    ON public.quiz_category_progress FOR UPDATE
+    USING (auth.uid() = user_id);
 
 -- ============================================================
 -- FUNCTION: upsert_score
@@ -244,6 +277,65 @@ GRANT EXECUTE ON FUNCTION public.delete_my_account TO authenticated;
 GRANT SELECT ON public.leaderboard TO anon;
 GRANT SELECT ON public.profiles    TO anon;
 GRANT SELECT, INSERT, UPDATE ON public.profiles TO authenticated;
+GRANT SELECT, INSERT, UPDATE ON public.quiz_category_progress TO authenticated;
+─────────────────────────────────────────────────────────────────────────────
+
+
+SCHEMA UPDATE QUERY (FOR EXISTING PROJECTS)
+─────────────────────────────────────────────────────────────────────────────
+Run this SQL in Supabase SQL Editor if your project was already created.
+
+─────────────────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.quiz_category_progress (
+    user_id                UUID        NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    category_key           TEXT        NOT NULL CHECK (category_key IN ('whatIsEu', 'howEuWorks', 'euInDailyLife', 'euAgenda')),
+    attempts               INTEGER     NOT NULL DEFAULT 0 CHECK (attempts >= 0),
+    best_correct_questions INTEGER     NOT NULL DEFAULT 0 CHECK (best_correct_questions >= 0),
+    last_correct_questions INTEGER     NOT NULL DEFAULT 0 CHECK (last_correct_questions >= 0),
+    total_questions        INTEGER     NOT NULL DEFAULT 10 CHECK (total_questions > 0),
+    updated_at             TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (user_id, category_key)
+);
+
+ALTER TABLE public.quiz_category_progress ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public'
+          AND tablename = 'quiz_category_progress'
+          AND policyname = 'quiz_progress_select_own'
+    ) THEN
+        CREATE POLICY "quiz_progress_select_own"
+            ON public.quiz_category_progress FOR SELECT
+            USING (auth.uid() = user_id);
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public'
+          AND tablename = 'quiz_category_progress'
+          AND policyname = 'quiz_progress_insert_own'
+    ) THEN
+        CREATE POLICY "quiz_progress_insert_own"
+            ON public.quiz_category_progress FOR INSERT
+            WITH CHECK (auth.uid() = user_id);
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public'
+          AND tablename = 'quiz_category_progress'
+          AND policyname = 'quiz_progress_update_own'
+    ) THEN
+        CREATE POLICY "quiz_progress_update_own"
+            ON public.quiz_category_progress FOR UPDATE
+            USING (auth.uid() = user_id);
+    END IF;
+END $$;
+
+GRANT SELECT, INSERT, UPDATE ON public.quiz_category_progress TO authenticated;
 ─────────────────────────────────────────────────────────────────────────────
 
 

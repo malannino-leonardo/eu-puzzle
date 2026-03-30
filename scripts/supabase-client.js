@@ -77,7 +77,8 @@
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;');
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     function t(key, vars) {
@@ -549,6 +550,140 @@
         return { synced: true, bests };
     }
 
+    function isPlainObject(value) {
+        return !!value && typeof value === 'object' && !Array.isArray(value);
+    }
+
+    function deepMergeSettings(base, patch) {
+        const source = isPlainObject(base) ? base : {};
+        const next = { ...source };
+        if (!isPlainObject(patch)) return next;
+
+        Object.keys(patch).forEach((key) => {
+            const incoming = patch[key];
+            if (isPlainObject(incoming)) {
+                next[key] = deepMergeSettings(source[key], incoming);
+            } else {
+                next[key] = incoming;
+            }
+        });
+
+        return next;
+    }
+
+    async function getSettings(userId) {
+        if (!db || !userId) return null;
+
+        const user = await getCurrentUser();
+        if (!user || user.id !== userId) return null;
+
+        const metadata = user.user_metadata && typeof user.user_metadata === 'object'
+            ? user.user_metadata
+            : {};
+
+        const settings = metadata.appSettings && typeof metadata.appSettings === 'object'
+            ? metadata.appSettings
+            : {};
+
+        return settings;
+    }
+
+    async function updateSettings(userId, patch) {
+        if (!db || !userId || !isPlainObject(patch)) {
+            return { error: { message: 'invalid_args' } };
+        }
+
+        const user = await getCurrentUser();
+        if (!user || user.id !== userId) {
+            return { error: { message: 'not_logged_in' } };
+        }
+
+        const metadata = user.user_metadata && typeof user.user_metadata === 'object'
+            ? user.user_metadata
+            : {};
+        const current = metadata.appSettings && typeof metadata.appSettings === 'object'
+            ? metadata.appSettings
+            : {};
+        const merged = deepMergeSettings(current, patch);
+
+        const { error } = await db.auth.updateUser({
+            data: {
+                ...metadata,
+                appSettings: merged
+            }
+        });
+
+        if (error) {
+            logWarn('updateSettings failed', error, { userId });
+            return { error };
+        }
+
+        return { error: null, settings: merged };
+    }
+
+    async function getQuizCategoryProgress(userId) {
+        if (!db || !userId) return [];
+
+        const user = await getCurrentUser();
+        if (!user || user.id !== userId) return [];
+
+        try {
+            const { data, error } = await withTimeout(db
+                .from('quiz_category_progress')
+                .select('category_key, attempts, best_correct_questions, last_correct_questions, total_questions, updated_at')
+                .eq('user_id', userId), 12000);
+
+            if (error) {
+                logWarn('getQuizCategoryProgress query failed', error, { userId });
+                return [];
+            }
+
+            return Array.isArray(data) ? data : [];
+        } catch (e) {
+            logError('getQuizCategoryProgress failed', e, { userId });
+            return [];
+        }
+    }
+
+    async function upsertQuizCategoryProgress(userId, categoryKey, payload) {
+        if (!db || !userId || !categoryKey || !isPlainObject(payload)) {
+            return { error: { message: 'invalid_args' } };
+        }
+
+        const user = await getCurrentUser();
+        if (!user || user.id !== userId) {
+            return { error: { message: 'not_logged_in' } };
+        }
+
+        const row = {
+            user_id: userId,
+            category_key: String(categoryKey),
+            attempts: Number.isFinite(Number(payload.attempts)) ? Math.max(0, Math.floor(Number(payload.attempts))) : 0,
+            best_correct_questions: Number.isFinite(Number(payload.bestCorrectQuestions)) ? Math.max(0, Math.floor(Number(payload.bestCorrectQuestions))) : 0,
+            last_correct_questions: Number.isFinite(Number(payload.lastCorrectQuestions)) ? Math.max(0, Math.floor(Number(payload.lastCorrectQuestions))) : 0,
+            total_questions: Number.isFinite(Number(payload.totalQuestions)) ? Math.max(1, Math.floor(Number(payload.totalQuestions))) : 10,
+            updated_at: new Date().toISOString()
+        };
+
+        try {
+            const { data, error } = await withTimeout(db
+                .from('quiz_category_progress')
+                .upsert(row, { onConflict: 'user_id,category_key' })
+                .select('category_key, attempts, best_correct_questions, last_correct_questions, total_questions, updated_at')
+                .maybeSingle(), 12000);
+
+            if (error) {
+                logWarn('upsertQuizCategoryProgress query failed', error, { userId, categoryKey });
+                return { error };
+            }
+
+            return { error: null, data };
+        } catch (e) {
+            logError('upsertQuizCategoryProgress failed', e, { userId, categoryKey });
+            return { error: e };
+        }
+    }
+
     async function deleteCurrentUser() {
         if (!db) return { error: { message: 'Supabase not configured' } };
 
@@ -736,6 +871,10 @@
         isConfigured:        () => db !== null,
         getGuestIdentity,
         getCurrentUser,
+        getSettings,
+        updateSettings,
+        getQuizCategoryProgress,
+        upsertQuizCategoryProgress,
         signInWithMagicLink,
         getAuthErrorMessage,
         signOut,

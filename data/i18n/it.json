@@ -8,7 +8,9 @@
     "account": "Account",
     "settings": "Impostazioni",
     "credits": "Crediti",
-    "github": "GitHub"
+    "github": "GitHub",
+    "quizMode": "Modalità Quiz",
+    "newMode": "Nuovo"
   },
   "settings": {
     "title": "Impostazioni",
@@ -274,38 +276,6 @@
     "contact": "Domande? Apri un'issue su GitHub."
   },
   "countries": {
-    "040": {
-      "name": "Austria",
-      "capital": "Vienna",
-      "facts": [
-        "Vienna ospita il parco di divertimenti più antico del mondo ancora in funzione: il Prater.",
-        "Il 62% del territorio austriaco è coperto dalle Alpi.",
-        "La macchina da cucire è stata inventata dall'austriaco Josef Madersperger.",
-        "Ospita lo zoo più antico del mondo (Tiergarten Schönbrunn).",
-        "Il fondatore della Porsche, Ferdinand Porsche, era austriaco.",
-        "L'Austria non è membro della NATO ed è costituzionalmente neutrale.",
-        "La bandiera nazionale è una delle più antiche al mondo (1191).",
-        "La Red Bull ha origini austriache.",
-        "Le cartoline sono state inventate in Austria.",
-        "Mozart è nato a Salisburgo, in Austria."
-      ]
-    },
-    "056": {
-      "name": "Belgio",
-      "capital": "Bruxelles",
-      "facts": [
-        "Il Belgio produce 220.000 tonnellate di cioccolato all'anno.",
-        "L'aeroporto di Bruxelles vende più cioccolato di qualsiasi altro luogo al mondo.",
-        "Il sassofono è stato inventato da Adolphe Sax in Belgio.",
-        "Il Belgio detiene il record mondiale per il periodo più lungo senza governo (541 giorni).",
-        "Ospita Tomorrowland, uno dei più grandi festival musicali al mondo.",
-        "Si dice che le patatine fritte siano state inventate qui.",
-        "Ha il più alto numero di castelli per metro quadrato.",
-        "Le palle da biliardo sono state inventate in Belgio.",
-        "I Puffi sono stati creati dall'artista belga Peyo.",
-        "Bruxelles è considerata la capitale dell'Unione Europea."
-      ]
-    },
     "100": {
       "name": "Bulgaria",
       "capital": "Sofia",
@@ -705,6 +675,620 @@
         "Ha 267.570 isole, più di qualsiasi altro paese.",
         "Ricicla il 99% dei rifiuti domestici."
       ]
+    },
+    "040": {
+      "name": "Austria",
+      "capital": "Vienna",
+      "facts": [
+        "Vienna ospita il parco di divertimenti più antico del mondo ancora in funzione: il Prater.",
+        "Il 62% del territorio austriaco è coperto dalle Alpi.",
+        "La macchina da cucire è stata inventata dall'austriaco Josef Madersperger.",
+        "Ospita lo zoo più antico del mondo (Tiergarten Schönbrunn).",
+        "Il fondatore della Porsche, Ferdinand Porsche, era austriaco.",
+        "L'Austria non è membro della NATO ed è costituzionalmente neutrale.",
+        "La bandiera nazionale è una delle più antiche al mondo (1191).",
+        "La Red Bull ha origini austriache.",
+        "Le cartoline sono state inventate in Austria.",
+        "Mozart è nato a Salisburgo, in Austria."
+      ]
+    },
+    "056": {
+      "name": "Belgio",
+      "capital": "Bruxelles",
+      "facts": [
+        "Il Belgio produce 220.000 tonnellate di cioccolato all'anno.",
+        "L'aeroporto di Bruxelles vende più cioccolato di qualsiasi altro luogo al mondo.",
+        "Il sassofono è stato inventato da Adolphe Sax in Belgio.",
+        "Il Belgio detiene il record mondiale per il periodo più lungo senza governo (541 giorni).",
+        "Ospita Tomorrowland, uno dei più grandi festival musicali al mondo.",
+        "Si dice che le patatine fritte siano state inventate qui.",
+        "Ha il più alto numero di castelli per metro quadrato.",
+        "Le palle da biliardo sono state inventate in Belgio.",
+        "I Puffi sono stati creati dall'artista belga Peyo.",
+        "Bruxelles è considerata la capitale dell'Unione Europea."
+      ]
     }
+  },
+  "quiz": {
+    "heroTitle": "Modalità Quiz UE",
+    "heroSubtitle": "Scegli una delle 4 sezioni e rispondi a 10 domande.",
+    "pageTitle": "Modalità Quiz UE",
+    "backToMenu": "Torna al menu",
+    "bannerTitle": "Modalità Quiz UE",
+    "bannerSubtitle": "Scegli una delle 4 sezioni e rispondi a 10 domande per categoria.",
+    "bannerCta": "Avvia quiz",
+    "progress": "Domanda {current} di {total}",
+    "chooseAnotherCategory": "Scegli un'altra categoria",
+    "nextQuestion": "Domanda successiva",
+    "finishQuiz": "Termina quiz",
+    "feedbackCorrect": "Corretto!",
+    "feedbackWrong": "Non esatto.",
+    "reopenExplanation": "Riapri spiegazione",
+    "correctAnswerLabel": "Risposta corretta:",
+    "gotIt": "Ho capito",
+    "imageCaption": "Immagine collegata a questa domanda.",
+    "imageAlt": "Immagine quiz per {category}, domanda {number}",
+    "imageMissingAlt": "Immagine non ancora disponibile",
+    "resultTitle": "Sezione completata!",
+    "resultTitleQuizCompleted": "Quiz completato",
+    "resultScore": "Hai totalizzato {score} su {total}.",
+    "retryCategory": "Riprova questa categoria",
+    "categories": {
+      "whatIsEu": {
+        "title": "Che cos'è l'Unione Europea?",
+        "description": "Origini, valori, trattati e stati membri."
+      },
+      "howEuWorks": {
+        "title": "Come funziona l'UE?",
+        "description": "Istituzioni, leggi, bilancio e decisioni."
+      },
+      "euInDailyLife": {
+        "title": "In che modo l'UE influisce sulla tua vita?",
+        "description": "Diritti, mobilità, denaro e vantaggi pratici."
+      },
+      "euAgenda": {
+        "title": "Qual è l'agenda dell'UE?",
+        "description": "Clima, digitale, sicurezza e crescita."
+      }
+    },
+    "questions": {
+      "whatIsEu": [
+        {
+          "question": "Quanti stati membri ha attualmente l'UE?",
+          "options": [
+            "27",
+            "25",
+            "30",
+            "32"
+          ],
+          "answer": 0,
+          "explanation": "L'Unione Europea conta attualmente 27 stati membri.",
+          "image": "assets/quiz-images/what-is-eu/q01.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"27\". L'UE nasce dal percorso iniziato con la CECA (1951) a 6 paesi e con la CEE del Trattato di Roma (1957). Diventa Unione Europea con Maastricht il 1 novembre 1993, si allarga soprattutto nel 2004, 2007 e 2013, e oggi conta 27 stati membri dopo l'uscita del Regno Unito nel 2020."
+        },
+        {
+          "question": "Quale trattato ha creato formalmente l'UE nel 1993?",
+          "options": [
+            "Trattato di Roma",
+            "Trattato di Maastricht",
+            "Trattato di Lisbona",
+            "Accordo di Schengen"
+          ],
+          "answer": 1,
+          "explanation": "Il Trattato di Maastricht ha istituito formalmente l'UE nel 1993.",
+          "image": "assets/quiz-images/what-is-eu/q02.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Trattato di Maastricht\". Firmato nel 1992 ed entrato in vigore il 1 novembre 1993, ha creato formalmente l'Unione Europea e introdotto la cittadinanza europea. Ha anche avviato il percorso dell'Unione economica e monetaria che ha portato all'euro."
+        },
+        {
+          "question": "Quale citta e considerata capitale de facto dell'UE?",
+          "options": [
+            "Strasburgo",
+            "Francoforte",
+            "Bruxelles",
+            "Lussemburgo"
+          ],
+          "answer": 2,
+          "explanation": "Le principali istituzioni UE hanno sede a Bruxelles.",
+          "image": "assets/quiz-images/what-is-eu/q03.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Bruxelles\". Bruxelles è diventata nel tempo la sede operativa principale delle istituzioni UE, con Commissione e Consiglio già concentrate li dal 1958. In seguito ha ospitato stabilmente i vertici politici europei, affermandosi come capitale di fatto dell'Unione."
+        },
+        {
+          "question": "Qual è lo scopo principale del mercato unico europeo?",
+          "options": [
+            "Creare un unico esercito",
+            "Rimuovere barriere a commercio e mobilità",
+            "Sostituire tutte le leggi nazionali",
+            "Imporre una sola lingua ufficiale"
+          ],
+          "answer": 1,
+          "explanation": "Il mercato unico consente libera circolazione di beni, servizi, capitali e persone.",
+          "image": "assets/quiz-images/what-is-eu/q04.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Eliminare barriere a scambi e mobilità\". Il mercato unico è stato completato il 1 gennaio 1993, su basi poste dal Trattato di Roma (1957) e dall'Atto Unico Europeo (1986). L'obiettivo e la libera circolazione di beni, servizi, capitali e persone."
+        },
+        {
+          "question": "Quale tra questi è un valore ufficiale dell'UE?",
+          "options": [
+            "Censura",
+            "Regime autoritario",
+            "dignità umana",
+            "Frontiere chiuse"
+          ],
+          "answer": 2,
+          "explanation": "La dignità umana è uno dei valori fondamentali dei trattati UE.",
+          "image": "assets/quiz-images/what-is-eu/q05.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"dignità umana\". La dignità umana è al centro dei valori UE, richiamata dall'articolo 2 del Trattato sull'Unione Europea. La Carta dei diritti fondamentali, proclamata nel 2000 e resa vincolante dal 2009, ha rafforzato questa tutela."
+        },
+        {
+          "question": "Cosa simboleggiano le 12 stelle della bandiera UE?",
+          "options": [
+            "12 stati membri",
+            "unità e armonia",
+            "12 trattati fondativi",
+            "12 istituzioni"
+          ],
+          "answer": 1,
+          "explanation": "Le 12 stelle rappresentano unità, solidarietà e armonia.",
+          "image": "assets/quiz-images/what-is-eu/q06.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"unità e armonia\". La bandiera a 12 stelle fu adottata dal Consiglio d'Europa nel 1955 e poi dalle Comunita europee nel 1986. Il numero 12 non indica gli stati membri, ma un simbolo di unità, completezza e continuità."
+        },
+        {
+          "question": "Quando l'euro è entrato in circolazione come contante?",
+          "options": [
+            "1999",
+            "2002",
+            "2004",
+            "2007"
+          ],
+          "answer": 1,
+          "explanation": "Banconote e monete in euro sono entrate in circolazione nel 2002.",
+          "image": "assets/quiz-images/what-is-eu/q07.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"2002\". L'euro è nato come valuta contabile nel 1999 e ha iniziato a circolare in banconote e monete il 1 gennaio 2002. È stata una delle più grandi transizioni monetarie della storia contemporanea."
+        },
+        {
+          "question": "Quale affermazione sull'adesione all'UE è corretta?",
+          "options": [
+            "Tutti i paesi europei entrano automaticamente",
+            "Servono criteri e approvazione unanime",
+            "Decide solo l ONU",
+            "Qualsiasi paese entra in un anno"
+          ],
+          "answer": 1,
+          "explanation": "Ogni candidato deve soddisfare criteri e ottenere il consenso di tutti gli stati membri.",
+          "image": "assets/quiz-images/what-is-eu/q08.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"L'adesione richiede criteri e approvazione unanime\". Dal 1993, con i criteri di Copenaghen, i paesi candidati devono soddisfare standard politici, economici e giuridici. L'ingresso richiede poi unanimita in Consiglio, consenso del Parlamento europeo e ratifiche nazionali."
+        },
+        {
+          "question": "Che tipo di organizzazione e l'UE?",
+          "options": [
+            "Uno stato federale",
+            "Unione intergovernativa e sovranazionale",
+            "Un alleanza militare",
+            "Un club economico privato"
+          ],
+          "answer": 1,
+          "explanation": "L'UE combina istituzioni sovranazionali e cooperazione tra stati membri.",
+          "image": "assets/quiz-images/what-is-eu/q09.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Un'unione intergovernativa e sovranazionale\". L'UE combina poteri condivisi tra istituzioni comuni e governi nazionali. Questo modello ibrido si e formato dal 1951 (CECA) al 1957 (CEE) fino al quadro politico unificato del 1993."
+        },
+        {
+          "question": "Quale paese ha lasciato l'UE nel 2020?",
+          "options": [
+            "Norvegia",
+            "Svizzera",
+            "Regno Unito",
+            "Islanda"
+          ],
+          "answer": 2,
+          "explanation": "Il Regno Unito ha lasciato l'UE il 31 gennaio 2020.",
+          "image": "assets/quiz-images/what-is-eu/q10.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Regno Unito\". Dopo il referendum del 23 giugno 2016, il Regno Unito ha lasciato l'UE il 31 gennaio 2020. Il periodo transitorio si e concluso il 31 dicembre 2020, segnando la separazione operativa dal sistema UE."
+        }
+      ],
+      "howEuWorks": [
+        {
+          "question": "Quale istituzione propone la maggior parte delle leggi UE?",
+          "options": [
+            "Commissione europea",
+            "Consiglio europeo",
+            "Corte di giustizia",
+            "Banca centrale europea"
+          ],
+          "answer": 0,
+          "explanation": "La Commissione europea ha il principale potere di iniziativa legislativa.",
+          "image": "assets/quiz-images/how-eu-works/q01.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Commissione europea\". La Commissione ha il principale diritto di iniziativa legislativa nel sistema UE, ruolo presente fin dalle origini delle Comunita europee e confermato dai trattati attuali. Questo meccanismo serve a tutelare l'interesse comune europeo oltre le logiche nazionali."
+        },
+        {
+          "question": "Chi elegge direttamente i membri del Parlamento europeo?",
+          "options": [
+            "Parlamenti nazionali",
+            "Cittadini UE",
+            "Commissione",
+            "Consiglio"
+          ],
+          "answer": 1,
+          "explanation": "I cittadini UE eleggono direttamente il Parlamento europeo ogni cinque anni.",
+          "image": "assets/quiz-images/how-eu-works/q02.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Cittadini dell'UE\". I membri del Parlamento europeo sono eletti a suffragio universale diretto dal 1979, con elezioni ogni cinque anni. Questa scelta ha aumentato la legittimazione democratica rispetto al vecchio sistema di delegazioni nazionali."
+        },
+        {
+          "question": "Cosa rappresenta il Consiglio dell'Unione Europea?",
+          "options": [
+            "I giudici UE",
+            "Solo i capi di stato",
+            "I ministri nazionali degli stati membri",
+            "Solo governi regionali"
+          ],
+          "answer": 2,
+          "explanation": "Nel Consiglio siedono i ministri nazionali competenti per materia.",
+          "image": "assets/quiz-images/how-eu-works/q03.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Ministri nazionali degli stati membri\". Il Consiglio dell'UE riunisce i ministri competenti dei governi nazionali e opera fin dall'avvio del sistema comunitario nel 1958. È l'organo in cui gli stati co-legiferano insieme al Parlamento."
+        },
+        {
+          "question": "Qual è il ruolo del Consiglio europeo?",
+          "options": [
+            "Approvare ogni legge locale",
+            "Definire orientamenti politici generali",
+            "Stampare banconote euro",
+            "Gestire i tribunali UE"
+          ],
+          "answer": 1,
+          "explanation": "Il Consiglio europeo fissa priorita e orientamento strategico.",
+          "image": "assets/quiz-images/how-eu-works/q04.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Definire l'indirizzo politico generale\". Il Consiglio europeo riunisce capi di stato o di governo e orienta le priorita strategiche dell'Unione. Nato come prassi di vertici nel 1974, e diventato istituzione formale con il Trattato di Lisbona in vigore dal 2009."
+        },
+        {
+          "question": "Quale organo interpreta il diritto UE in modo uniforme?",
+          "options": [
+            "Corte dei conti europea",
+            "Corte di giustizia dell'UE",
+            "Mediatore europeo",
+            "Comitato delle regioni"
+          ],
+          "answer": 1,
+          "explanation": "La Corte di giustizia assicura un'interpretazione uniforme del diritto UE.",
+          "image": "assets/quiz-images/how-eu-works/q05.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Corte di giustizia dell'UE\". La Corte, attiva fin dai primi anni 50, garantisce un'interpretazione uniforme del diritto europeo in tutti gli stati membri. Con la giurisprudenza e i rinvii pregiudiziali ha costruito principi fondamentali dell'ordinamento UE."
+        },
+        {
+          "question": "Come vengono adottate di solito le leggi UE?",
+          "options": [
+            "Solo dalla Commissione",
+            "Da Parlamento e Consiglio insieme",
+            "Solo tramite referendum",
+            "Dalla BCE"
+          ],
+          "answer": 1,
+          "explanation": "La procedura legislativa ordinaria coinvolge Parlamento e Consiglio.",
+          "image": "assets/quiz-images/how-eu-works/q06.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Parlamento e Consiglio insieme\". La procedura legislativa ordinaria, consolidata con Lisbona nel 2009, attribuisce a Parlamento e Consiglio il ruolo congiunto di legislatori. In questo modo si bilanciano rappresentanza dei cittadini e rappresentanza degli stati."
+        },
+        {
+          "question": "Quale istituzione gestisce la politica monetaria dell'eurozona?",
+          "options": [
+            "Banca europea per gli investimenti",
+            "Banca centrale europea",
+            "Commissione europea",
+            "Eurostat"
+          ],
+          "answer": 1,
+          "explanation": "La BCE definisce la politica monetaria per i paesi dell'euro.",
+          "image": "assets/quiz-images/how-eu-works/q07.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Banca centrale europea\". La BCE è stata istituita nel 1998 a Francoforte e guida la politica monetaria dell'area euro dal 1999. Il suo mandato principale e la stabilità dei prezzi nel medio periodo."
+        },
+        {
+          "question": "Cosa finanzia principalmente il bilancio UE?",
+          "options": [
+            "Solo operazioni militari",
+            "Agricoltura, coesione, ricerca e programmi",
+            "Solo stipendi dei deputati",
+            "Solo aiuti esterni"
+          ],
+          "answer": 1,
+          "explanation": "Il bilancio UE sostiene diverse politiche e programmi pluriennali.",
+          "image": "assets/quiz-images/how-eu-works/q08.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Agricoltura, coesione, ricerca e programmi\". Il bilancio UE finanzia storicamente la politica agricola comune dal 1962 e gli strumenti di coesione sviluppati dagli anni 70. Nei cicli recenti sono cresciuti anche fondi per ricerca, innovazione e transizione verde-digitale."
+        },
+        {
+          "question": "Cosa significa sussidiarietà nel processo decisionale UE?",
+          "options": [
+            "UE decide tutto centralmente",
+            "Decisioni al livello più vicino ai cittadini",
+            "Solo le regioni possono legiferare",
+            "Solo le corti decidono la politica"
+          ],
+          "answer": 1,
+          "explanation": "Si interviene a livello UE solo quando e più efficace rispetto ai livelli nazionali/locali.",
+          "image": "assets/quiz-images/how-eu-works/q09.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Le decisioni vanno prese il più vicino possibile ai cittadini\". Il principio di sussidiarietà è stato formalizzato con Maastricht nel 1993 e precisato nei protocolli successivi. Significa che l'UE interviene solo quando il livello nazionale o locale non e sufficiente."
+        },
+        {
+          "question": "Chi controlla che i fondi UE siano spesi correttamente?",
+          "options": [
+            "Corte dei conti europea",
+            "Europol",
+            "Frontex",
+            "Consiglio europeo"
+          ],
+          "answer": 0,
+          "explanation": "La Corte dei conti europea verifica la regolarità della spesa UE.",
+          "image": "assets/quiz-images/how-eu-works/q10.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Corte dei conti europea\". Creata nel 1975 è operativa dal 1977, controlla legalita, regolarita e buona gestione della spesa UE. Con Maastricht ha ottenuto pieno riconoscimento istituzionale nel sistema dell'Unione."
+        }
+      ],
+      "euInDailyLife": [
+        {
+          "question": "Cosa permette a molti europei di viaggiare senza controlli di frontiera?",
+          "options": [
+            "Eurozona",
+            "Area Schengen",
+            "Erasmus+",
+            "Consiglio d Europa"
+          ],
+          "answer": 1,
+          "explanation": "L'area Schengen ha rimosso molti controlli alle frontiere interne.",
+          "image": "assets/quiz-images/eu-daily-life/q01.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Area Schengen\". L'Accordo di Schengen e del 1985, la Convenzione di applicazione del 1990 e l'avvio pratico dell'area senza controlli sistematici alle frontiere interne e del 1995. Schengen è stato integrato nel diritto UE con il Trattato di Amsterdam in vigore dal 1999."
+        },
+        {
+          "question": "Quale programma UE sostiene gli scambi studenteschi?",
+          "options": [
+            "Horizon Europe",
+            "Erasmus+",
+            "LIFE",
+            "InvestEU"
+          ],
+          "answer": 1,
+          "explanation": "Erasmus+ finanzia mobilità in istruzione, formazione e gioventù.",
+          "image": "assets/quiz-images/eu-daily-life/q02.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Erasmus+\". Erasmus nasce nel 1987 come programma di mobilità studentesca e diventa un simbolo dell'integrazione europea. Dal 2014 Erasmus+ ha unificato e ampliato molte iniziative, con un nuovo ciclo 2021-2027 più esteso e finanziato."
+        },
+        {
+          "question": "Quale diritto dei consumatori vale per molti acquisti online nell'UE?",
+          "options": [
+            "Nessuna IVA",
+            "Spedizione gratuita illimitata",
+            "Diritto di recesso di 14 giorni",
+            "Cashback garantito"
+          ],
+          "answer": 2,
+          "explanation": "La normativa UE prevede spesso 14 giorni per recedere da acquisti a distanza.",
+          "image": "assets/quiz-images/eu-daily-life/q03.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Diritto di recesso entro 14 giorni\". Questo diritto è stato armonizzato dalla Direttiva 2011/83/UE sui diritti dei consumatori, applicata in gran parte dal 2014. Consente di annullare molti acquisti online o a distanza senza dover motivare la scelta."
+        },
+        {
+          "question": "Cosa è successo ai costi di roaming nell'UE?",
+          "options": [
+            "Sono aumentati",
+            "Sono stati eliminati nella maggior parte dei piani",
+            "Valgono solo nel weekend",
+            "Valgono solo fuori dalle capitali"
+          ],
+          "answer": 1,
+          "explanation": "Le regole roam like at home hanno ridotto o eliminato molti sovrapprezzi di roaming.",
+          "image": "assets/quiz-images/eu-daily-life/q04.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Sono state abolite nella maggior parte dei piani\". Le regole Roam Like at Home sono entrate in vigore il 15 giugno 2017 e hanno eliminato gran parte dei sovrapprezzi di roaming nell'UE. La disciplina è stata poi rinnovata per garantire continuità ai cittadini."
+        },
+        {
+          "question": "Quale diritto aiuta i lavoratori a spostarsi nell'UE?",
+          "options": [
+            "Diritto di lavorare e risiedere secondo le regole UE",
+            "Passaporto diplomatico automatico",
+            "Esenzione fiscale ovunque",
+            "Nessuna registrazione necessaria"
+          ],
+          "answer": 0,
+          "explanation": "I cittadini UE hanno diritti di mobilità, con condizioni previste da norme UE e nazionali.",
+          "image": "assets/quiz-images/eu-daily-life/q05.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Diritto di lavorare e risiedere secondo le regole UE\". La libera circolazione dei lavoratori ha radici nel Trattato di Roma del 1957 ed è stata rafforzata dalla cittadinanza UE introdotta nel 1993. Questo ha facilitato mobilità professionale e residenza transfrontaliera."
+        },
+        {
+          "question": "Come aiuta l'euro nella vita quotidiana nei paesi che lo usano?",
+          "options": [
+            "Elimina tutta l inflazione",
+            "Riduce i costi di cambio nell'area euro",
+            "Sostituisce tutte le tasse locali",
+            "Rende uguali tutti gli stipendi"
+          ],
+          "answer": 1,
+          "explanation": "Una valuta comune semplifica pagamenti e viaggi nell'area euro.",
+          "image": "assets/quiz-images/eu-daily-life/q06.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Elimina i costi di cambio nell'area euro\". Con l'euro, 1999 in forma contabile e 2002 in contanti, cittadini e imprese hanno ridotto commissioni e incertezza sui cambi tra paesi aderenti. L'effetto e particolarmente visibile nei viaggi e nei pagamenti quotidiani."
+        },
+        {
+          "question": "Cosa protegge principalmente il GDPR?",
+          "options": [
+            "Quote di pesca",
+            "Dati personali e privacy",
+            "Prezzi dei carburanti",
+            "Slot aeroportuali"
+          ],
+          "answer": 1,
+          "explanation": "Il GDPR disciplina protezione e trattamento dei dati personali.",
+          "image": "assets/quiz-images/eu-daily-life/q07.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Dati personali e privacy\". Il GDPR, Regolamento UE 2016/679, è stato adottato nel 2016 ed e applicabile dal 25 maggio 2018. Ha aggiornato le garanzie per i cittadini, aumentando trasparenza, controllo sui dati e responsabilita delle organizzazioni."
+        },
+        {
+          "question": "Quale supporto danno le regole UE sul coordinamento sociale?",
+          "options": [
+            "Una pensione UE unica per tutti",
+            "Portabilita e coordinamento dei diritti sociali",
+            "Stesso salario obbligatorio in tutti i paesi",
+            "Casa gratuita automatica"
+          ],
+          "answer": 1,
+          "explanation": "Il coordinamento UE aiuta a mantenere i diritti sociali quando ci si sposta tra paesi.",
+          "image": "assets/quiz-images/eu-daily-life/q08.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Portabilita/coordinamento dei diritti di sicurezza sociale\". Le regole UE di coordinamento, in particolare i regolamenti 883/2004 e 987/2009, evitano che chi si sposta perda diritti pensionistici, sanitari o familiari. L'UE coordina i sistemi nazionali senza sostituirli."
+        },
+        {
+          "question": "A cosa serve la tessera europea di assicurazione malattia (TEAM)?",
+          "options": [
+            "Cure private gratis ovunque",
+            "Accesso a cure pubbliche necessarie durante soggiorni temporanei",
+            "Diritto sanitario permanente senza registrazione",
+            "Copre solo cure dentistiche"
+          ],
+          "answer": 1,
+          "explanation": "La TEAM facilita l accesso a cure pubbliche necessarie durante soggiorni temporanei.",
+          "image": "assets/quiz-images/eu-daily-life/q09.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Accesso alle cure pubbliche necessarie durante soggiorni temporanei\". La TEAM EHIC è stata introdotta nel 2004, sostituendo moduli precedenti in molti casi. Aiuta a ottenere cure medicalmente necessarie nel sistema pubblico del paese ospitante."
+        },
+        {
+          "question": "Come possono aiutare i regolamenti UE sui prodotti?",
+          "options": [
+            "Vietando tutte le importazioni",
+            "Definendo standard comuni di sicurezza e qualità",
+            "Imponendo un prezzo unico su tutto",
+            "Rimuovendo tutte le etichette"
+          ],
+          "answer": 1,
+          "explanation": "Standard comuni aumentano sicurezza, comparabilita e fiducia nel mercato unico.",
+          "image": "assets/quiz-images/eu-daily-life/q10.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Con standard comuni di sicurezza e qualità\". L'armonizzazione tecnica europea si e rafforzata con il mercato unico dagli anni 80 in poi. Regole comuni e sistemi di conformita aumentano sicurezza dei prodotti e fiducia dei consumatori in tutta l'UE."
+        }
+      ],
+      "euAgenda": [
+        {
+          "question": "Qual è l'obiettivo principale del Green Deal europeo?",
+          "options": [
+            "Vietare subito tutte le auto",
+            "Rendere l'UE climaticamente neutra entro il 2050",
+            "Chiudere tutte le centrali",
+            "Uscire dall Accordo di Parigi"
+          ],
+          "answer": 1,
+          "explanation": "Il Green Deal punta alla neutralità climatica entro il 2050.",
+          "image": "assets/quiz-images/eu-agenda/q01.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Rendere l'UE climaticamente neutra entro il 2050\". Il Green Deal europeo è stato lanciato nel dicembre 2019 e la Legge europea sul clima del 2021 ha reso vincolante l'obiettivo 2050. Sono stati fissati anche target intermedi al 2030."
+        },
+        {
+          "question": "Quale programma finanzia ricerca e innovazione nell'UE?",
+          "options": [
+            "Erasmus+",
+            "Horizon Europe",
+            "Creative Europe",
+            "Solo Copernicus"
+          ],
+          "answer": 1,
+          "explanation": "Horizon Europe e il principale programma UE per ricerca e innovazione.",
+          "image": "assets/quiz-images/eu-agenda/q02.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Horizon Europe\". Horizon Europe e il programma quadro UE per ricerca e innovazione 2021-2027, successore di Horizon 2020 del periodo 2014-2020. Finanzia universita, imprese e centri di ricerca su tecnologie, salute, clima e digitale."
+        },
+        {
+          "question": "Su cosa si concentra l'agenda digitale UE?",
+          "options": [
+            "Solo videogiochi",
+            "Competenze, infrastrutture, diritti e competitività digitale",
+            "Sostituire tutte le scuole con IA",
+            "Eliminare norme di cybersecurity"
+          ],
+          "answer": 1,
+          "explanation": "La strategia digitale copre connettivita, competenze, sicurezza e mercati equi.",
+          "image": "assets/quiz-images/eu-agenda/q03.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Competenze digitali, infrastrutture, diritti e competitività\". L'agenda digitale UE combina obiettivi di lungo periodo, Digital Decade 2030, con regole recenti come DSA e DMA adottate nel 2022. L'idea e coniugare innovazione, tutela dei cittadini e concorrenza leale."
+        },
+        {
+          "question": "Qual è un obiettivo dell'EU Chips Act?",
+          "options": [
+            "Vietare i semiconduttori",
+            "Rafforzare la capacita europea sui semiconduttori",
+            "Tassare al 100% tutti gli smartphone importati",
+            "Chiudere le fabbriche tech"
+          ],
+          "answer": 1,
+          "explanation": "Il Chips Act mira a rafforzare produzione e resilienza europea nei semiconduttori.",
+          "image": "assets/quiz-images/eu-agenda/q04.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Rafforzare la capacita europea nei semiconduttori\". Il Chips Act europeo è entrato in vigore nel 2023 per ridurre dipendenze strategiche nelle tecnologie critiche. Punta ad aumentare resilienza industriale e produzione avanzata in Europa entro il 2030."
+        },
+        {
+          "question": "Quale tema è centrale nella politica energetica UE?",
+          "options": [
+            "Dipendenza totale da un solo fornitore",
+            "Diversificazione e transizione pulita",
+            "Stop totale alle rinnovabili",
+            "Eliminazione delle reti elettriche"
+          ],
+          "answer": 1,
+          "explanation": "L'UE punta a sicurezza energetica, diversificazione e transizione pulita.",
+          "image": "assets/quiz-images/eu-agenda/q05.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Diversificazione e transizione pulita\". La politica energetica UE oggi unisce sicurezza degli approvvigionamenti e decarbonizzazione, con forte accelerazione dal 2022. Iniziative come REPowerEU hanno spinto diversificazione delle fonti e sviluppo delle rinnovabili."
+        },
+        {
+          "question": "Qual è uno scopo della strategia industriale UE?",
+          "options": [
+            "Spostare tutta la produzione fuori Europa",
+            "Migliorare competitività e resilienza strategica",
+            "Limitare i fondi per innovazione",
+            "Vietare alle PMI di esportare"
+          ],
+          "answer": 1,
+          "explanation": "La strategia industriale rafforza competitività, innovazione e filiere resilienti.",
+          "image": "assets/quiz-images/eu-agenda/q06.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Migliorare competitività e resilienza strategica\". La strategia industriale UE, aggiornata nel 2020 e 2021, sostiene la doppia transizione verde-digitale e la tenuta delle catene del valore. L'obiettivo e rafforzare la base produttiva europea nei settori chiave."
+        },
+        {
+          "question": "Perche la cybersecurity è prioritaria nell'agenda UE?",
+          "options": [
+            "Perche aumentano minacce a cittadini e infrastrutture",
+            "Perche internet sta finendo",
+            "Perche riguarda solo le banche",
+            "Perche ha sostituito la sanita"
+          ],
+          "answer": 0,
+          "explanation": "Le minacce cyber crescenti richiedono protezione di servizi e infrastrutture critiche.",
+          "image": "assets/quiz-images/eu-agenda/q07.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Perche aumentano le minacce cyber a cittadini e infrastrutture\". La politica UE sulla cybersicurezza si e ampliata dalla direttiva NIS del 2016 alla NIS2 del 2022. Questo quadro rafforza prevenzione, risposta agli incidenti e protezione dei servizi essenziali."
+        },
+        {
+          "question": "Cosa cerca di ridurre la politica di coesione UE?",
+          "options": [
+            "Diversita culturale",
+            "Divari regionali",
+            "Commercio transfrontaliero",
+            "Iscrizioni universitarie"
+          ],
+          "answer": 1,
+          "explanation": "La politica di coesione sostiene le regioni meno sviluppate e riduce le disuguaglianze.",
+          "image": "assets/quiz-images/eu-agenda/q08.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Divari regionali\". La politica di coesione mira da decenni a ridurre le differenze economiche e sociali tra territori europei. Nei programmi 2021-2027 i fondi di coesione restano centrali per sviluppo equilibrato, occupazione e infrastrutture locali."
+        },
+        {
+          "question": "Quale priorita UE riguarda l'occupazione giovanile?",
+          "options": [
+            "Scoraggiare l'apprendistato",
+            "Promuovere competenze e accesso al lavoro",
+            "Vietare i tirocini",
+            "Ridurre la formazione professionale"
+          ],
+          "answer": 1,
+          "explanation": "L'UE sostiene l'occupabilità con programmi su competenze e inserimento lavorativo.",
+          "image": "assets/quiz-images/eu-agenda/q09.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Promuovere competenze e accesso al lavoro\". Tra le iniziative chiave c'e la Garanzia Giovani, avviata nel 2013 e rafforzata nel 2020. L'UE supporta formazione, apprendistato e inserimento lavorativo per migliorare le opportunità delle nuove generazioni."
+        },
+        {
+          "question": "Come affronta l'UE le sfide globali?",
+          "options": [
+            "Solo azione nazionale",
+            "Cooperazione tramite partenariati e politiche comuni",
+            "Nessuna azione esterna",
+            "Solo isolamento commerciale"
+          ],
+          "answer": 1,
+          "explanation": "L'UE adotta approcci multilaterali, partenariati e quadri condivisi.",
+          "image": "assets/quiz-images/eu-agenda/q10.jpg",
+          "correctAnswerDetail": "La risposta corretta e \"Cooperazione tramite partenariati e politiche comuni\". L'UE affronta sfide globali con strumenti coordinati in commercio, clima, sviluppo e diplomazia. Programmi recenti come Global Gateway del 2021 mostrano un approccio basato su partnership di lungo periodo."
+        }
+      ]
+    },
+    "thumbnailAlt": "Anteprima per {category}",
+    "iconAlt": "Icona per {category}",
+    "statsTotalAttempts": "Tentativi",
+    "statsAccuracy": "Precisione",
+    "statsAccountSynced": "Sincronizzato con account",
+    "statsLocalOnly": "Solo locale",
+    "statsBestInCategory": "Migliore categoria",
+    "statsBestAttempt": "Miglior tentativo",
+    "back": "Indietro"
   }
 }

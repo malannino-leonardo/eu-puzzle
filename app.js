@@ -70,6 +70,12 @@
         ]
     };
 
+    const EUROPEAN_NAME_HINTS = [
+        'austria', 'belgium', 'bulgaria', 'croatia', 'cyprus', 'czech', 'denmark', 'estonia', 'finland',
+        'france', 'germany', 'greece', 'hungary', 'ireland', 'italy', 'latvia', 'lithuania', 'luxembourg',
+        'malta', 'netherlands', 'poland', 'portugal', 'romania', 'slovakia', 'slovenia', 'spain', 'sweden'
+    ];
+
     // =====================================================
     // GLOBAL STATE
     // =====================================================
@@ -421,7 +427,7 @@
                 name = countryInfo.name;
             }
             
-            const filteredFeature = filterFeatureToEurope(feature, state.pathGenerator);
+            const filteredFeature = filterFeatureToEurope(feature);
             if (!filteredFeature) {
                 console.log(`[Skip] ${name} - no European geometry after filtering`);
                 return;
@@ -454,17 +460,13 @@
     function isEuropeanCountry(id, name) {
         // Check by ID
         if (CONFIG.EUROPEAN_COUNTRIES.includes(id)) return true;
-        
+
         // Check by name (fallback)
-        const europeanNames = [
-            'austria', 'belgium', 'bulgaria', 'croatia', 'cyprus', 'czech', 'denmark', 'estonia', 'finland', 'france', 'germany', 'greece', 'hungary', 'ireland', 'italy', 'latvia', 'lithuania', 'luxembourg', 'malta', 'netherlands', 'poland', 'portugal', 'romania', 'slovakia', 'slovenia', 'spain', 'sweden'
-        ];
-        
-        const nameLower = name.toLowerCase();
-        return europeanNames.some(n => nameLower.includes(n));
+        const nameLower = String(name || '').toLowerCase();
+        return EUROPEAN_NAME_HINTS.some(n => nameLower.includes(n));
     }
     
-    function isGeometryInEuropeanBounds(geometry, pathGenerator) {
+    function isGeometryInEuropeanBounds(geometry) {
         const tempFeature = { type: 'Feature', properties: {}, geometry };
         // IMPORTANT: Use geographic bounds (lon/lat), not projected screen-space bounds.
         // Screen-space filtering breaks at different resolutions and zoom levels.
@@ -493,18 +495,18 @@
                centerLat >= europeMinLat && centerLat <= europeMaxLat;
     }
 
-    function filterFeatureToEurope(feature, pathGenerator) {
+    function filterFeatureToEurope(feature) {
         if (!feature?.geometry) return null;
         
         const geometry = feature.geometry;
         if (geometry.type === 'Polygon') {
-            return isGeometryInEuropeanBounds(geometry, pathGenerator) ? feature : null;
+            return isGeometryInEuropeanBounds(geometry) ? feature : null;
         }
         
         if (geometry.type === 'MultiPolygon') {
             const kept = geometry.coordinates.filter(coords => {
                 const polygonGeometry = { type: 'Polygon', coordinates: coords };
-                return isGeometryInEuropeanBounds(polygonGeometry, pathGenerator);
+                return isGeometryInEuropeanBounds(polygonGeometry);
             });
             
             if (!kept.length) return null;
@@ -2625,7 +2627,10 @@
     }
 
     function getCookie(name) {
-        const pair = document.cookie.split('; ').find(row => row.startsWith(name + '='));
+        const encodedName = encodeURIComponent(name) + '=';
+        const pair = document.cookie
+            .split('; ')
+            .find(row => row.startsWith(encodedName));
         return pair ? decodeURIComponent(pair.split('=')[1]) : null;
     }
 
