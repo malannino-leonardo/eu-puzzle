@@ -46,6 +46,10 @@
                 </li>
             </ul>
         </div>
+        <button id="btn-settings" class="stats-settings-btn" type="button" data-i18n-aria="settings.title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span data-i18n="game.settings">Impostazioni</span>
+        </button>
         <a href="account.html?ref=quiz" class="stats-account-icon" data-i18n-aria="menu.account" aria-label="Account">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </a>
@@ -68,6 +72,45 @@
             <div class="quiz-stage" id="quiz-stage"></div>
         </section>
     </main>
+
+    <div id="settings-modal" class="settings-modal hidden" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h3 id="settings-modal-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    <span data-i18n="settings.title">Impostazioni</span>
+                </h3>
+                <button id="btn-close-settings" class="btn-close" aria-label="Chiudi impostazioni">&times;</button>
+            </div>
+
+            <div class="settings-body">
+                <section class="settings-section">
+                    <h4 class="settings-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                        <span data-i18n="settings.fontSize">Dimensione Testo</span>
+                    </h4>
+                    <div class="font-size-options">
+                        <button class="font-size-btn" data-size="small" aria-label="Testo piccolo">
+                            <span class="font-size-preview" style="font-size:0.75rem">A</span>
+                            <span data-i18n="settings.small">Piccolo</span>
+                        </button>
+                        <button class="font-size-btn active" data-size="medium" aria-label="Testo medio">
+                            <span class="font-size-preview" style="font-size:1rem">A</span>
+                            <span data-i18n="settings.medium">Medio</span>
+                        </button>
+                        <button class="font-size-btn" data-size="large" aria-label="Testo grande">
+                            <span class="font-size-preview" style="font-size:1.3rem">A</span>
+                            <span data-i18n="settings.large">Grande</span>
+                        </button>
+                        <button class="font-size-btn" data-size="xlarge" aria-label="Testo molto grande">
+                            <span class="font-size-preview" style="font-size:1.6rem">A</span>
+                            <span data-i18n="settings.xlarge">XL</span>
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="scripts/supabase-config.js" onerror="console.info('[SupabaseClient] config not found')"></script>

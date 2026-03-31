@@ -20,7 +20,6 @@
     const state = {
         categoryKey: null,
         sessionQuestions: [],
-        sourceLinks: {},
         userAnswers: [],
         reviewVisible: false,
         currentIndex: 0,
@@ -114,42 +113,6 @@
         });
     }
 
-    async function loadQuizSources() {
-        try {
-            const response = await fetch('data/quiz-sources.json', { cache: 'no-store' });
-            if (!response.ok) return {};
-            const payload = await response.json();
-            return payload && typeof payload === 'object' ? payload : {};
-        } catch (_) {
-            return {};
-        }
-    }
-
-    function getSourceFromMapByKey(sourceKey) {
-        if (!sourceKey || !state.sourceLinks || typeof state.sourceLinks !== 'object') return null;
-
-        const parts = String(sourceKey).split('.');
-        if (parts.length !== 2) return null;
-        const category = parts[0];
-        const questionKey = parts[1];
-        const categoryMap = state.sourceLinks[category];
-        if (!categoryMap || typeof categoryMap !== 'object') return null;
-
-        const entry = categoryMap[questionKey];
-        if (!entry) return null;
-        if (typeof entry === 'string') {
-            return { url: entry, label: '' };
-        }
-        if (entry && typeof entry === 'object') {
-            return {
-                url: typeof entry.url === 'string' ? entry.url : '',
-                label: typeof entry.label === 'string' ? entry.label : ''
-            };
-        }
-
-        return null;
-    }
-
     function getInlineQuestionSource(question) {
         if (!question || typeof question !== 'object') return null;
 
@@ -169,6 +132,84 @@
 
         if (!rawUrl && !rawLabel) return null;
         return { url: rawUrl, label: rawLabel };
+    }
+
+    function getQuestionIndexFromSourceKey(sourceKey) {
+        const match = String(sourceKey || '').match(/^.+\.q(\d{2})$/i);
+        if (!match) return -1;
+        const index = Number(match[1]) - 1;
+        if (!Number.isInteger(index) || index < 0) return -1;
+        return index;
+    }
+
+    function readGameSettings() {
+        try {
+            return JSON.parse(localStorage.getItem('gameSettings') || '{}') || {};
+        } catch (_) {
+            return {};
+        }
+    }
+
+    function writeGameSettingsPatch(patch) {
+        try {
+            const current = readGameSettings();
+            localStorage.setItem('gameSettings', JSON.stringify({ ...current, ...patch }));
+        } catch (_) {}
+    }
+
+    function applyFontSizeSetting(fontSize) {
+        const allowed = new Set(['small', 'medium', 'large', 'xlarge']);
+        const safeSize = allowed.has(fontSize) ? fontSize : 'medium';
+        document.documentElement.setAttribute('data-font-size', safeSize);
+    }
+
+    function initSettingsModal() {
+        const openBtn = document.getElementById('btn-settings');
+        const closeBtn = document.getElementById('btn-close-settings');
+        const modal = document.getElementById('settings-modal');
+        const fontButtons = document.querySelectorAll('#settings-modal .font-size-btn[data-size]');
+        if (!openBtn || !closeBtn || !modal) return;
+
+        const syncActiveButton = () => {
+            const settings = readGameSettings();
+            const selected = settings.fontSize || document.documentElement.getAttribute('data-font-size') || 'medium';
+            fontButtons.forEach((btn) => {
+                const isActive = btn.dataset.size === selected;
+                btn.classList.toggle('active', isActive);
+            });
+        };
+
+        const openModal = () => {
+            syncActiveButton();
+            modal.classList.remove('hidden');
+        };
+
+        const closeModal = () => {
+            modal.classList.add('hidden');
+        };
+
+        openBtn.addEventListener('click', openModal);
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) closeModal();
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+
+        fontButtons.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const size = btn.dataset.size || 'medium';
+                applyFontSizeSetting(size);
+                writeGameSettingsPatch({ fontSize: size });
+                syncActiveButton();
+            });
+        });
+
+        syncActiveButton();
     }
 
     function createDefaultStats() {
@@ -554,7 +595,7 @@
 
         const imageElement = stage.querySelector('#quiz-question-image');
         if (imageElement) {
-            loadQuestionImage(imageElement, question, state.categoryKey, current);
+            loadQuestionImage(imageElement, localizedQuestion, state.categoryKey);
         }
 
         const nextBtn = stage.querySelector('#quiz-next-btn');
@@ -845,9 +886,8 @@
     }
 
     function buildQuestionSource(question) {
-        const sourceFromJson = getSourceFromMapByKey(question && question.sourceKey ? question.sourceKey : '');
         const sourceFromQuestion = getInlineQuestionSource(question);
-        const picked = sourceFromJson || sourceFromQuestion || {};
+        const picked = sourceFromQuestion || {};
 
         const sourceUrl = normalizeExternalUrl(picked.url) || 'https://european-union.europa.eu/';
         const rawLabel = picked.label || (question && (question.sourceLabel || question.sourceTitle || question.reference));
@@ -930,14 +970,39 @@
         syncCategoryProgressToAccount(categoryKey);
     }
 
-    function loadQuestionImage(imageEl, question, categoryKey, number) {
-        const explicit = typeof question.image === 'string' ? question.image : '';
+    function loadQuestionImage(imageEl, question, categoryKey) {
+        const normalizeToPngPath = (value) => {
+            if (typeof value !== 'string') return '';
+            const trimmed = value.trim();
+            if (!trimmed) return '';
+
+            const match = trimmed.match(/^([^?#]*)(\?[^#]*)?(#.*)?$/);
+            if (!match) return trimmed;
+
+            let base = match[1] || '';
+            const query = match[2] || '';
+            const hash = match[3] || '';
+
+            if (/\.[^/.]+$/.test(base)) {
+                base = base.replace(/\.[^/.]+$/, '.png');
+            } else {
+                base += '.png';
+            }
+
+            return base + query + hash;
+        };
+
+        const explicitImageLink = normalizeToPngPath(question.imageLink);
+        const explicitLegacy = normalizeToPngPath(question.image);
         const folder = CATEGORY_FOLDERS[categoryKey] || categoryKey;
-        const fallbackBase = 'assets/quiz-images/' + folder + '/q' + String(number).padStart(2, '0');
+        const sourceIndex = getQuestionIndexFromSourceKey(question && question.sourceKey ? question.sourceKey : '');
+        const fallbackNumber = sourceIndex >= 0 ? sourceIndex + 1 : 1;
+        const fallbackBase = 'assets/quiz-images/' + folder + '/q' + String(fallbackNumber).padStart(2, '0');
 
         const candidates = [];
-        if (explicit) candidates.push(explicit);
-        candidates.push(fallbackBase + '.jpg', fallbackBase + '.jpeg', fallbackBase + '.png', fallbackBase + '.webp');
+        if (explicitImageLink) candidates.push(explicitImageLink);
+        if (explicitLegacy) candidates.push(explicitLegacy);
+        candidates.push(fallbackBase + '.png');
 
         let index = 0;
         const tried = new Set();
@@ -1005,7 +1070,7 @@
 
     async function init() {
         initBackgroundSlideshow();
-        state.sourceLinks = await loadQuizSources();
+        initSettingsModal();
         render();
         await hydrateAccountStats();
         render();

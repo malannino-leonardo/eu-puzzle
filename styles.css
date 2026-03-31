@@ -4066,6 +4066,33 @@ body.stats-page {
     flex-shrink: 0;
 }
 
+.stats-settings-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    height: 2.45rem;
+    padding: 0 0.8rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.04);
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.stats-settings-btn:hover {
+    color: var(--primary-light);
+    border-color: var(--primary-light);
+    background: rgba(99, 102, 241, 0.15);
+}
+
+.stats-settings-btn svg {
+    width: 1rem;
+    height: 1rem;
+}
+
 .stats-account-icon {
     display: inline-flex;
     align-items: center;
