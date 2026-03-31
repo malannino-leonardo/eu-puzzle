@@ -20,10 +20,14 @@
     const state = {
         categoryKey: null,
         sessionQuestions: [],
+        sourceLinks: {},
+        userAnswers: [],
+        reviewVisible: false,
         currentIndex: 0,
         score: 0,
         answered: false,
         selectedAnswer: -1,
+        pendingFinishTimeoutId: null,
         resultCommitted: false,
         categoryRenderToken: 0,
         stats: null,
@@ -61,6 +65,13 @@
         return questions.slice(0, 10);
     }
 
+    function buildSourceKey(categoryKey, index) {
+        const safeCategory = String(categoryKey || '').trim();
+        const safeIndex = Number(index) + 1;
+        if (!safeCategory || !Number.isFinite(safeIndex) || safeIndex <= 0) return '';
+        return safeCategory + '.q' + String(safeIndex).padStart(2, '0');
+    }
+
     function shuffleArray(list) {
         const out = Array.isArray(list) ? list.slice() : [];
         for (let i = out.length - 1; i > 0; i -= 1) {
@@ -73,8 +84,12 @@
     }
 
     function buildSessionQuestions(categoryKey) {
-        const baseQuestions = ensureQuestionCount(categoryKey);
-        return shuffleArray(baseQuestions).map((question) => {
+        const baseQuestions = ensureQuestionCount(categoryKey).map((question, index) => ({
+            question,
+            sourceKey: buildSourceKey(categoryKey, index)
+        }));
+        return shuffleArray(baseQuestions).map((entry) => {
+            const question = entry && entry.question ? entry.question : {};
             const options = Array.isArray(question && question.options) ? question.options.slice() : [];
             const answerIndex = Number(question && question.answer);
             const safeAnswerIndex = Number.isInteger(answerIndex) && answerIndex >= 0 && answerIndex < options.length
@@ -83,6 +98,7 @@
 
             const optionEntries = options.map((text, idx) => ({
                 text,
+                originalIndex: idx,
                 isCorrect: idx === safeAnswerIndex
             }));
             const shuffledOptions = shuffleArray(optionEntries);
@@ -90,10 +106,69 @@
 
             return {
                 ...question,
+                sourceKey: entry && entry.sourceKey ? entry.sourceKey : '',
+                optionOrder: shuffledOptions.map((item) => item.originalIndex),
                 options: shuffledOptions.map((entry) => entry.text),
                 answer: shuffledAnswerIndex >= 0 ? shuffledAnswerIndex : 0
             };
         });
+    }
+
+    async function loadQuizSources() {
+        try {
+            const response = await fetch('data/quiz-sources.json', { cache: 'no-store' });
+            if (!response.ok) return {};
+            const payload = await response.json();
+            return payload && typeof payload === 'object' ? payload : {};
+        } catch (_) {
+            return {};
+        }
+    }
+
+    function getSourceFromMapByKey(sourceKey) {
+        if (!sourceKey || !state.sourceLinks || typeof state.sourceLinks !== 'object') return null;
+
+        const parts = String(sourceKey).split('.');
+        if (parts.length !== 2) return null;
+        const category = parts[0];
+        const questionKey = parts[1];
+        const categoryMap = state.sourceLinks[category];
+        if (!categoryMap || typeof categoryMap !== 'object') return null;
+
+        const entry = categoryMap[questionKey];
+        if (!entry) return null;
+        if (typeof entry === 'string') {
+            return { url: entry, label: '' };
+        }
+        if (entry && typeof entry === 'object') {
+            return {
+                url: typeof entry.url === 'string' ? entry.url : '',
+                label: typeof entry.label === 'string' ? entry.label : ''
+            };
+        }
+
+        return null;
+    }
+
+    function getInlineQuestionSource(question) {
+        if (!question || typeof question !== 'object') return null;
+
+        const objectSource = question.source && typeof question.source === 'object'
+            ? {
+                url: typeof question.source.url === 'string' ? question.source.url : '',
+                label: typeof question.source.label === 'string' ? question.source.label : ''
+            }
+            : null;
+
+        const rawUrl = objectSource && objectSource.url
+            ? objectSource.url
+            : (question.sourceUrl || question.referenceUrl || question.link || (typeof question.source === 'string' ? question.source : ''));
+        const rawLabel = objectSource && objectSource.label
+            ? objectSource.label
+            : (question.sourceLabel || question.sourceTitle || question.reference || '');
+
+        if (!rawUrl && !rawLabel) return null;
+        return { url: rawUrl, label: rawLabel };
     }
 
     function createDefaultStats() {
@@ -294,16 +369,7 @@
         const categoryStats = stats.categories[state.categoryKey] || { bestScore: 0 };
         mount.innerHTML = `
             <span class="quiz-stat-pill"><strong>${escapeHtml(t('quiz.statsBestAttempt'))}:</strong> ${categoryStats.bestScore}/10</span>
-            <button class="quiz-action-btn quiz-top-action" type="button" id="quiz-back-to-categories-top">${escapeHtml(t('quiz.chooseAnotherCategory'))}</button>
         `;
-
-        const backToCategoriesBtn = mount.querySelector('#quiz-back-to-categories-top');
-        if (backToCategoriesBtn) {
-            backToCategoriesBtn.addEventListener('click', () => {
-                state.categoryKey = null;
-                render();
-            });
-        }
     }
 
     function render() {
@@ -387,24 +453,77 @@
             btn.addEventListener('click', () => {
                 const categoryKey = btn.getAttribute('data-category');
                 if (!categoryKey) return;
+                clearPendingFinishTimeout();
                 state.categoryKey = categoryKey;
                 state.sessionQuestions = buildSessionQuestions(categoryKey);
+                state.userAnswers = [];
                 state.currentIndex = 0;
                 state.score = 0;
                 state.answered = false;
                 state.selectedAnswer = -1;
+                state.reviewVisible = false;
                 state.resultCommitted = false;
                 render();
             });
         });
     }
 
+    function getSourceIndexFromKey(sourceKey) {
+        const match = String(sourceKey || '').match(/^.+\.q(\d{2})$/i);
+        if (!match) return -1;
+        const index = Number(match[1]);
+        if (!Number.isInteger(index) || index <= 0) return -1;
+        return index - 1;
+    }
+
+    function getLocalizedQuestionVariant(sessionQuestion) {
+        const sourceIndex = getSourceIndexFromKey(sessionQuestion && sessionQuestion.sourceKey ? sessionQuestion.sourceKey : '');
+        const localizedQuestions = getQuestions(state.categoryKey);
+        const localizedQuestion = sourceIndex >= 0 ? localizedQuestions[sourceIndex] : null;
+        if (!localizedQuestion || typeof localizedQuestion !== 'object') return sessionQuestion || {};
+
+        const fallbackOptions = Array.isArray(sessionQuestion && sessionQuestion.options) ? sessionQuestion.options.slice() : [];
+        const localizedOptions = Array.isArray(localizedQuestion.options) ? localizedQuestion.options : [];
+        const optionOrder = Array.isArray(sessionQuestion && sessionQuestion.optionOrder) ? sessionQuestion.optionOrder : [];
+
+        const remappedOptions = optionOrder.length
+            ? optionOrder.map((originalIndex, shuffledIndex) => {
+                const translated = localizedOptions[Number(originalIndex)];
+                return typeof translated === 'string' ? translated : fallbackOptions[shuffledIndex];
+            })
+            : fallbackOptions;
+
+        return {
+            ...sessionQuestion,
+            ...localizedQuestion,
+            sourceKey: sessionQuestion && sessionQuestion.sourceKey ? sessionQuestion.sourceKey : '',
+            optionOrder,
+            options: remappedOptions,
+            answer: sessionQuestion && sessionQuestion.answer !== undefined ? sessionQuestion.answer : 0
+        };
+    }
+
     function renderQuestion(stage, questions, question) {
+        const localizedQuestion = getLocalizedQuestionVariant(question);
         const style = CATEGORY_STYLES[state.categoryKey] || CATEGORY_STYLES.whatIsEu;
         const total = questions.length;
         const current = state.currentIndex + 1;
+        const answerRecord = state.userAnswers[state.currentIndex] || null;
 
-        const optionsMarkup = (question.options || []).map((optionText, idx) => {
+        state.answered = !!answerRecord;
+        state.selectedAnswer = answerRecord ? Number(answerRecord.selected) : -1;
+
+        const source = buildQuestionSource(localizedQuestion);
+        const sourceMarkup = source
+            ? `
+                <div class="quiz-question-meta${state.answered ? '' : ' is-hidden'}" id="quiz-source-meta">
+                    <span class="quiz-source-label">${escapeHtml(t('quiz.sourceLabel'))}</span>
+                    <a class="quiz-source-link" href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.label)}</a>
+                </div>
+            `
+            : '';
+
+        const optionsMarkup = (localizedQuestion.options || []).map((optionText, idx) => {
             return `
                 <button class="quiz-option" type="button" data-option-index="${idx}">
                     ${escapeHtml(optionText)}
@@ -418,7 +537,8 @@
                 <div class="quiz-question-panel">
                     <span class="quiz-category-chip">${escapeHtml(getCategoryTitle(state.categoryKey))}</span>
                     <div class="quiz-progress">${escapeHtml(t('quiz.progress', { current, total }))}</div>
-                    <h2 class="quiz-question-title">${escapeHtml(question.question || '')}</h2>
+                    <h2 class="quiz-question-title">${escapeHtml(localizedQuestion.question || '')}</h2>
+                    ${sourceMarkup}
                     <div class="quiz-options">${optionsMarkup}</div>
                     <div class="quiz-actions">
                         <button class="quiz-action-btn" type="button" id="quiz-prev-btn">${escapeHtml(t('quiz.back'))}</button>
@@ -442,34 +562,35 @@
 
         if (prevBtn) {
             prevBtn.addEventListener('click', () => {
+                clearPendingFinishTimeout();
                 if (state.currentIndex > 0) {
                     state.currentIndex -= 1;
-                    state.answered = false;
-                    state.selectedAnswer = -1;
                     render();
                     return;
                 }
                 state.categoryKey = null;
                 state.sessionQuestions = [];
+                state.userAnswers = [];
                 render();
             });
         }
 
         const optionButtons = stage.querySelectorAll('[data-option-index]');
         if (state.answered) {
-            applyAnsweredQuestionUI(question, nextBtn, optionButtons);
-            attachWrongOptionHelp(question, optionButtons);
+            applyAnsweredQuestionUI(localizedQuestion, nextBtn, optionButtons);
+            attachWrongOptionHelp(localizedQuestion, optionButtons);
         }
 
         optionButtons.forEach((btn) => {
             btn.addEventListener('click', () => {
                 if (state.answered) return;
                 const selected = Number(btn.getAttribute('data-option-index'));
-                handleAnswer(selected, question, nextBtn, optionButtons);
+                handleAnswer(selected, localizedQuestion, nextBtn, optionButtons, total);
             });
         });
 
         nextBtn.addEventListener('click', () => {
+            clearPendingFinishTimeout();
             state.currentIndex += 1;
             state.answered = false;
             state.selectedAnswer = -1;
@@ -477,13 +598,20 @@
         });
     }
 
-    function handleAnswer(selected, question, nextBtn, optionButtons) {
+    function handleAnswer(selected, question, nextBtn, optionButtons, totalQuestions) {
+        clearPendingFinishTimeout();
         state.answered = true;
         state.selectedAnswer = selected;
 
         const answer = Number(question.answer);
         const isCorrect = selected === answer;
         if (isCorrect) state.score += 1;
+        state.userAnswers[state.currentIndex] = { selected, isCorrect };
+
+        if (isCorrect) {
+            const selectedBtn = Array.from(optionButtons).find((btn) => Number(btn.getAttribute('data-option-index')) === selected);
+            playConfettiBurst(selectedBtn || null);
+        }
 
         optionButtons.forEach((btn) => {
             const idx = Number(btn.getAttribute('data-option-index'));
@@ -500,7 +628,22 @@
             attachWrongOptionHelp(question, optionButtons);
         }
 
+        const sourceMeta = document.getElementById('quiz-source-meta');
+        if (sourceMeta) sourceMeta.classList.remove('is-hidden');
+
         if (nextBtn) nextBtn.disabled = false;
+
+        const isLastQuestion = state.currentIndex === totalQuestions - 1;
+        if (isLastQuestion && isCorrect && nextBtn) {
+            nextBtn.disabled = true;
+            state.pendingFinishTimeoutId = window.setTimeout(() => {
+                state.pendingFinishTimeoutId = null;
+                state.currentIndex += 1;
+                state.answered = false;
+                state.selectedAnswer = -1;
+                render();
+            }, 2000);
+        }
     }
 
     function applyAnsweredQuestionUI(question, nextBtn, optionButtons) {
@@ -523,6 +666,10 @@
         const correctAnswer = options[answerIndex] || '';
         const detailedAnswer = question && question.correctAnswerDetail ? question.correctAnswerDetail : '';
         const explanation = sanitizeDetailedAnswer(detailedAnswer, question && question.explanation ? question.explanation : '');
+        const source = buildQuestionSource(question);
+        const sourceRow = source
+            ? `<p class="quiz-wrong-modal-row"><strong class="quiz-correct-answer-label">${escapeHtml(t('quiz.sourceLabel'))}</strong> <a class="quiz-source-link" href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.label)}</a></p>`
+            : '';
 
         const existing = document.getElementById('quiz-wrong-answer-modal');
         if (existing) existing.remove();
@@ -531,10 +678,11 @@
         modal.className = 'quiz-wrong-modal';
         modal.id = 'quiz-wrong-answer-modal';
         modal.innerHTML = `
-            <div class="quiz-wrong-modal-card" role="dialog" aria-modal="true" aria-labelledby="quiz-wrong-title">
-                <h3 id="quiz-wrong-title" class="quiz-wrong-title">${escapeHtml(t('quiz.feedbackWrong'))}</h3>
+            <div class="quiz-wrong-modal-card is-error" role="dialog" aria-modal="true" aria-labelledby="quiz-wrong-title">
+                <h3 id="quiz-wrong-title" class="quiz-wrong-title"><span class="quiz-wrong-icon" aria-hidden="true">!</span>${escapeHtml(t('quiz.feedbackWrong'))}</h3>
                 <p class="quiz-wrong-modal-row"><strong class="quiz-correct-answer-label">${escapeHtml(t('quiz.correctAnswerLabel'))}</strong> <span class="quiz-correct-answer-value">${escapeHtml(correctAnswer)}</span></p>
                 <p class="quiz-wrong-modal-row">${escapeHtml(explanation)}</p>
+                ${sourceRow}
                 <div class="quiz-wrong-modal-actions">
                     <button class="quiz-action-btn primary" type="button" id="quiz-wrong-close-btn">${escapeHtml(t('quiz.gotIt'))}</button>
                 </div>
@@ -600,36 +748,62 @@
         }
         const titleKey = state.score === total ? 'quiz.resultTitle' : 'quiz.resultTitleQuizCompleted';
         const scoreBadgeClass = getScoreBadgeClass(state.score, total);
-        stage.className = 'quiz-stage';
+        stage.className = 'quiz-stage is-result';
+        const reviewHidden = state.reviewVisible ? '' : ' hidden';
         stage.innerHTML = `
             <div class="quiz-result">
                 <h2>${escapeHtml(t(titleKey))}</h2>
-                <p class="quiz-result-score">${escapeHtml(t('quiz.resultScore', { score: state.score, total }))}</p>
                 <div class="quiz-score-badge ${scoreBadgeClass}">${state.score}/${total}</div>
                 <div class="quiz-result-actions">
+                    <button class="quiz-action-btn" type="button" id="quiz-review-toggle">${escapeHtml(t('quiz.reviewAnswers'))}</button>
                     <button class="quiz-action-btn primary" type="button" id="quiz-restart-category">${escapeHtml(t('quiz.retryCategory'))}</button>
                     <button class="quiz-action-btn" type="button" id="quiz-change-category">${escapeHtml(t('quiz.chooseAnotherCategory'))}</button>
                 </div>
+                <div class="quiz-review" id="quiz-review"${reviewHidden}>${buildReviewMarkup()}</div>
             </div>
         `;
 
+        const review = stage.querySelector('#quiz-review');
+        const reviewToggle = stage.querySelector('#quiz-review-toggle');
+        if (review && reviewToggle) {
+            reviewToggle.textContent = state.reviewVisible ? t('quiz.hideReview') : t('quiz.reviewAnswers');
+            reviewToggle.addEventListener('click', () => {
+                const isHidden = review.hasAttribute('hidden');
+                if (isHidden) {
+                    review.removeAttribute('hidden');
+                    state.reviewVisible = true;
+                    reviewToggle.textContent = t('quiz.hideReview');
+                } else {
+                    review.setAttribute('hidden', 'hidden');
+                    state.reviewVisible = false;
+                    reviewToggle.textContent = t('quiz.reviewAnswers');
+                }
+            });
+        }
+
         stage.querySelector('#quiz-restart-category').addEventListener('click', () => {
+            clearPendingFinishTimeout();
             state.sessionQuestions = buildSessionQuestions(state.categoryKey);
+            state.userAnswers = [];
             state.currentIndex = 0;
             state.score = 0;
             state.answered = false;
             state.selectedAnswer = -1;
+            state.reviewVisible = false;
             state.resultCommitted = false;
             render();
         });
 
         stage.querySelector('#quiz-change-category').addEventListener('click', () => {
+            clearPendingFinishTimeout();
             state.categoryKey = null;
             state.sessionQuestions = [];
+            state.userAnswers = [];
             state.currentIndex = 0;
             state.score = 0;
             state.answered = false;
             state.selectedAnswer = -1;
+            state.reviewVisible = false;
             state.resultCommitted = false;
             render();
         });
@@ -641,6 +815,95 @@
         if (score === total) return 'is-green';
         if (score > 5) return 'is-orange';
         return 'is-red';
+    }
+
+    function buildReviewMarkup() {
+        const questions = Array.isArray(state.sessionQuestions) ? state.sessionQuestions : [];
+        return questions.map((question, idx) => {
+            const localizedQuestion = getLocalizedQuestionVariant(question);
+            const answerRecord = state.userAnswers[idx] || null;
+            const selectedIndex = answerRecord ? Number(answerRecord.selected) : -1;
+            const correctIndex = Number(localizedQuestion && localizedQuestion.answer);
+            const selectedText = selectedIndex >= 0 && Array.isArray(localizedQuestion.options) ? localizedQuestion.options[selectedIndex] : t('quiz.notAnswered');
+            const correctText = correctIndex >= 0 && Array.isArray(localizedQuestion.options) ? localizedQuestion.options[correctIndex] : '';
+            const itemClass = answerRecord && answerRecord.isCorrect ? 'is-correct' : 'is-wrong';
+            const source = buildQuestionSource(localizedQuestion);
+            const sourceMarkup = source
+                ? `<a class="quiz-source-link" href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.label)}</a>`
+                : '';
+
+            return `
+                <article class="quiz-review-item ${itemClass}">
+                    <h3>${escapeHtml(t('quiz.reviewQuestionLabel', { number: idx + 1 }))}</h3>
+                    <p class="quiz-review-question">${escapeHtml(localizedQuestion && localizedQuestion.question ? localizedQuestion.question : '')}</p>
+                    <p class="quiz-review-line"><strong>${escapeHtml(t('quiz.yourAnswer'))}</strong> ${escapeHtml(selectedText || '')}</p>
+                    <p class="quiz-review-line"><strong>${escapeHtml(t('quiz.correctAnswerLabel'))}</strong> ${escapeHtml(correctText || '')}</p>
+                    <p class="quiz-review-line"><strong>${escapeHtml(t('quiz.sourceLabel'))}</strong> ${sourceMarkup}</p>
+                </article>
+            `;
+        }).join('');
+    }
+
+    function buildQuestionSource(question) {
+        const sourceFromJson = getSourceFromMapByKey(question && question.sourceKey ? question.sourceKey : '');
+        const sourceFromQuestion = getInlineQuestionSource(question);
+        const picked = sourceFromJson || sourceFromQuestion || {};
+
+        const sourceUrl = normalizeExternalUrl(picked.url) || 'https://european-union.europa.eu/';
+        const rawLabel = picked.label || (question && (question.sourceLabel || question.sourceTitle || question.reference));
+        const label = String(rawLabel || '').trim() || t('quiz.sourceDefaultLabel');
+        return {
+            url: sourceUrl,
+            label
+        };
+    }
+
+    function normalizeExternalUrl(url) {
+        const value = String(url || '').trim();
+        if (!value) return '';
+        if (/^https?:\/\//i.test(value)) return value;
+        return '';
+    }
+
+    function clearPendingFinishTimeout() {
+        if (!state.pendingFinishTimeoutId) return;
+        window.clearTimeout(state.pendingFinishTimeoutId);
+        state.pendingFinishTimeoutId = null;
+    }
+
+    function playConfettiBurst(anchorElement) {
+        if (!anchorElement || typeof anchorElement.getBoundingClientRect !== 'function') return;
+
+        const rect = anchorElement.getBoundingClientRect();
+        if (!rect || rect.width <= 0 || rect.height <= 0) return;
+
+        const burst = document.createElement('div');
+        burst.className = 'quiz-confetti-layer';
+        const colors = ['#facc15', '#38bdf8', '#34d399', '#f472b6', '#fb7185', '#a78bfa'];
+        const pieces = 36;
+
+        for (let i = 0; i < pieces; i += 1) {
+            const piece = document.createElement('span');
+            piece.className = 'quiz-confetti-piece';
+            const localX = rect.left + (Math.random() * rect.width);
+            const localY = rect.top + (Math.random() * rect.height);
+            const tx = (Math.random() * 180) - 90;
+            const ty = (Math.random() * 180) - 90;
+
+            piece.style.left = Math.max(0, Math.round(localX)) + 'px';
+            piece.style.top = Math.max(0, Math.round(localY)) + 'px';
+            piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+            piece.style.setProperty('--tx', tx.toFixed(0) + 'px');
+            piece.style.setProperty('--ty', ty.toFixed(0) + 'px');
+            piece.style.setProperty('--rot', (Math.random() * 540).toFixed(0) + 'deg');
+            piece.style.setProperty('--delay', (Math.random() * 120).toFixed(0) + 'ms');
+            burst.appendChild(piece);
+        }
+
+        document.body.appendChild(burst);
+        window.setTimeout(() => {
+            burst.remove();
+        }, 1050);
     }
 
     function updateStatsOnCategoryEnd(categoryKey, score, total) {
@@ -742,6 +1005,7 @@
 
     async function init() {
         initBackgroundSlideshow();
+        state.sourceLinks = await loadQuizSources();
         render();
         await hydrateAccountStats();
         render();

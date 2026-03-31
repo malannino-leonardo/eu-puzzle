@@ -733,6 +733,13 @@
     "resultTitleQuizCompleted": "Quiz completato",
     "resultScore": "Hai totalizzato {score} su {total}.",
     "retryCategory": "Riprova questa categoria",
+    "sourceLabel": "Fonte:",
+    "sourceDefaultLabel": "Sito ufficiale UE",
+    "reviewAnswers": "Rivedi risposte",
+    "hideReview": "Nascondi riepilogo",
+    "reviewQuestionLabel": "Domanda {number}",
+    "yourAnswer": "La tua risposta:",
+    "notAnswered": "Non risposta",
     "categories": {
       "whatIsEu": {
         "title": "Che cos'è l'Unione Europea?",
@@ -764,7 +771,11 @@
           "answer": 0,
           "explanation": "L'Unione Europea conta attualmente 27 stati membri.",
           "image": "assets/quiz-images/what-is-eu/q01.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"27\". L'UE nasce dal percorso iniziato con la CECA (1951) a 6 paesi e con la CEE del Trattato di Roma (1957). Diventa Unione Europea con Maastricht il 1 novembre 1993, si allarga soprattutto nel 2004, 2007 e 2013, e oggi conta 27 stati membri dopo l'uscita del Regno Unito nel 2020."
+          "correctAnswerDetail": "La risposta corretta e \"27\". L'UE nasce dal percorso iniziato con la CECA (1951) a 6 paesi e con la CEE del Trattato di Roma (1957). Diventa Unione Europea con Maastricht il 1 novembre 1993, si allarga soprattutto nel 2004, 2007 e 2013, e oggi conta 27 stati membri dopo l'uscita del Regno Unito nel 2020.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Quale trattato ha creato formalmente l'UE nel 1993?",
@@ -777,7 +788,11 @@
           "answer": 1,
           "explanation": "Il Trattato di Maastricht ha istituito formalmente l'UE nel 1993.",
           "image": "assets/quiz-images/what-is-eu/q02.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Trattato di Maastricht\". Firmato nel 1992 ed entrato in vigore il 1 novembre 1993, ha creato formalmente l'Unione Europea e introdotto la cittadinanza europea. Ha anche avviato il percorso dell'Unione economica e monetaria che ha portato all'euro."
+          "correctAnswerDetail": "La risposta corretta e \"Trattato di Maastricht\". Firmato nel 1992 ed entrato in vigore il 1 novembre 1993, ha creato formalmente l'Unione Europea e introdotto la cittadinanza europea. Ha anche avviato il percorso dell'Unione economica e monetaria che ha portato all'euro.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Quale citta e considerata capitale de facto dell'UE?",
@@ -790,7 +805,11 @@
           "answer": 2,
           "explanation": "Le principali istituzioni UE hanno sede a Bruxelles.",
           "image": "assets/quiz-images/what-is-eu/q03.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Bruxelles\". Bruxelles è diventata nel tempo la sede operativa principale delle istituzioni UE, con Commissione e Consiglio già concentrate li dal 1958. In seguito ha ospitato stabilmente i vertici politici europei, affermandosi come capitale di fatto dell'Unione."
+          "correctAnswerDetail": "La risposta corretta e \"Bruxelles\". Bruxelles è diventata nel tempo la sede operativa principale delle istituzioni UE, con Commissione e Consiglio già concentrate li dal 1958. In seguito ha ospitato stabilmente i vertici politici europei, affermandosi come capitale di fatto dell'Unione.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Qual è lo scopo principale del mercato unico europeo?",
@@ -803,7 +822,11 @@
           "answer": 1,
           "explanation": "Il mercato unico consente libera circolazione di beni, servizi, capitali e persone.",
           "image": "assets/quiz-images/what-is-eu/q04.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Eliminare barriere a scambi e mobilità\". Il mercato unico è stato completato il 1 gennaio 1993, su basi poste dal Trattato di Roma (1957) e dall'Atto Unico Europeo (1986). L'obiettivo e la libera circolazione di beni, servizi, capitali e persone."
+          "correctAnswerDetail": "La risposta corretta e \"Eliminare barriere a scambi e mobilità\". Il mercato unico è stato completato il 1 gennaio 1993, su basi poste dal Trattato di Roma (1957) e dall'Atto Unico Europeo (1986). L'obiettivo e la libera circolazione di beni, servizi, capitali e persone.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Quale tra questi è un valore ufficiale dell'UE?",
@@ -816,7 +839,11 @@
           "answer": 2,
           "explanation": "La dignità umana è uno dei valori fondamentali dei trattati UE.",
           "image": "assets/quiz-images/what-is-eu/q05.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"dignità umana\". La dignità umana è al centro dei valori UE, richiamata dall'articolo 2 del Trattato sull'Unione Europea. La Carta dei diritti fondamentali, proclamata nel 2000 e resa vincolante dal 2009, ha rafforzato questa tutela."
+          "correctAnswerDetail": "La risposta corretta e \"dignità umana\". La dignità umana è al centro dei valori UE, richiamata dall'articolo 2 del Trattato sull'Unione Europea. La Carta dei diritti fondamentali, proclamata nel 2000 e resa vincolante dal 2009, ha rafforzato questa tutela.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Cosa simboleggiano le 12 stelle della bandiera UE?",
@@ -829,7 +856,11 @@
           "answer": 1,
           "explanation": "Le 12 stelle rappresentano unità, solidarietà e armonia.",
           "image": "assets/quiz-images/what-is-eu/q06.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"unità e armonia\". La bandiera a 12 stelle fu adottata dal Consiglio d'Europa nel 1955 e poi dalle Comunita europee nel 1986. Il numero 12 non indica gli stati membri, ma un simbolo di unità, completezza e continuità."
+          "correctAnswerDetail": "La risposta corretta e \"unità e armonia\". La bandiera a 12 stelle fu adottata dal Consiglio d'Europa nel 1955 e poi dalle Comunita europee nel 1986. Il numero 12 non indica gli stati membri, ma un simbolo di unità, completezza e continuità.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Quando l'euro è entrato in circolazione come contante?",
@@ -842,7 +873,11 @@
           "answer": 1,
           "explanation": "Banconote e monete in euro sono entrate in circolazione nel 2002.",
           "image": "assets/quiz-images/what-is-eu/q07.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"2002\". L'euro è nato come valuta contabile nel 1999 e ha iniziato a circolare in banconote e monete il 1 gennaio 2002. È stata una delle più grandi transizioni monetarie della storia contemporanea."
+          "correctAnswerDetail": "La risposta corretta e \"2002\". L'euro è nato come valuta contabile nel 1999 e ha iniziato a circolare in banconote e monete il 1 gennaio 2002. È stata una delle più grandi transizioni monetarie della storia contemporanea.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Quale affermazione sull'adesione all'UE è corretta?",
@@ -855,7 +890,11 @@
           "answer": 1,
           "explanation": "Ogni candidato deve soddisfare criteri e ottenere il consenso di tutti gli stati membri.",
           "image": "assets/quiz-images/what-is-eu/q08.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"L'adesione richiede criteri e approvazione unanime\". Dal 1993, con i criteri di Copenaghen, i paesi candidati devono soddisfare standard politici, economici e giuridici. L'ingresso richiede poi unanimita in Consiglio, consenso del Parlamento europeo e ratifiche nazionali."
+          "correctAnswerDetail": "La risposta corretta e \"L'adesione richiede criteri e approvazione unanime\". Dal 1993, con i criteri di Copenaghen, i paesi candidati devono soddisfare standard politici, economici e giuridici. L'ingresso richiede poi unanimita in Consiglio, consenso del Parlamento europeo e ratifiche nazionali.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Che tipo di organizzazione e l'UE?",
@@ -868,7 +907,11 @@
           "answer": 1,
           "explanation": "L'UE combina istituzioni sovranazionali e cooperazione tra stati membri.",
           "image": "assets/quiz-images/what-is-eu/q09.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Un'unione intergovernativa e sovranazionale\". L'UE combina poteri condivisi tra istituzioni comuni e governi nazionali. Questo modello ibrido si e formato dal 1951 (CECA) al 1957 (CEE) fino al quadro politico unificato del 1993."
+          "correctAnswerDetail": "La risposta corretta e \"Un'unione intergovernativa e sovranazionale\". L'UE combina poteri condivisi tra istituzioni comuni e governi nazionali. Questo modello ibrido si e formato dal 1951 (CECA) al 1957 (CEE) fino al quadro politico unificato del 1993.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Quale paese ha lasciato l'UE nel 2020?",
@@ -881,7 +924,11 @@
           "answer": 2,
           "explanation": "Il Regno Unito ha lasciato l'UE il 31 gennaio 2020.",
           "image": "assets/quiz-images/what-is-eu/q10.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Regno Unito\". Dopo il referendum del 23 giugno 2016, il Regno Unito ha lasciato l'UE il 31 gennaio 2020. Il periodo transitorio si e concluso il 31 dicembre 2020, segnando la separazione operativa dal sistema UE."
+          "correctAnswerDetail": "La risposta corretta e \"Regno Unito\". Dopo il referendum del 23 giugno 2016, il Regno Unito ha lasciato l'UE il 31 gennaio 2020. Il periodo transitorio si e concluso il 31 dicembre 2020, segnando la separazione operativa dal sistema UE.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         }
       ],
       "howEuWorks": [
@@ -896,7 +943,11 @@
           "answer": 0,
           "explanation": "La Commissione europea ha il principale potere di iniziativa legislativa.",
           "image": "assets/quiz-images/how-eu-works/q01.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Commissione europea\". La Commissione ha il principale diritto di iniziativa legislativa nel sistema UE, ruolo presente fin dalle origini delle Comunita europee e confermato dai trattati attuali. Questo meccanismo serve a tutelare l'interesse comune europeo oltre le logiche nazionali."
+          "correctAnswerDetail": "La risposta corretta e \"Commissione europea\". La Commissione ha il principale diritto di iniziativa legislativa nel sistema UE, ruolo presente fin dalle origini delle Comunita europee e confermato dai trattati attuali. Questo meccanismo serve a tutelare l'interesse comune europeo oltre le logiche nazionali.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Chi elegge direttamente i membri del Parlamento europeo?",
@@ -909,7 +960,11 @@
           "answer": 1,
           "explanation": "I cittadini UE eleggono direttamente il Parlamento europeo ogni cinque anni.",
           "image": "assets/quiz-images/how-eu-works/q02.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Cittadini dell'UE\". I membri del Parlamento europeo sono eletti a suffragio universale diretto dal 1979, con elezioni ogni cinque anni. Questa scelta ha aumentato la legittimazione democratica rispetto al vecchio sistema di delegazioni nazionali."
+          "correctAnswerDetail": "La risposta corretta e \"Cittadini dell'UE\". I membri del Parlamento europeo sono eletti a suffragio universale diretto dal 1979, con elezioni ogni cinque anni. Questa scelta ha aumentato la legittimazione democratica rispetto al vecchio sistema di delegazioni nazionali.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Cosa rappresenta il Consiglio dell'Unione Europea?",
@@ -922,7 +977,11 @@
           "answer": 2,
           "explanation": "Nel Consiglio siedono i ministri nazionali competenti per materia.",
           "image": "assets/quiz-images/how-eu-works/q03.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Ministri nazionali degli stati membri\". Il Consiglio dell'UE riunisce i ministri competenti dei governi nazionali e opera fin dall'avvio del sistema comunitario nel 1958. È l'organo in cui gli stati co-legiferano insieme al Parlamento."
+          "correctAnswerDetail": "La risposta corretta e \"Ministri nazionali degli stati membri\". Il Consiglio dell'UE riunisce i ministri competenti dei governi nazionali e opera fin dall'avvio del sistema comunitario nel 1958. È l'organo in cui gli stati co-legiferano insieme al Parlamento.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Qual è il ruolo del Consiglio europeo?",
@@ -935,7 +994,11 @@
           "answer": 1,
           "explanation": "Il Consiglio europeo fissa priorita e orientamento strategico.",
           "image": "assets/quiz-images/how-eu-works/q04.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Definire l'indirizzo politico generale\". Il Consiglio europeo riunisce capi di stato o di governo e orienta le priorita strategiche dell'Unione. Nato come prassi di vertici nel 1974, e diventato istituzione formale con il Trattato di Lisbona in vigore dal 2009."
+          "correctAnswerDetail": "La risposta corretta e \"Definire l'indirizzo politico generale\". Il Consiglio europeo riunisce capi di stato o di governo e orienta le priorita strategiche dell'Unione. Nato come prassi di vertici nel 1974, e diventato istituzione formale con il Trattato di Lisbona in vigore dal 2009.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Quale organo interpreta il diritto UE in modo uniforme?",
@@ -948,7 +1011,11 @@
           "answer": 1,
           "explanation": "La Corte di giustizia assicura un'interpretazione uniforme del diritto UE.",
           "image": "assets/quiz-images/how-eu-works/q05.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Corte di giustizia dell'UE\". La Corte, attiva fin dai primi anni 50, garantisce un'interpretazione uniforme del diritto europeo in tutti gli stati membri. Con la giurisprudenza e i rinvii pregiudiziali ha costruito principi fondamentali dell'ordinamento UE."
+          "correctAnswerDetail": "La risposta corretta e \"Corte di giustizia dell'UE\". La Corte, attiva fin dai primi anni 50, garantisce un'interpretazione uniforme del diritto europeo in tutti gli stati membri. Con la giurisprudenza e i rinvii pregiudiziali ha costruito principi fondamentali dell'ordinamento UE.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Come vengono adottate di solito le leggi UE?",
@@ -961,7 +1028,11 @@
           "answer": 1,
           "explanation": "La procedura legislativa ordinaria coinvolge Parlamento e Consiglio.",
           "image": "assets/quiz-images/how-eu-works/q06.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Parlamento e Consiglio insieme\". La procedura legislativa ordinaria, consolidata con Lisbona nel 2009, attribuisce a Parlamento e Consiglio il ruolo congiunto di legislatori. In questo modo si bilanciano rappresentanza dei cittadini e rappresentanza degli stati."
+          "correctAnswerDetail": "La risposta corretta e \"Parlamento e Consiglio insieme\". La procedura legislativa ordinaria, consolidata con Lisbona nel 2009, attribuisce a Parlamento e Consiglio il ruolo congiunto di legislatori. In questo modo si bilanciano rappresentanza dei cittadini e rappresentanza degli stati.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Quale istituzione gestisce la politica monetaria dell'eurozona?",
@@ -974,7 +1045,11 @@
           "answer": 1,
           "explanation": "La BCE definisce la politica monetaria per i paesi dell'euro.",
           "image": "assets/quiz-images/how-eu-works/q07.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Banca centrale europea\". La BCE è stata istituita nel 1998 a Francoforte e guida la politica monetaria dell'area euro dal 1999. Il suo mandato principale e la stabilità dei prezzi nel medio periodo."
+          "correctAnswerDetail": "La risposta corretta e \"Banca centrale europea\". La BCE è stata istituita nel 1998 a Francoforte e guida la politica monetaria dell'area euro dal 1999. Il suo mandato principale e la stabilità dei prezzi nel medio periodo.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Cosa finanzia principalmente il bilancio UE?",
@@ -987,7 +1062,11 @@
           "answer": 1,
           "explanation": "Il bilancio UE sostiene diverse politiche e programmi pluriennali.",
           "image": "assets/quiz-images/how-eu-works/q08.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Agricoltura, coesione, ricerca e programmi\". Il bilancio UE finanzia storicamente la politica agricola comune dal 1962 e gli strumenti di coesione sviluppati dagli anni 70. Nei cicli recenti sono cresciuti anche fondi per ricerca, innovazione e transizione verde-digitale."
+          "correctAnswerDetail": "La risposta corretta e \"Agricoltura, coesione, ricerca e programmi\". Il bilancio UE finanzia storicamente la politica agricola comune dal 1962 e gli strumenti di coesione sviluppati dagli anni 70. Nei cicli recenti sono cresciuti anche fondi per ricerca, innovazione e transizione verde-digitale.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Cosa significa sussidiarietà nel processo decisionale UE?",
@@ -1000,7 +1079,11 @@
           "answer": 1,
           "explanation": "Si interviene a livello UE solo quando e più efficace rispetto ai livelli nazionali/locali.",
           "image": "assets/quiz-images/how-eu-works/q09.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Le decisioni vanno prese il più vicino possibile ai cittadini\". Il principio di sussidiarietà è stato formalizzato con Maastricht nel 1993 e precisato nei protocolli successivi. Significa che l'UE interviene solo quando il livello nazionale o locale non e sufficiente."
+          "correctAnswerDetail": "La risposta corretta e \"Le decisioni vanno prese il più vicino possibile ai cittadini\". Il principio di sussidiarietà è stato formalizzato con Maastricht nel 1993 e precisato nei protocolli successivi. Significa che l'UE interviene solo quando il livello nazionale o locale non e sufficiente.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Chi controlla che i fondi UE siano spesi correttamente?",
@@ -1013,7 +1096,11 @@
           "answer": 0,
           "explanation": "La Corte dei conti europea verifica la regolarità della spesa UE.",
           "image": "assets/quiz-images/how-eu-works/q10.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Corte dei conti europea\". Creata nel 1975 è operativa dal 1977, controlla legalita, regolarita e buona gestione della spesa UE. Con Maastricht ha ottenuto pieno riconoscimento istituzionale nel sistema dell'Unione."
+          "correctAnswerDetail": "La risposta corretta e \"Corte dei conti europea\". Creata nel 1975 è operativa dal 1977, controlla legalita, regolarita e buona gestione della spesa UE. Con Maastricht ha ottenuto pieno riconoscimento istituzionale nel sistema dell'Unione.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         }
       ],
       "euInDailyLife": [
@@ -1028,7 +1115,11 @@
           "answer": 1,
           "explanation": "L'area Schengen ha rimosso molti controlli alle frontiere interne.",
           "image": "assets/quiz-images/eu-daily-life/q01.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Area Schengen\". L'Accordo di Schengen e del 1985, la Convenzione di applicazione del 1990 e l'avvio pratico dell'area senza controlli sistematici alle frontiere interne e del 1995. Schengen è stato integrato nel diritto UE con il Trattato di Amsterdam in vigore dal 1999."
+          "correctAnswerDetail": "La risposta corretta e \"Area Schengen\". L'Accordo di Schengen e del 1985, la Convenzione di applicazione del 1990 e l'avvio pratico dell'area senza controlli sistematici alle frontiere interne e del 1995. Schengen è stato integrato nel diritto UE con il Trattato di Amsterdam in vigore dal 1999.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Quale programma UE sostiene gli scambi studenteschi?",
@@ -1041,7 +1132,11 @@
           "answer": 1,
           "explanation": "Erasmus+ finanzia mobilità in istruzione, formazione e gioventù.",
           "image": "assets/quiz-images/eu-daily-life/q02.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Erasmus+\". Erasmus nasce nel 1987 come programma di mobilità studentesca e diventa un simbolo dell'integrazione europea. Dal 2014 Erasmus+ ha unificato e ampliato molte iniziative, con un nuovo ciclo 2021-2027 più esteso e finanziato."
+          "correctAnswerDetail": "La risposta corretta e \"Erasmus+\". Erasmus nasce nel 1987 come programma di mobilità studentesca e diventa un simbolo dell'integrazione europea. Dal 2014 Erasmus+ ha unificato e ampliato molte iniziative, con un nuovo ciclo 2021-2027 più esteso e finanziato.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Quale diritto dei consumatori vale per molti acquisti online nell'UE?",
@@ -1054,7 +1149,11 @@
           "answer": 2,
           "explanation": "La normativa UE prevede spesso 14 giorni per recedere da acquisti a distanza.",
           "image": "assets/quiz-images/eu-daily-life/q03.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Diritto di recesso entro 14 giorni\". Questo diritto è stato armonizzato dalla Direttiva 2011/83/UE sui diritti dei consumatori, applicata in gran parte dal 2014. Consente di annullare molti acquisti online o a distanza senza dover motivare la scelta."
+          "correctAnswerDetail": "La risposta corretta e \"Diritto di recesso entro 14 giorni\". Questo diritto è stato armonizzato dalla Direttiva 2011/83/UE sui diritti dei consumatori, applicata in gran parte dal 2014. Consente di annullare molti acquisti online o a distanza senza dover motivare la scelta.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Cosa è successo ai costi di roaming nell'UE?",
@@ -1067,7 +1166,11 @@
           "answer": 1,
           "explanation": "Le regole roam like at home hanno ridotto o eliminato molti sovrapprezzi di roaming.",
           "image": "assets/quiz-images/eu-daily-life/q04.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Sono state abolite nella maggior parte dei piani\". Le regole Roam Like at Home sono entrate in vigore il 15 giugno 2017 e hanno eliminato gran parte dei sovrapprezzi di roaming nell'UE. La disciplina è stata poi rinnovata per garantire continuità ai cittadini."
+          "correctAnswerDetail": "La risposta corretta e \"Sono state abolite nella maggior parte dei piani\". Le regole Roam Like at Home sono entrate in vigore il 15 giugno 2017 e hanno eliminato gran parte dei sovrapprezzi di roaming nell'UE. La disciplina è stata poi rinnovata per garantire continuità ai cittadini.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Quale diritto aiuta i lavoratori a spostarsi nell'UE?",
@@ -1080,7 +1183,11 @@
           "answer": 0,
           "explanation": "I cittadini UE hanno diritti di mobilità, con condizioni previste da norme UE e nazionali.",
           "image": "assets/quiz-images/eu-daily-life/q05.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Diritto di lavorare e risiedere secondo le regole UE\". La libera circolazione dei lavoratori ha radici nel Trattato di Roma del 1957 ed è stata rafforzata dalla cittadinanza UE introdotta nel 1993. Questo ha facilitato mobilità professionale e residenza transfrontaliera."
+          "correctAnswerDetail": "La risposta corretta e \"Diritto di lavorare e risiedere secondo le regole UE\". La libera circolazione dei lavoratori ha radici nel Trattato di Roma del 1957 ed è stata rafforzata dalla cittadinanza UE introdotta nel 1993. Questo ha facilitato mobilità professionale e residenza transfrontaliera.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Come aiuta l'euro nella vita quotidiana nei paesi che lo usano?",
@@ -1093,7 +1200,11 @@
           "answer": 1,
           "explanation": "Una valuta comune semplifica pagamenti e viaggi nell'area euro.",
           "image": "assets/quiz-images/eu-daily-life/q06.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Elimina i costi di cambio nell'area euro\". Con l'euro, 1999 in forma contabile e 2002 in contanti, cittadini e imprese hanno ridotto commissioni e incertezza sui cambi tra paesi aderenti. L'effetto e particolarmente visibile nei viaggi e nei pagamenti quotidiani."
+          "correctAnswerDetail": "La risposta corretta e \"Elimina i costi di cambio nell'area euro\". Con l'euro, 1999 in forma contabile e 2002 in contanti, cittadini e imprese hanno ridotto commissioni e incertezza sui cambi tra paesi aderenti. L'effetto e particolarmente visibile nei viaggi e nei pagamenti quotidiani.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Cosa protegge principalmente il GDPR?",
@@ -1106,7 +1217,11 @@
           "answer": 1,
           "explanation": "Il GDPR disciplina protezione e trattamento dei dati personali.",
           "image": "assets/quiz-images/eu-daily-life/q07.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Dati personali e privacy\". Il GDPR, Regolamento UE 2016/679, è stato adottato nel 2016 ed e applicabile dal 25 maggio 2018. Ha aggiornato le garanzie per i cittadini, aumentando trasparenza, controllo sui dati e responsabilita delle organizzazioni."
+          "correctAnswerDetail": "La risposta corretta e \"Dati personali e privacy\". Il GDPR, Regolamento UE 2016/679, è stato adottato nel 2016 ed e applicabile dal 25 maggio 2018. Ha aggiornato le garanzie per i cittadini, aumentando trasparenza, controllo sui dati e responsabilita delle organizzazioni.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Quale supporto danno le regole UE sul coordinamento sociale?",
@@ -1119,7 +1234,11 @@
           "answer": 1,
           "explanation": "Il coordinamento UE aiuta a mantenere i diritti sociali quando ci si sposta tra paesi.",
           "image": "assets/quiz-images/eu-daily-life/q08.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Portabilita/coordinamento dei diritti di sicurezza sociale\". Le regole UE di coordinamento, in particolare i regolamenti 883/2004 e 987/2009, evitano che chi si sposta perda diritti pensionistici, sanitari o familiari. L'UE coordina i sistemi nazionali senza sostituirli."
+          "correctAnswerDetail": "La risposta corretta e \"Portabilita/coordinamento dei diritti di sicurezza sociale\". Le regole UE di coordinamento, in particolare i regolamenti 883/2004 e 987/2009, evitano che chi si sposta perda diritti pensionistici, sanitari o familiari. L'UE coordina i sistemi nazionali senza sostituirli.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "A cosa serve la tessera europea di assicurazione malattia (TEAM)?",
@@ -1132,7 +1251,11 @@
           "answer": 1,
           "explanation": "La TEAM facilita l accesso a cure pubbliche necessarie durante soggiorni temporanei.",
           "image": "assets/quiz-images/eu-daily-life/q09.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Accesso alle cure pubbliche necessarie durante soggiorni temporanei\". La TEAM EHIC è stata introdotta nel 2004, sostituendo moduli precedenti in molti casi. Aiuta a ottenere cure medicalmente necessarie nel sistema pubblico del paese ospitante."
+          "correctAnswerDetail": "La risposta corretta e \"Accesso alle cure pubbliche necessarie durante soggiorni temporanei\". La TEAM EHIC è stata introdotta nel 2004, sostituendo moduli precedenti in molti casi. Aiuta a ottenere cure medicalmente necessarie nel sistema pubblico del paese ospitante.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Come possono aiutare i regolamenti UE sui prodotti?",
@@ -1145,7 +1268,11 @@
           "answer": 1,
           "explanation": "Standard comuni aumentano sicurezza, comparabilita e fiducia nel mercato unico.",
           "image": "assets/quiz-images/eu-daily-life/q10.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Con standard comuni di sicurezza e qualità\". L'armonizzazione tecnica europea si e rafforzata con il mercato unico dagli anni 80 in poi. Regole comuni e sistemi di conformita aumentano sicurezza dei prodotti e fiducia dei consumatori in tutta l'UE."
+          "correctAnswerDetail": "La risposta corretta e \"Con standard comuni di sicurezza e qualità\". L'armonizzazione tecnica europea si e rafforzata con il mercato unico dagli anni 80 in poi. Regole comuni e sistemi di conformita aumentano sicurezza dei prodotti e fiducia dei consumatori in tutta l'UE.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         }
       ],
       "euAgenda": [
@@ -1160,7 +1287,11 @@
           "answer": 1,
           "explanation": "Il Green Deal punta alla neutralità climatica entro il 2050.",
           "image": "assets/quiz-images/eu-agenda/q01.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Rendere l'UE climaticamente neutra entro il 2050\". Il Green Deal europeo è stato lanciato nel dicembre 2019 e la Legge europea sul clima del 2021 ha reso vincolante l'obiettivo 2050. Sono stati fissati anche target intermedi al 2030."
+          "correctAnswerDetail": "La risposta corretta e \"Rendere l'UE climaticamente neutra entro il 2050\". Il Green Deal europeo è stato lanciato nel dicembre 2019 e la Legge europea sul clima del 2021 ha reso vincolante l'obiettivo 2050. Sono stati fissati anche target intermedi al 2030.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Quale programma finanzia ricerca e innovazione nell'UE?",
@@ -1173,7 +1304,11 @@
           "answer": 1,
           "explanation": "Horizon Europe e il principale programma UE per ricerca e innovazione.",
           "image": "assets/quiz-images/eu-agenda/q02.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Horizon Europe\". Horizon Europe e il programma quadro UE per ricerca e innovazione 2021-2027, successore di Horizon 2020 del periodo 2014-2020. Finanzia universita, imprese e centri di ricerca su tecnologie, salute, clima e digitale."
+          "correctAnswerDetail": "La risposta corretta e \"Horizon Europe\". Horizon Europe e il programma quadro UE per ricerca e innovazione 2021-2027, successore di Horizon 2020 del periodo 2014-2020. Finanzia universita, imprese e centri di ricerca su tecnologie, salute, clima e digitale.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Su cosa si concentra l'agenda digitale UE?",
@@ -1186,7 +1321,11 @@
           "answer": 1,
           "explanation": "La strategia digitale copre connettivita, competenze, sicurezza e mercati equi.",
           "image": "assets/quiz-images/eu-agenda/q03.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Competenze digitali, infrastrutture, diritti e competitività\". L'agenda digitale UE combina obiettivi di lungo periodo, Digital Decade 2030, con regole recenti come DSA e DMA adottate nel 2022. L'idea e coniugare innovazione, tutela dei cittadini e concorrenza leale."
+          "correctAnswerDetail": "La risposta corretta e \"Competenze digitali, infrastrutture, diritti e competitività\". L'agenda digitale UE combina obiettivi di lungo periodo, Digital Decade 2030, con regole recenti come DSA e DMA adottate nel 2022. L'idea e coniugare innovazione, tutela dei cittadini e concorrenza leale.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Qual è un obiettivo dell'EU Chips Act?",
@@ -1199,7 +1338,11 @@
           "answer": 1,
           "explanation": "Il Chips Act mira a rafforzare produzione e resilienza europea nei semiconduttori.",
           "image": "assets/quiz-images/eu-agenda/q04.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Rafforzare la capacita europea nei semiconduttori\". Il Chips Act europeo è entrato in vigore nel 2023 per ridurre dipendenze strategiche nelle tecnologie critiche. Punta ad aumentare resilienza industriale e produzione avanzata in Europa entro il 2030."
+          "correctAnswerDetail": "La risposta corretta e \"Rafforzare la capacita europea nei semiconduttori\". Il Chips Act europeo è entrato in vigore nel 2023 per ridurre dipendenze strategiche nelle tecnologie critiche. Punta ad aumentare resilienza industriale e produzione avanzata in Europa entro il 2030.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Quale tema è centrale nella politica energetica UE?",
@@ -1212,7 +1355,11 @@
           "answer": 1,
           "explanation": "L'UE punta a sicurezza energetica, diversificazione e transizione pulita.",
           "image": "assets/quiz-images/eu-agenda/q05.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Diversificazione e transizione pulita\". La politica energetica UE oggi unisce sicurezza degli approvvigionamenti e decarbonizzazione, con forte accelerazione dal 2022. Iniziative come REPowerEU hanno spinto diversificazione delle fonti e sviluppo delle rinnovabili."
+          "correctAnswerDetail": "La risposta corretta e \"Diversificazione e transizione pulita\". La politica energetica UE oggi unisce sicurezza degli approvvigionamenti e decarbonizzazione, con forte accelerazione dal 2022. Iniziative come REPowerEU hanno spinto diversificazione delle fonti e sviluppo delle rinnovabili.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Qual è uno scopo della strategia industriale UE?",
@@ -1225,7 +1372,11 @@
           "answer": 1,
           "explanation": "La strategia industriale rafforza competitività, innovazione e filiere resilienti.",
           "image": "assets/quiz-images/eu-agenda/q06.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Migliorare competitività e resilienza strategica\". La strategia industriale UE, aggiornata nel 2020 e 2021, sostiene la doppia transizione verde-digitale e la tenuta delle catene del valore. L'obiettivo e rafforzare la base produttiva europea nei settori chiave."
+          "correctAnswerDetail": "La risposta corretta e \"Migliorare competitività e resilienza strategica\". La strategia industriale UE, aggiornata nel 2020 e 2021, sostiene la doppia transizione verde-digitale e la tenuta delle catene del valore. L'obiettivo e rafforzare la base produttiva europea nei settori chiave.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Perche la cybersecurity è prioritaria nell'agenda UE?",
@@ -1238,7 +1389,11 @@
           "answer": 0,
           "explanation": "Le minacce cyber crescenti richiedono protezione di servizi e infrastrutture critiche.",
           "image": "assets/quiz-images/eu-agenda/q07.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Perche aumentano le minacce cyber a cittadini e infrastrutture\". La politica UE sulla cybersicurezza si e ampliata dalla direttiva NIS del 2016 alla NIS2 del 2022. Questo quadro rafforza prevenzione, risposta agli incidenti e protezione dei servizi essenziali."
+          "correctAnswerDetail": "La risposta corretta e \"Perche aumentano le minacce cyber a cittadini e infrastrutture\". La politica UE sulla cybersicurezza si e ampliata dalla direttiva NIS del 2016 alla NIS2 del 2022. Questo quadro rafforza prevenzione, risposta agli incidenti e protezione dei servizi essenziali.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Cosa cerca di ridurre la politica di coesione UE?",
@@ -1251,7 +1406,11 @@
           "answer": 1,
           "explanation": "La politica di coesione sostiene le regioni meno sviluppate e riduce le disuguaglianze.",
           "image": "assets/quiz-images/eu-agenda/q08.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Divari regionali\". La politica di coesione mira da decenni a ridurre le differenze economiche e sociali tra territori europei. Nei programmi 2021-2027 i fondi di coesione restano centrali per sviluppo equilibrato, occupazione e infrastrutture locali."
+          "correctAnswerDetail": "La risposta corretta e \"Divari regionali\". La politica di coesione mira da decenni a ridurre le differenze economiche e sociali tra territori europei. Nei programmi 2021-2027 i fondi di coesione restano centrali per sviluppo equilibrato, occupazione e infrastrutture locali.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Quale priorita UE riguarda l'occupazione giovanile?",
@@ -1264,7 +1423,11 @@
           "answer": 1,
           "explanation": "L'UE sostiene l'occupabilità con programmi su competenze e inserimento lavorativo.",
           "image": "assets/quiz-images/eu-agenda/q09.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Promuovere competenze e accesso al lavoro\". Tra le iniziative chiave c'e la Garanzia Giovani, avviata nel 2013 e rafforzata nel 2020. L'UE supporta formazione, apprendistato e inserimento lavorativo per migliorare le opportunità delle nuove generazioni."
+          "correctAnswerDetail": "La risposta corretta e \"Promuovere competenze e accesso al lavoro\". Tra le iniziative chiave c'e la Garanzia Giovani, avviata nel 2013 e rafforzata nel 2020. L'UE supporta formazione, apprendistato e inserimento lavorativo per migliorare le opportunità delle nuove generazioni.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         },
         {
           "question": "Come affronta l'UE le sfide globali?",
@@ -1277,7 +1440,11 @@
           "answer": 1,
           "explanation": "L'UE adotta approcci multilaterali, partenariati e quadri condivisi.",
           "image": "assets/quiz-images/eu-agenda/q10.jpg",
-          "correctAnswerDetail": "La risposta corretta e \"Cooperazione tramite partenariati e politiche comuni\". L'UE affronta sfide globali con strumenti coordinati in commercio, clima, sviluppo e diplomazia. Programmi recenti come Global Gateway del 2021 mostrano un approccio basato su partnership di lungo periodo."
+          "correctAnswerDetail": "La risposta corretta e \"Cooperazione tramite partenariati e politiche comuni\". L'UE affronta sfide globali con strumenti coordinati in commercio, clima, sviluppo e diplomazia. Programmi recenti come Global Gateway del 2021 mostrano un approccio basato su partnership di lungo periodo.",
+          "source": {
+            "url": "https://european-union.europa.eu/",
+            "label": "Sito ufficiale UE"
+          }
         }
       ]
     },
