@@ -163,6 +163,191 @@
         document.documentElement.setAttribute('data-font-size', safeSize);
     }
 
+    const DEFAULT_AUDIO_SETTINGS = {
+        masterVolume: 0.8,
+        masterMuted: false,
+        sfxVolume: 0.8,
+        sfxMuted: false,
+        musicVolume: 0.3,
+        musicMuted: false,
+        musicEnabled: true
+    };
+
+    function readAudioSettings() {
+        try {
+            const parsed = JSON.parse(localStorage.getItem('audioSettings') || '{}') || {};
+            return { ...DEFAULT_AUDIO_SETTINGS, ...parsed };
+        } catch (_) {
+            return { ...DEFAULT_AUDIO_SETTINGS };
+        }
+    }
+
+    const quizAudio = {
+        settings: { ...DEFAULT_AUDIO_SETTINGS },
+        correctSound: null,
+        wrongSound: null,
+        music: {
+            tracks: [
+                'assets/soundtracks/soundtrack1.mp3',
+                'assets/soundtracks/soundtrack2.mp3',
+                'assets/soundtracks/soundtrack3.mp3',
+                'assets/soundtracks/soundtrack4.mp3'
+            ],
+            order: [],
+            index: 0,
+            current: null
+        },
+
+        init() {
+            this._loadSettings();
+            this.correctSound = new Audio('assets/sound-effects/correct.mp3');
+            this.correctSound.preload = 'auto';
+            this.wrongSound = new Audio('assets/sound-effects/wrong.mp3');
+            this.wrongSound.preload = 'auto';
+            this._shuffleTracks();
+            this._applyMusicVolume();
+        },
+
+        _effectiveVolume(category) {
+            const s = this.settings;
+            if (s.masterMuted) return 0;
+            const master = s.masterVolume;
+            if (category === 'sfx') return s.sfxMuted ? 0 : master * s.sfxVolume;
+            if (category === 'music') return s.musicMuted ? 0 : master * s.musicVolume;
+            return master;
+        },
+
+        _shuffleTracks() {
+            const order = this.music.tracks.map((_, i) => i);
+            for (let i = order.length - 1; i > 0; i -= 1) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const tmp = order[i];
+                order[i] = order[j];
+                order[j] = tmp;
+            }
+            this.music.order = order;
+            this.music.index = 0;
+        },
+
+        startMusic() {
+            if (!this.settings.musicEnabled) return;
+            this.stopMusic();
+            this._playNextTrack();
+        },
+
+        stopMusic() {
+            if (!this.music.current) return;
+            this.music.current.pause();
+            this.music.current.src = '';
+            this.music.current = null;
+        },
+
+        _playNextTrack() {
+            if (!this.settings.musicEnabled) return;
+
+            const { order, tracks } = this.music;
+            const trackPath = tracks[order[this.music.index]];
+            const audio = new Audio(trackPath);
+            audio.muted = true;
+            audio.volume = this._effectiveVolume('music');
+            this.music.current = audio;
+
+            audio.addEventListener('ended', () => {
+                this.music.index = (this.music.index + 1) % order.length;
+                if (this.music.index === 0) this._shuffleTracks();
+                this._playNextTrack();
+            }, { once: true });
+
+            audio.play().catch(() => {
+                const resume = () => {
+                    audio.play().catch(() => {});
+                    document.removeEventListener('pointerdown', resume);
+                    document.removeEventListener('keydown', resume);
+                };
+                document.addEventListener('pointerdown', resume, { once: true });
+                document.addEventListener('keydown', resume, { once: true });
+            }).then(() => {
+                audio.muted = false;
+            });
+        },
+
+        _applyMusicVolume() {
+            const vol = this._effectiveVolume('music');
+            if (this.music.current) this.music.current.volume = vol;
+        },
+
+        _playSfx(baseAudio) {
+            if (!baseAudio) return;
+            const vol = this._effectiveVolume('sfx');
+            if (vol === 0) return;
+            const clone = baseAudio.cloneNode();
+            clone.volume = vol;
+            clone.play().catch(() => {});
+        },
+
+        playCorrect() {
+            this._playSfx(this.correctSound);
+        },
+
+        playWrong() {
+            this._playSfx(this.wrongSound);
+        },
+
+        setMasterVolume(v) {
+            this.settings.masterVolume = v;
+            this._applyMusicVolume();
+            this._saveSettings();
+        },
+
+        setSfxVolume(v) {
+            this.settings.sfxVolume = v;
+            this._saveSettings();
+        },
+
+        setMusicVolume(v) {
+            this.settings.musicVolume = v;
+            this._applyMusicVolume();
+            this._saveSettings();
+        },
+
+        setMasterMuted(muted) {
+            this.settings.masterMuted = muted;
+            this._applyMusicVolume();
+            this._saveSettings();
+        },
+
+        setSfxMuted(muted) {
+            this.settings.sfxMuted = muted;
+            this._saveSettings();
+        },
+
+        setMusicMuted(muted) {
+            this.settings.musicMuted = muted;
+            this._applyMusicVolume();
+            this._saveSettings();
+        },
+
+        setMusicEnabled(enabled) {
+            this.settings.musicEnabled = enabled;
+            if (enabled) {
+                this.startMusic();
+            } else {
+                this.stopMusic();
+            }
+            this._saveSettings();
+        },
+
+        _saveSettings() {
+            try {
+                localStorage.setItem('audioSettings', JSON.stringify(this.settings));
+            } catch (_) {}
+        },
+
+        _loadSettings() {
+            this.settings = readAudioSettings();
+        }
+    };
+
     function initSettingsModal() {
         const openBtn = document.getElementById('btn-settings');
         const closeBtn = document.getElementById('btn-close-settings');
@@ -179,8 +364,39 @@
             });
         };
 
+        const applyMuteState = (id, muted) => {
+            const btn = document.getElementById(id);
+            if (!btn) return;
+            btn.classList.toggle('muted', muted);
+            btn.setAttribute('aria-pressed', String(muted));
+        };
+
+        const syncAudioUI = () => {
+            quizAudio._loadSettings();
+            const a = quizAudio.settings;
+
+            const masterSlider = document.getElementById('slider-master-volume');
+            const sfxSlider = document.getElementById('slider-sfx-volume');
+            const musicSlider = document.getElementById('slider-music-volume');
+            const masterVal = document.getElementById('val-master-volume');
+            const sfxVal = document.getElementById('val-sfx-volume');
+            const musicVal = document.getElementById('val-music-volume');
+
+            if (masterSlider) masterSlider.value = Math.round(a.masterVolume * 100);
+            if (sfxSlider) sfxSlider.value = Math.round(a.sfxVolume * 100);
+            if (musicSlider) musicSlider.value = Math.round(a.musicVolume * 100);
+            if (masterVal && masterSlider) masterVal.textContent = masterSlider.value + '%';
+            if (sfxVal && sfxSlider) sfxVal.textContent = sfxSlider.value + '%';
+            if (musicVal && musicSlider) musicVal.textContent = musicSlider.value + '%';
+
+            applyMuteState('btn-mute-master', a.masterMuted);
+            applyMuteState('btn-mute-sfx', a.sfxMuted);
+            applyMuteState('btn-mute-music', a.musicMuted);
+        };
+
         const openModal = () => {
             syncActiveButton();
+            syncAudioUI();
             modal.classList.remove('hidden');
         };
 
@@ -209,7 +425,52 @@
             });
         });
 
+        const wireSlider = (sliderId, valueId, onChange) => {
+            const slider = document.getElementById(sliderId);
+            const value = document.getElementById(valueId);
+            if (!slider) return;
+            slider.addEventListener('input', () => {
+                if (value) value.textContent = slider.value + '%';
+                onChange(parseInt(slider.value, 10) / 100);
+            });
+        };
+
+        wireSlider('slider-master-volume', 'val-master-volume', (v) => quizAudio.setMasterVolume(v));
+        wireSlider('slider-sfx-volume', 'val-sfx-volume', (v) => quizAudio.setSfxVolume(v));
+        wireSlider('slider-music-volume', 'val-music-volume', (v) => {
+            quizAudio.setMusicVolume(v);
+            if (!quizAudio.settings.musicEnabled) {
+                quizAudio.setMusicEnabled(true);
+            }
+            if (quizAudio.settings.musicMuted) {
+                quizAudio.setMusicMuted(false);
+                applyMuteState('btn-mute-music', false);
+            }
+        });
+
+        const wireMuteButton = (id, getter, setter) => {
+            const btn = document.getElementById(id);
+            if (!btn) return;
+            btn.addEventListener('click', () => {
+                const next = !getter();
+                setter(next);
+                applyMuteState(id, next);
+            });
+        };
+
+        wireMuteButton('btn-mute-master', () => !!quizAudio.settings.masterMuted, (muted) => quizAudio.setMasterMuted(muted));
+        wireMuteButton('btn-mute-sfx', () => !!quizAudio.settings.sfxMuted, (muted) => quizAudio.setSfxMuted(muted));
+        wireMuteButton('btn-mute-music', () => !!quizAudio.settings.musicMuted, (muted) => {
+            if (muted) {
+                quizAudio.setMusicMuted(true);
+            } else {
+                if (!quizAudio.settings.musicEnabled) quizAudio.setMusicEnabled(true);
+                quizAudio.setMusicMuted(false);
+            }
+        });
+
         syncActiveButton();
+        syncAudioUI();
     }
 
     function createDefaultStats() {
@@ -646,6 +907,11 @@
 
         const answer = Number(question.answer);
         const isCorrect = selected === answer;
+        if (isCorrect) {
+            quizAudio.playCorrect();
+        } else {
+            quizAudio.playWrong();
+        }
         if (isCorrect) state.score += 1;
         state.userAnswers[state.currentIndex] = { selected, isCorrect };
 
@@ -1069,6 +1335,8 @@
     }
 
     async function init() {
+        quizAudio.init();
+        quizAudio.startMusic();
         initBackgroundSlideshow();
         initSettingsModal();
         render();
@@ -1084,6 +1352,10 @@
                 renderTopStats();
             });
         }
+
+        window.addEventListener('beforeunload', () => {
+            quizAudio.stopMusic();
+        });
     }
 
     if (window.i18nReady) {

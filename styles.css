@@ -3620,6 +3620,7 @@ body.quiz-page {
     align-items: center;
     justify-content: center;
     padding: 1rem;
+    animation: quizWrongModalOverlayFadeIn 220ms ease-out;
 }
 
 .quiz-wrong-modal-card {
@@ -3631,6 +3632,34 @@ body.quiz-page {
     background: linear-gradient(165deg, #10182f, #0f172a);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
     padding: 1rem 1rem 0.9rem;
+    animation: quizWrongModalCardFadeIn 240ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes quizWrongModalOverlayFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes quizWrongModalCardFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .quiz-wrong-modal,
+    .quiz-wrong-modal-card {
+        animation: none;
+    }
 }
 
 .quiz-wrong-modal-card.is-error {
