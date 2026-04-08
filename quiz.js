@@ -699,6 +699,7 @@
     }
 
     function renderCategorySelection(stage) {
+        clearQuizReviewPanel(stage);
         stage.className = 'quiz-stage';
 
         const skeletonCards = CATEGORY_ORDER.map(() => {
@@ -806,6 +807,7 @@
     }
 
     function renderQuestion(stage, questions, question) {
+        clearQuizReviewPanel(stage);
         const localizedQuestion = getLocalizedQuestionVariant(question);
         const style = CATEGORY_STYLES[state.categoryKey] || CATEGORY_STYLES.whatIsEu;
         const total = questions.length;
@@ -942,14 +944,8 @@
 
         const isLastQuestion = state.currentIndex === totalQuestions - 1;
         if (isLastQuestion && isCorrect && nextBtn) {
-            nextBtn.disabled = true;
-            state.pendingFinishTimeoutId = window.setTimeout(() => {
-                state.pendingFinishTimeoutId = null;
-                state.currentIndex += 1;
-                state.answered = false;
-                state.selectedAnswer = -1;
-                render();
-            }, 2000);
+            nextBtn.disabled = false;
+            nextBtn.textContent = escapeHtml(t('quiz.finishQuiz'));
         }
     }
 
@@ -1055,38 +1051,65 @@
         }
         const titleKey = state.score === total ? 'quiz.resultTitle' : 'quiz.resultTitleQuizCompleted';
         const scoreBadgeClass = getScoreBadgeClass(state.score, total);
+        const main = getQuizMainContainer(stage);
         stage.className = 'quiz-stage is-result';
-        const reviewHidden = state.reviewVisible ? '' : ' hidden';
         stage.innerHTML = `
             <div class="quiz-result">
                 <h2>${escapeHtml(t(titleKey))}</h2>
                 <div class="quiz-score-badge ${scoreBadgeClass}">${state.score}/${total}</div>
-                <div class="quiz-result-actions">
-                    <button class="quiz-action-btn" type="button" id="quiz-review-toggle">${escapeHtml(t('quiz.reviewAnswers'))}</button>
-                    <button class="quiz-action-btn primary" type="button" id="quiz-restart-category">${escapeHtml(t('quiz.retryCategory'))}</button>
-                    <button class="quiz-action-btn" type="button" id="quiz-change-category">${escapeHtml(t('quiz.chooseAnotherCategory'))}</button>
+                <div class="quiz-result-main">
+                    <div class="quiz-result-actions">
+                        <button class="quiz-action-btn" type="button" id="quiz-review-toggle">${escapeHtml(state.reviewVisible ? t('quiz.hideReview') : t('quiz.reviewAnswers'))}</button>
+                        <button class="quiz-action-btn primary" type="button" id="quiz-restart-category">${escapeHtml(t('quiz.retryCategory'))}</button>
+                        <button class="quiz-action-btn" type="button" id="quiz-change-category">${escapeHtml(t('quiz.chooseAnotherCategory'))}</button>
+                    </div>
+                    <div class="quiz-share-block">
+                        <h3 class="quiz-share-title">${escapeHtml(t('quiz.shareTitle'))}</h3>
+                        <p class="quiz-share-hint">${escapeHtml(t('quiz.shareHint', { score: state.score, total }))}</p>
+                        <div class="quiz-share-actions">
+                            <button class="quiz-action-btn quiz-share-btn" type="button" id="quiz-share-native" aria-label="${escapeHtml(t('quiz.shareNative'))}" title="${escapeHtml(t('quiz.shareNative'))}">${getShareButtonIcon('native')}</button>
+                            <button class="quiz-action-btn quiz-share-btn" type="button" data-share-platform="x" aria-label="${escapeHtml(t('quiz.shareX'))}" title="${escapeHtml(t('quiz.shareX'))}">${getShareButtonIcon('x')}</button>
+                            <button class="quiz-action-btn quiz-share-btn" type="button" data-share-platform="facebook" aria-label="${escapeHtml(t('quiz.shareFacebook'))}" title="${escapeHtml(t('quiz.shareFacebook'))}">${getShareButtonIcon('facebook')}</button>
+                            <button class="quiz-action-btn quiz-share-btn" type="button" data-share-platform="whatsapp" aria-label="${escapeHtml(t('quiz.shareWhatsApp'))}" title="${escapeHtml(t('quiz.shareWhatsApp'))}">${getShareButtonIcon('whatsapp')}</button>
+                            <button class="quiz-action-btn quiz-share-btn" type="button" data-share-platform="telegram" aria-label="${escapeHtml(t('quiz.shareTelegram'))}" title="${escapeHtml(t('quiz.shareTelegram'))}">${getShareButtonIcon('telegram')}</button>
+                            <button class="quiz-action-btn quiz-share-btn primary" type="button" id="quiz-share-copy" aria-label="${escapeHtml(t('quiz.copyResult'))}" title="${escapeHtml(t('quiz.copyResult'))}">${getShareButtonIcon('copy')}</button>
+                        </div>
+                        <p class="quiz-share-status" id="quiz-share-status" role="status" aria-live="polite"></p>
+                    </div>
                 </div>
-                <div class="quiz-review" id="quiz-review"${reviewHidden}>${buildReviewMarkup()}</div>
             </div>
         `;
 
-        const review = stage.querySelector('#quiz-review');
+        const reviewPanel = main ? ensureQuizReviewPanel(main) : null;
         const reviewToggle = stage.querySelector('#quiz-review-toggle');
-        if (review && reviewToggle) {
-            reviewToggle.textContent = state.reviewVisible ? t('quiz.hideReview') : t('quiz.reviewAnswers');
+        const reviewClose = reviewPanel ? reviewPanel.querySelector('#quiz-review-close') : null;
+        const syncReviewPanelState = () => {
+            if (!main || !reviewPanel) {
+                return;
+            }
+
+            main.classList.toggle('is-review-open', state.reviewVisible);
+            reviewPanel.classList.toggle('is-hidden', !state.reviewVisible);
+        };
+
+        if (reviewToggle) {
             reviewToggle.addEventListener('click', () => {
-                const isHidden = review.hasAttribute('hidden');
-                if (isHidden) {
-                    review.removeAttribute('hidden');
-                    state.reviewVisible = true;
-                    reviewToggle.textContent = t('quiz.hideReview');
-                } else {
-                    review.setAttribute('hidden', 'hidden');
-                    state.reviewVisible = false;
-                    reviewToggle.textContent = t('quiz.reviewAnswers');
-                }
+                state.reviewVisible = !state.reviewVisible;
+                reviewToggle.textContent = state.reviewVisible ? t('quiz.hideReview') : t('quiz.reviewAnswers');
+                syncReviewPanelState();
+            });
+            reviewToggle.textContent = state.reviewVisible ? t('quiz.hideReview') : t('quiz.reviewAnswers');
+        }
+
+        if (reviewClose) {
+            reviewClose.addEventListener('click', () => {
+                state.reviewVisible = false;
+                if (reviewToggle) reviewToggle.textContent = t('quiz.reviewAnswers');
+                syncReviewPanelState();
             });
         }
+
+        syncReviewPanelState();
 
         stage.querySelector('#quiz-restart-category').addEventListener('click', () => {
             clearPendingFinishTimeout();
@@ -1114,6 +1137,8 @@
             state.resultCommitted = false;
             render();
         });
+
+        setupShareActions(stage, total);
 
         renderTopStats();
     }
@@ -1151,6 +1176,48 @@
         }).join('');
     }
 
+    function getQuizMainContainer(stage) {
+        if (stage && typeof stage.closest === 'function') {
+            return stage.closest('.quiz-main');
+        }
+        return document.querySelector('.quiz-main');
+    }
+
+    function clearQuizReviewPanel(stage) {
+        const main = getQuizMainContainer(stage);
+        if (main) {
+            main.classList.remove('is-review-open');
+        }
+
+        const reviewPanel = document.getElementById('quiz-review-panel');
+        if (reviewPanel) {
+            reviewPanel.remove();
+        }
+    }
+
+    function ensureQuizReviewPanel(main) {
+        let reviewPanel = document.getElementById('quiz-review-panel');
+        if (!reviewPanel) {
+            reviewPanel = document.createElement('aside');
+            reviewPanel.id = 'quiz-review-panel';
+            reviewPanel.className = 'quiz-review-panel is-hidden';
+        }
+
+        reviewPanel.innerHTML = `
+            <div class="quiz-review-panel-header">
+                <h3>${escapeHtml(t('quiz.reviewAnswers'))}</h3>
+                <button class="quiz-action-btn quiz-review-close-btn" type="button" id="quiz-review-close" aria-label="${escapeHtml(t('quiz.hideReview'))}" title="${escapeHtml(t('quiz.hideReview'))}">&times;</button>
+            </div>
+            <div class="quiz-review" id="quiz-review">${buildReviewMarkup()}</div>
+        `;
+
+        if (main && reviewPanel.parentElement !== main) {
+            main.appendChild(reviewPanel);
+        }
+
+        return reviewPanel;
+    }
+
     function buildQuestionSource(question) {
         const sourceFromQuestion = getInlineQuestionSource(question);
         const picked = sourceFromQuestion || {};
@@ -1162,6 +1229,141 @@
             url: sourceUrl,
             label
         };
+    }
+
+    function getShareTargetUrl() {
+        const fallbackUrl = 'https://malannino-leonardo.github.io/eu-puzzle/';
+        try {
+            const current = new URL(window.location.href);
+            if (!/^https?:$/i.test(current.protocol)) return fallbackUrl;
+            current.pathname = current.pathname.replace(/\/quiz\.html$/i, '/index.html');
+            current.search = '';
+            current.hash = '';
+            return current.toString();
+        } catch (_) {
+            return fallbackUrl;
+        }
+    }
+
+    function getShareMessage(total) {
+        return t('quiz.shareMessage', {
+            score: state.score,
+            total,
+            category: getCategoryTitle(state.categoryKey || '')
+        });
+    }
+
+    function buildShareUrls(total) {
+        const targetUrl = getShareTargetUrl();
+        const message = getShareMessage(total);
+        const encodedUrl = encodeURIComponent(targetUrl);
+        const encodedText = encodeURIComponent(message);
+        return {
+            targetUrl,
+            message,
+            x: 'https://twitter.com/intent/tweet?text=' + encodedText + '&url=' + encodedUrl,
+            facebook: 'https://www.facebook.com/sharer/sharer.php?u=' + encodedUrl + '&quote=' + encodedText,
+            whatsapp: 'https://wa.me/?text=' + encodeURIComponent(message + ' ' + targetUrl),
+            telegram: 'https://t.me/share/url?url=' + encodedUrl + '&text=' + encodedText
+        };
+    }
+
+    function getShareButtonIcon(kind) {
+        if (kind === 'native') {
+            return '<i class="fa-solid fa-share-from-square" aria-hidden="true"></i>';
+        }
+        if (kind === 'x') {
+            return '<i class="fa-brands fa-x-twitter" aria-hidden="true"></i>';
+        }
+        if (kind === 'facebook') {
+            return '<i class="fa-brands fa-facebook-f" aria-hidden="true"></i>';
+        }
+        if (kind === 'whatsapp') {
+            return '<i class="fa-brands fa-whatsapp" aria-hidden="true"></i>';
+        }
+        if (kind === 'telegram') {
+            return '<i class="fa-brands fa-telegram" aria-hidden="true"></i>';
+        }
+        return '<i class="fa-solid fa-copy" aria-hidden="true"></i>';
+    }
+
+    function openSharePopup(url) {
+        const popup = window.open(url, '_blank', 'noopener,noreferrer,width=700,height=640');
+        return !!popup;
+    }
+
+    async function copyShareResult(total) {
+        const share = buildShareUrls(total);
+        const payload = share.message + '\n' + share.targetUrl;
+
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+            await navigator.clipboard.writeText(payload);
+            return;
+        }
+
+        const textarea = document.createElement('textarea');
+        textarea.value = payload;
+        textarea.setAttribute('readonly', 'readonly');
+        textarea.style.position = 'absolute';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        textarea.remove();
+    }
+
+    function setupShareActions(stage, total) {
+        const shareStatus = stage.querySelector('#quiz-share-status');
+        const setStatus = (text, isError) => {
+            if (!shareStatus) return;
+            shareStatus.textContent = text;
+            shareStatus.classList.toggle('is-error', !!isError);
+        };
+
+        const nativeBtn = stage.querySelector('#quiz-share-native');
+        if (nativeBtn) {
+            if (!navigator.share) {
+                nativeBtn.hidden = true;
+            } else {
+                nativeBtn.addEventListener('click', async () => {
+                    try {
+                        const share = buildShareUrls(total);
+                        await navigator.share({
+                            title: t('quiz.pageTitle'),
+                            text: share.message,
+                            url: share.targetUrl
+                        });
+                        setStatus(t('quiz.shareNativeSuccess'));
+                    } catch (_) {
+                        setStatus('');
+                    }
+                });
+            }
+        }
+
+        stage.querySelectorAll('[data-share-platform]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const platform = btn.getAttribute('data-share-platform');
+                if (!platform) return;
+                const share = buildShareUrls(total);
+                const target = share[platform];
+                if (!target) return;
+                const opened = openSharePopup(target);
+                if (!opened) setStatus(t('quiz.sharePopupBlocked'), true);
+            });
+        });
+
+        const copyBtn = stage.querySelector('#quiz-share-copy');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', async () => {
+                try {
+                    await copyShareResult(total);
+                    setStatus(t('quiz.shareCopied'));
+                } catch (_) {
+                    setStatus(t('quiz.shareCopyFailed'), true);
+                }
+            });
+        }
     }
 
     function normalizeExternalUrl(url) {

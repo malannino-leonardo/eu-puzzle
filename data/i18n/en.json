@@ -48,6 +48,10 @@
     "yourTime": "Your time",
     "personalBests": "Personal bests",
     "exploreMap": "Explore the map",
+    "deviceWarning": {
+      "title": "Device not supported",
+      "description": "This puzzle game is currently only available on tablets and desktop computers."
+    },
     "difficulty": {
       "easy": "Easy",
       "medium": "Medium",
@@ -741,6 +745,19 @@
     "reviewQuestionLabel": "Question {number}",
     "yourAnswer": "Your answer:",
     "notAnswered": "Not answered",
+    "shareTitle": "Share your result",
+    "shareHint": "You scored {score}/{total}. Let your friends know!",
+    "shareMessage": "I scored {score}/{total} in the \"{category}\" category on EU Puzzle. Try it too!",
+    "shareNative": "Share",
+    "shareNativeSuccess": "Result shared.",
+    "shareX": "Share on X",
+    "shareFacebook": "Share on Facebook",
+    "shareWhatsApp": "Share on WhatsApp",
+    "shareTelegram": "Share on Telegram",
+    "copyResult": "Copy result",
+    "shareCopied": "Result copied to clipboard.",
+    "shareCopyFailed": "Could not copy the result.",
+    "sharePopupBlocked": "Popup blocked by the browser. Allow popups and try again.",
     "categories": {
       "whatIsEu": {
         "title": "What is the European Union?",

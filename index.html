@@ -7,6 +7,19 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
     <script src="scripts/i18n.js"></script>
+    <script>
+        (function() {
+            'use strict';
+            if (window.innerWidth < 768) {
+                const canAccessMenu = sessionStorage.getItem('_allowMenuAccess');
+                if (canAccessMenu) {
+                    sessionStorage.removeItem('_allowMenuAccess');
+                    return;
+                }
+                window.location.replace('game.html');
+            }
+        })();
+    </script>
 </head>
 <body class="menu-page">
 
