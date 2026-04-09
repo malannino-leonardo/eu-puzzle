@@ -22,6 +22,9 @@ EU Puzzle is an interactive map game where you rebuild the European Union (27 me
 - **Saved Preferences**
    Your language settings are synced with your account.
 
+- **Quiz Mode**
+   Test your knowledge about the EU
+
 ## Difficulty Modes
 - **Easy**: Visual map guides help you place countries.
 - **Medium**: No guides, only adjacency knowledge.
