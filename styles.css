@@ -4553,6 +4553,65 @@ body.stats-page {
     max-width: 820px;
     margin: 0 auto;
     padding: 1.5rem 1.25rem 4rem;
+    /* Keep main content scrollable even when html/body overflow is constrained */
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
+}
+
+/* =====================================================
+   CUSTOM SCROLLBARS (matching site theme)
+   ===================================================== */
+:root {
+    --scrollbar-size: 12px;
+    --scrollbar-track: rgba(10, 12, 20, 0.4);
+    --scrollbar-thumb-start: rgba(99, 102, 241, 0.18);
+    --scrollbar-thumb-end: rgba(99, 102, 241, 0.28);
+    --scrollbar-thumb-hover-start: rgba(99, 102, 241, 0.28);
+    --scrollbar-thumb-hover-end: rgba(99, 102, 241, 0.42);
+}
+
+/* WebKit browsers */
+*::-webkit-scrollbar {
+    width: var(--scrollbar-size);
+    height: var(--scrollbar-size);
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--scrollbar-thumb-start), var(--scrollbar-thumb-end));
+    border-radius: 999px;
+    border: 3px solid transparent; /* creates padding around thumb */
+    background-clip: padding-box;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--scrollbar-thumb-hover-start), var(--scrollbar-thumb-hover-end));
+    box-shadow: 0 0 8px rgba(99,102,241,0.12);
+}
+
+*::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(180deg, rgba(99,102,241,0.36), rgba(99,102,241,0.52));
+}
+
+/* Firefox */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99,102,241,0.28) transparent;
+}
+
+/* Target common scrollable components for consistent appearance */
+.stats-main, .leaderboard-wrap, .info-panel, body.stats-page {
+    scrollbar-color: rgba(99,102,241,0.28) transparent;
+    scrollbar-width: thin;
+}
+
+/* Hide native track on small touch devices for a cleaner look */
+@media (pointer: coarse) {
+    *::-webkit-scrollbar { display: none; }
 }
 
 /* ── Main tab bar ──────────────────────────────────── */
