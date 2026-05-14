@@ -3406,6 +3406,7 @@ body[data-difficulty="hard"] .cluster-group.has-rotation {
 /* =====================================================
    QUIZ MODE PAGE
    ===================================================== */
+html.quiz-page,
 body.quiz-page {
     overflow: hidden;
     min-height: 100vh;
@@ -3414,6 +3415,16 @@ body.quiz-page {
         radial-gradient(ellipse at 15% 0%, rgba(244, 114, 182, 0.2) 0%, transparent 45%),
         radial-gradient(ellipse at 88% 15%, rgba(16, 185, 129, 0.16) 0%, transparent 40%),
         #0c1224;
+}
+
+html.quiz-page {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+body.quiz-page {
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .quiz-main {
@@ -4413,10 +4424,6 @@ body.quiz-page {
 }
 
 @media (max-width: 768px) {
-    .quiz-page {
-        overflow-y: auto;
-    }
-
     .quiz-header {
         flex-direction: column-reverse;
         align-items: flex-start;
@@ -4485,6 +4492,7 @@ body.quiz-page {
     .quiz-stage.is-result {
         max-height: none;
         overflow: visible;
+        overflow-y: visible;
     }
 
     .quiz-result {
