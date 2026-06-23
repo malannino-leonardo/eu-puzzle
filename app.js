@@ -125,7 +125,10 @@
         difficulty: 'medium',
 
         // Timer
-        timerStarted: false
+        timerStarted: false,
+
+        // Last cluster touched (used by mobile rotate button)
+        lastTouchedCluster: null
     };
 
     // =====================================================
@@ -1614,8 +1617,81 @@
             }
         });
         
-        // Prevent default touch behaviors
-        state.svg.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+        // Multi-touch: pinch-to-zoom + two-finger pan
+        // touch-action:none on .game-board already prevents browser scroll/zoom;
+        // these handlers give us full gesture control.
+        function _touchMid(touches) {
+            const a = touches[0], b = touches[1];
+            return {
+                dist: Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY),
+                x: (a.clientX + b.clientX) / 2,
+                y: (a.clientY + b.clientY) / 2
+            };
+        }
+
+        state.svg.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                // Cancel any active single-finger drag
+                if (state.isDragging) {
+                    const clEl = state.clusters.get(state.selectedCluster)?.element;
+                    if (clEl) {
+                        clEl.classList.remove('dragging');
+                        clEl.querySelectorAll('.country-path').forEach(p => p.classList.remove('dragging'));
+                    }
+                    state.isDragging = false;
+                    state.selectedCluster = null;
+                }
+                const { dist, x, y } = _touchMid(e.touches);
+                _multiTouch = {
+                    startDist: dist,
+                    startZoom: state.zoomLevel,
+                    startMid: { x, y },
+                    startVB: { ...state.viewBox },
+                    svgRect: null
+                };
+            }
+        }, { passive: false });
+
+        state.svg.addEventListener('touchmove', function(e) {
+            if (!_multiTouch || e.touches.length < 2) return;
+            e.preventDefault();
+            const { dist, x, y } = _touchMid(e.touches);
+            const mt = _multiTouch;
+
+            // Cache SVG bounding rect for the duration of the gesture
+            if (!mt.svgRect) mt.svgRect = state.svg.getBoundingClientRect();
+            const rect = mt.svgRect;
+
+            // Zoom: scale relative to initial pinch distance
+            const rawZoom = mt.startZoom * (dist / mt.startDist);
+            const newZoom = Math.max(state.minZoom, Math.min(state.maxZoom, rawZoom));
+            const newW = CONFIG.BOARD_WIDTH  / newZoom;
+            const newH = CONFIG.BOARD_HEIGHT / newZoom;
+
+            // The SVG point that was under the initial midpoint (anchor in SVG space)
+            const anchorSVG = {
+                x: mt.startVB.x + (mt.startMid.x - rect.left) / rect.width  * mt.startVB.w,
+                y: mt.startVB.y + (mt.startMid.y - rect.top)  / rect.height * mt.startVB.h
+            };
+
+            // New viewBox so the current midpoint aligns to anchorSVG (combines zoom + pan)
+            let newX = anchorSVG.x - (x - rect.left) / rect.width  * newW;
+            let newY = anchorSVG.y - (y - rect.top)  / rect.height * newH;
+
+            // Clamp within board bounds + padding
+            const pad = 500;
+            newX = Math.max(-pad, Math.min(CONFIG.BOARD_WIDTH  + pad - newW, newX));
+            newY = Math.max(-pad, Math.min(CONFIG.BOARD_HEIGHT + pad - newH, newY));
+
+            state.viewBox = { x: newX, y: newY, w: newW, h: newH };
+            state.zoomLevel = newZoom;
+            updateViewBox();
+            updateZoomDisplay();
+        }, { passive: false });
+
+        state.svg.addEventListener('touchend',    (e) => { if (e.touches.length < 2) _multiTouch = null; }, { passive: true });
+        state.svg.addEventListener('touchcancel', () => { _multiTouch = null; }, { passive: true });
         
         // Keyboard navigation
         state.svg.addEventListener('keydown', onKeyDown);
@@ -1643,6 +1719,16 @@
         });
         document.getElementById('btn-hint').addEventListener('click', showHint);
         document.getElementById('btn-open-tutorial').addEventListener('click', showWelcomeModal);
+
+        // Mobile hard-mode rotate button
+        const rotateMobileBtn = document.getElementById('btn-rotate-mobile');
+        if (rotateMobileBtn) {
+            rotateMobileBtn.addEventListener('click', () => {
+                if (state.difficulty === 'hard' && state.lastTouchedCluster !== null && !state.isDragging) {
+                    rotateCluster(state.lastTouchedCluster, 90);
+                }
+            });
+        }
         document.getElementById('btn-close-panel').addEventListener('click', closeInfoPanel);
         document.getElementById('btn-restart').addEventListener('click', resetGame);
         document.getElementById('btn-close-completion').addEventListener('click', () => {
@@ -1761,6 +1847,7 @@
         // Start drag
         state.isDragging = true;
         state.selectedCluster = clusterId;
+        state.lastTouchedCluster = clusterId;
 
         // Start timer on first move
         if (!state.timerStarted) {
@@ -1886,6 +1973,9 @@
     // Cached inverse CTM – recalculated only when the viewBox or window size changes.
     let _cachedCTMInverse = null;
     let _ctmCacheInvalid  = true;
+
+    // Multi-touch state for pinch-to-zoom and two-finger pan
+    let _multiTouch = null;
 
     function getSVGPoint(e) {
         if (_ctmCacheInvalid || !_cachedCTMInverse) {
@@ -3461,6 +3551,10 @@
             const changed = state.difficulty !== difficulty;
             state.difficulty = difficulty;
             CONFIG.SNAP_THRESHOLD = CONFIG.DIFFICULTY_SNAP[difficulty] ?? 20;
+            // Touch screens need a larger snap zone due to lower precision
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                CONFIG.SNAP_THRESHOLD = Math.round(CONFIG.SNAP_THRESHOLD * 1.6);
+            }
             CONFIG.ROTATION_RANGE = difficulty === 'hard' ? 170 : 0;
 
             writeGameSettingsPatch({ difficulty });
