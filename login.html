@@ -151,7 +151,7 @@
 
                 renderLinkSent(input.value.trim());
             } catch (e) {
-                console.error('[Login] handleSendLink failed:', e);
+                console.error('[Login] handleSendLink failed:', (e && e.message) ? e.message : '');
                 btn.disabled = false;
                 btn.textContent = t('auth.sendMagicLink');
                 errEl.textContent = t('auth.magicLinkTemporaryError');
@@ -206,7 +206,7 @@
         });
 
         window.i18nReady.then(init).catch((e) => {
-            console.error('[Login] init failed:', e);
+            console.error('[Login] init failed:', (e && e.message) ? e.message : '');
             renderSignIn();
         });
     })();

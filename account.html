@@ -366,7 +366,7 @@
 
                 renderProfile(profile, user.email);
             } catch (e) {
-                console.error('[Account] renderCurrentState failed:', e);
+                console.error('[Account] renderCurrentState failed:', (e && e.message) ? e.message : '');
                 renderNeedLogin();
             }
         }
@@ -404,7 +404,7 @@
         });
 
         window.i18nReady.then(init).catch((e) => {
-            console.error('[Account] init failed:', e);
+            console.error('[Account] init failed:', (e && e.message) ? e.message : '');
             renderLoading();
         });
     })();

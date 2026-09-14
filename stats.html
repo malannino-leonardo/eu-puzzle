@@ -222,7 +222,7 @@
                     user = await window.SupabaseClient.getCurrentUser();
                     authUser = user || null;
                 } catch (e) {
-                    console.error('[Stats] getCurrentUser failed while updating auth banner:', e);
+                    console.error('[Stats] getCurrentUser failed while updating auth banner:', (e && e.message) ? e.message : '');
                 }
             }
 
@@ -237,7 +237,7 @@
                 try {
                     await window.SupabaseClient.syncPersonalBestsForCurrentUser();
                 } catch (e) {
-                    console.error('[Stats] syncPersonalBestsForCurrentUser failed:', e);
+                    console.error('[Stats] syncPersonalBestsForCurrentUser failed:', (e && e.message) ? e.message : '');
                 }
             }
         }
@@ -308,12 +308,17 @@
             try {
                 rows = await window.SupabaseClient.fetchLeaderboard(diff, limit, offset);
             } catch (e) {
-                console.error('[Stats] fetchLeaderboard failed:', e);
+                console.error('[Stats] fetchLeaderboard failed:', (e && e.message) ? e.message : '');
                 st.loading = false;
                 const wrap = document.getElementById('leaderboard-wrap');
                 if (wrap) {
-                    const msg = (e && e.message) ? e.message : String(e);
-                    wrap.innerHTML = `<p class="lb-empty">${escHtml(t('stats.submitError'))}: ${escHtml(msg)}</p>`;
+                    const isDown = (window.SupabaseClient && typeof window.SupabaseClient.isDbUnavailable === 'function')
+                        ? window.SupabaseClient.isDbUnavailable(e)
+                        : /failed to fetch|network|timeout|503|paused|unavailable/i.test(String(e && e.message || e));
+                    const errorMsg = isDown
+                        ? t('stats.dbUnavailable')
+                        : `${t('stats.submitError')}: ${(e && e.message) ? e.message : String(e)}`;
+                    wrap.innerHTML = `<p class="lb-empty">${escHtml(errorMsg)}</p>`;
                 }
                 document.getElementById('lb-show-more-wrap').style.display = 'none';
                 return;
@@ -421,7 +426,7 @@
                     }
                 }
             } catch (e) {
-                console.error('[Stats] renderAuthSection failed:', e);
+                console.error('[Stats] renderAuthSection failed:', (e && e.message) ? e.message : '');
                 section.innerHTML = _authSignInHTML();
             }
 
@@ -707,7 +712,7 @@
             await updateAuthSuggestionVisibility();
             switchMainTab(getRequestedTab());
         }).catch((e) => {
-            console.error('[Stats] init failed:', e);
+            console.error('[Stats] init failed:', (e && e.message) ? e.message : '');
             loadLocalRecords();
             switchMainTab(getRequestedTab());
         });

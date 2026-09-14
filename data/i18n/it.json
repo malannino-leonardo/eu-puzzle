@@ -203,6 +203,7 @@
     "notImproved": "Nessun miglioramento questa volta.",
     "notImprovedWithRank": "Nessun miglioramento questa volta. Al momento sei #{rank}.",
     "submitError": "Invio fallito",
+    "dbUnavailable": "Il database non è al momento disponibile. Riprova più tardi.",
     "noEntries": "Nessun risultato ancora. Sii il primo!",
     "colPlayer": "Giocatore",
     "colCountry": "Paese",

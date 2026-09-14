@@ -73,8 +73,8 @@ try {
     fs.writeFileSync(configPath, configContent, 'utf8');
     console.log('[inject-supabase-config] ✓ Config generated successfully');
     console.log('[inject-supabase-config]   File: scripts/supabase-config.js');
-    console.log('[inject-supabase-config]   URL: ' + SUPABASE_URL);
-    console.log('[inject-supabase-config]   Key: ' + SUPABASE_ANON_KEY.substring(0, 20) + '...');
+    console.log('[inject-supabase-config]   URL: [CONFIGURED]');
+    console.log('[inject-supabase-config]   Key: [CONFIGURED]');
 } catch (err) {
     console.error('[inject-supabase-config] ERROR: Failed to write config file:', err.message);
     process.exit(1);

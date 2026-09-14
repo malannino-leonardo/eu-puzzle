@@ -185,6 +185,7 @@
     "notImproved": "No improvement this time.",
     "notImprovedWithRank": "No improvement this time. You are currently #{rank}.",
     "submitError": "Submit failed",
+    "dbUnavailable": "The database is not available at the moment. Please try again later.",
     "noEntries": "No entries yet. Be the first!",
     "colPlayer": "Player",
     "colCountry": "Country",

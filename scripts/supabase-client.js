@@ -42,31 +42,122 @@
         }
     }
 
+    const SENSITIVE_PATTERNS = [
+        // Email addresses
+        { regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi, replace: '[REDACTED_EMAIL]' },
+        // JWT / Bearer tokens
+        { regex: /Bearer\s+[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*/gi, replace: 'Bearer [REDACTED_TOKEN]' },
+        { regex: /eyJ[A-Za-z0-9-_=]{10,}\.[A-Za-z0-9-_=]{10,}\.?[A-Za-z0-9-_.+/=]*/gi, replace: '[REDACTED_TOKEN]' },
+        // Query param API keys or auth tokens
+        { regex: /([?&](?:apikey|api_key|token|auth)=)[^&]+/gi, replace: '$1[REDACTED_KEY]' },
+        // Headers, parameters or json keys
+        { regex: /((?:apikey|api_key|token|secret|password|authorization)\s*[:=]\s*['"]?)[^'",\s}{]+/gi, replace: '$1[REDACTED]' },
+        // UUIDs (User IDs, guest IDs)
+        { regex: /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, replace: '[REDACTED_ID]' },
+        // Query param IDs
+        { regex: /((?:user_id|guest_id|id)=eq\.)[^&]+/gi, replace: '$1[REDACTED_ID]' }
+    ];
+
+    function sanitizeString(str) {
+        if (typeof str !== 'string') return '';
+        let sanitized = str;
+        for (const p of SENSITIVE_PATTERNS) {
+            sanitized = sanitized.replace(p.regex, p.replace);
+        }
+        return sanitized;
+    }
+
+    function sanitizeMeta(meta) {
+        if (!meta || typeof meta !== 'object') return null;
+        const cleaned = {};
+        for (const [k, v] of Object.entries(meta)) {
+            const lowerKey = k.toLowerCase();
+            if (
+                lowerKey.includes('user') ||
+                lowerKey.includes('id') ||
+                lowerKey.includes('email') ||
+                lowerKey.includes('name') ||
+                lowerKey.includes('pass') ||
+                lowerKey.includes('token') ||
+                lowerKey.includes('auth') ||
+                lowerKey.includes('secret') ||
+                lowerKey.includes('key')
+            ) {
+                continue;
+            }
+            if (typeof v === 'string') {
+                cleaned[k] = sanitizeString(v);
+            } else if (typeof v === 'number' || typeof v === 'boolean') {
+                cleaned[k] = v;
+            }
+        }
+        return Object.keys(cleaned).length > 0 ? cleaned : null;
+    }
+
+    function sanitizeError(error) {
+        if (!error) return '';
+        if (typeof error === 'string') {
+            return sanitizeString(error);
+        }
+        const msg = error.message || error.error_description || error.details || '';
+        const code = error.code ? ' (code: ' + sanitizeString(String(error.code)) + ')' : '';
+        const status = error.status ? ' (status: ' + error.status + ')' : '';
+        const safeMsg = sanitizeString(String(msg));
+        return safeMsg ? safeMsg + code + status : sanitizeString(String(error));
+    }
+
+    function installConsoleSanitizer() {
+        if (typeof window === 'undefined' || window.__CONSOLE_SANITIZER_INSTALLED__) return;
+        window.__CONSOLE_SANITIZER_INSTALLED__ = true;
+
+        const origError = console.error;
+        const origWarn = console.warn;
+
+        function sanitizeArg(arg) {
+            if (arg === null || arg === undefined) return arg;
+            if (typeof arg === 'string') return sanitizeString(arg);
+            if (arg instanceof Error) return sanitizeError(arg);
+            if (typeof arg === 'object') {
+                try {
+                    return JSON.parse(sanitizeString(JSON.stringify(arg)));
+                } catch (_) {
+                    return sanitizeString(String(arg));
+                }
+            }
+            return arg;
+        }
+
+        console.error = function (...args) {
+            origError.apply(console, args.map(sanitizeArg));
+        };
+        console.warn = function (...args) {
+            origWarn.apply(console, args.map(sanitizeArg));
+        };
+    }
+
+    installConsoleSanitizer();
+
     function logError(context, error, meta) {
-        const suffix = meta ? ' ' + JSON.stringify(meta) : '';
-        console.error('[SupabaseClient] ' + context + suffix, error);
+        const safeMeta = sanitizeMeta(meta);
+        const suffix = safeMeta ? ' ' + JSON.stringify(safeMeta) : '';
+        const safeError = sanitizeError(error);
+        if (safeError) {
+            console.error('[SupabaseClient] ' + context + suffix, safeError);
+        } else {
+            console.error('[SupabaseClient] ' + context + suffix);
+        }
     }
 
     function logWarn(context, error, meta) {
-        const suffix = meta ? ' ' + JSON.stringify(meta) : '';
-        console.warn('[SupabaseClient] ' + context + suffix, error);
+        const safeMeta = sanitizeMeta(meta);
+        const suffix = safeMeta ? ' ' + JSON.stringify(safeMeta) : '';
+        const safeError = sanitizeError(error);
+        if (safeError) {
+            console.warn('[SupabaseClient] ' + context + suffix, safeError);
+        } else {
+            console.warn('[SupabaseClient] ' + context + suffix);
+        }
     }
-
-    function installGlobalErrorHooks() {
-        if (window.__SUPABASE_CLIENT_GLOBAL_ERRORS__) return;
-        window.__SUPABASE_CLIENT_GLOBAL_ERRORS__ = true;
-
-        window.addEventListener('error', function (event) {
-            const err = event && (event.error || event.message);
-            logError('Unhandled window error', err || event);
-        });
-
-        window.addEventListener('unhandledrejection', function (event) {
-            logError('Unhandled promise rejection', event && event.reason ? event.reason : event);
-        });
-    }
-
-    installGlobalErrorHooks();
 
     /* ------------------------------------------------------------------ */
     /*  Helpers                                                            */
@@ -315,12 +406,12 @@
                 .eq('id', userId)
                 .maybeSingle(), 10000);
             if (error) {
-                logWarn('getProfile query failed', error, { userId });
+                logWarn('getProfile query failed', error);
                 return null;
             }
             return data;
         } catch (e) {
-            logError('getProfile failed', e, { userId });
+            logError('getProfile failed', e);
             return null;
         }
     }
@@ -335,11 +426,11 @@
                     { onConflict: 'id' }
                 );
             if (error) {
-                logWarn('upsertProfile query failed', error, { userId });
+                logWarn('upsertProfile query failed', error);
             }
             return { data, error };
         } catch (e) {
-            logError('upsertProfile failed', e, { userId });
+            logError('upsertProfile failed', e);
             return { data: null, error: e };
         }
     }
@@ -353,12 +444,12 @@
                 .ilike('username', username.trim())
                 .maybeSingle();
             if (error) {
-                logWarn('isUsernameTaken query failed', error, { username });
+                logWarn('isUsernameTaken query failed', error);
                 return false;
             }
             return data !== null;
         } catch (e) {
-            logError('isUsernameTaken failed', e, { username });
+            logError('isUsernameTaken failed', e);
             return false;
         }
     }
@@ -389,7 +480,7 @@
                     return { profile: insertedProfile, created: true, error: null };
                 }
             } else {
-                logWarn('ensureProfileForUser upsert attempt failed', error, { userId: user.id, attempt });
+                logWarn('ensureProfileForUser upsert attempt failed', error, { attempt });
             }
 
             if (attempt < attempts) {
@@ -403,7 +494,7 @@
         }
 
         const finalError = new Error('Could not ensure profile for signed-in user');
-        logError('ensureProfileForUser failed', finalError, { userId: user.id });
+        logError('ensureProfileForUser failed', finalError);
         return { profile: null, created: false, error: finalError };
     }
 
@@ -453,12 +544,12 @@
                 p_time_ms:        timeMs
             }), 15000);
             if (error) {
-                console.error('[SupabaseClient] upsert_score error:', error);
+                logError('upsert_score error', error);
                 return { improved: false, rank: null, error };
             }
             return data; // { improved, rank }
         } catch (e) {
-            console.error('[SupabaseClient] submitScore failed:', e);
+            logError('submitScore failed', e);
             return { improved: false, rank: null, error: e };
         }
     }
@@ -500,7 +591,7 @@
                 .eq('user_id', userId), 12000);
             if (error || !Array.isArray(data)) {
                 if (error) {
-                    logWarn('fetchUserBestTimes query failed', error, { userId });
+                    logWarn('fetchUserBestTimes query failed', error);
                 }
                 return {};
             }
@@ -515,7 +606,7 @@
             });
             return bests;
         } catch (e) {
-            logError('fetchUserBestTimes failed', e, { userId });
+            logError('fetchUserBestTimes failed', e);
             return {};
         }
     }
@@ -614,7 +705,7 @@
         });
 
         if (error) {
-            logWarn('updateSettings failed', error, { userId });
+            logWarn('updateSettings failed', error);
             return { error };
         }
 
@@ -634,13 +725,13 @@
                 .eq('user_id', userId), 12000);
 
             if (error) {
-                logWarn('getQuizCategoryProgress query failed', error, { userId });
+                logWarn('getQuizCategoryProgress query failed', error);
                 return [];
             }
 
             return Array.isArray(data) ? data : [];
         } catch (e) {
-            logError('getQuizCategoryProgress failed', e, { userId });
+            logError('getQuizCategoryProgress failed', e);
             return [];
         }
     }
@@ -673,13 +764,13 @@
                 .maybeSingle(), 12000);
 
             if (error) {
-                logWarn('upsertQuizCategoryProgress query failed', error, { userId, categoryKey });
+                logWarn('upsertQuizCategoryProgress query failed', error, { categoryKey });
                 return { error };
             }
 
             return { error: null, data };
         } catch (e) {
-            logError('upsertQuizCategoryProgress failed', e, { userId, categoryKey });
+            logError('upsertQuizCategoryProgress failed', e, { categoryKey });
             return { error: e };
         }
     }
@@ -791,9 +882,57 @@
         </div>`;
     }
 
-    function _renderError(err) {
+    function isDbUnavailable(error) {
+        if (!error) return false;
+        if (typeof window !== 'undefined' && window.navigator && window.navigator.onLine === false) {
+            return true;
+        }
+        const status = Number(error && error.status);
+        const raw = [
+            error && error.message,
+            error && error.error_description,
+            error && error.details,
+            error && error.code,
+            error && error.error,
+            error && error.name,
+            typeof error === 'string' ? error : '',
+            String(error)
+        ]
+            .filter(Boolean)
+            .map(String)
+            .join(' ')
+            .toLowerCase();
+
+        return (
+            status >= 500 ||
+            raw.includes('failed to fetch') ||
+            raw.includes('network') ||
+            raw.includes('timeout') ||
+            raw.includes('timed out') ||
+            raw.includes('load failed') ||
+            raw.includes('fetch failed') ||
+            raw.includes('not_configured') ||
+            raw.includes('supabase not configured') ||
+            raw.includes('paused') ||
+            raw.includes('unavailable') ||
+            raw.includes('service unavailable') ||
+            raw.includes('connection refused') ||
+            raw.includes('connection reset') ||
+            raw.includes('connect_error')
+        );
+    }
+
+    function getSubmitErrorMessage(err) {
+        if (isDbUnavailable(err)) {
+            return t('stats.dbUnavailable');
+        }
         const msg = (err && err.message) ? err.message : String(err);
-        return `<div class="lb-widget lb-error"><span>${escHtml(t('stats.submitError'))}: ${escHtml(msg)}</span></div>`;
+        return `${t('stats.submitError')}: ${msg}`;
+    }
+
+    function _renderError(err) {
+        const msg = getSubmitErrorMessage(err);
+        return `<div class="lb-widget lb-error"><span>${escHtml(msg)}</span></div>`;
     }
 
     /* --- event wiring --- */
@@ -855,7 +994,7 @@
                 if (user && event === 'SIGNED_IN') {
                     const ensured = await ensureProfileForUser(user, 4);
                     if (ensured.error) {
-                        logWarn('SIGNED_IN profile ensure failed', ensured.error, { userId: user.id });
+                        logWarn('SIGNED_IN profile ensure failed', ensured.error);
                     }
                 }
                 await syncPersonalBestsForCurrentUser();
@@ -869,6 +1008,10 @@
 
     window.SupabaseClient = {
         isConfigured:        () => db !== null,
+        isDbUnavailable,
+        getSubmitErrorMessage,
+        sanitizeError,
+        sanitizeString,
         getGuestIdentity,
         getCurrentUser,
         getSettings,

@@ -304,7 +304,7 @@
             console.log(`[Info] Loaded ${state.countries.size} countries`);
             
         } catch (error) {
-            console.error('Failed to initialize game:', error);
+            console.error('Failed to initialize game:', (error && error.message) ? error.message : '');
             showError(window.i18n ? window.i18n.t('error.loadGame') : 'Errore nel caricamento del gioco. Ricarica la pagina.');
         }
     }
@@ -350,7 +350,7 @@
                 state.countryInfo.set(country.id, country);
             });
         } catch (error) {
-            console.warn('Could not load country info, using defaults:', error);
+            console.warn('Could not load country info, using defaults:', (error && error.message) ? error.message : '');
             // Will use default values
         }
     }
